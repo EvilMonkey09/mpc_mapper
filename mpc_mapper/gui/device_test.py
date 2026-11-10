@@ -145,15 +145,10 @@ class DeviceTest(QWidget):
         self.in_progress = QLabel()
         row.addWidget(self.in_progress, 1)
         v.addLayout(row)
-        self.chip_box = QWidget()
-        self.chip_grid = QGridLayout(self.chip_box)
-        self.chip_grid.setSpacing(4)
-        self.chip_grid.setContentsMargins(0, 4, 0, 0)
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.NoFrame)
-        scroll.setWidget(self.chip_box)
-        v.addWidget(scroll, 1)
+        self.chip_scroll = QScrollArea()
+        self.chip_scroll.setWidgetResizable(True)
+        self.chip_scroll.setFrameShape(QFrame.NoFrame)
+        v.addWidget(self.chip_scroll, 1)
         outer.addWidget(box, 1)
 
         # ---- REPORT (TEMPORARY, remove when the X-Touch is confirmed)
@@ -208,10 +203,14 @@ class DeviceTest(QWidget):
         return list(xtouch.ALL_CONTROLS) + [f"xt.touch:{i}" for i in range(9)]
 
     def _build_chips(self) -> None:
-        while self.chip_grid.count():
-            w = self.chip_grid.takeAt(0).widget()
-            if w:
-                w.deleteLater()
+        # a fresh container each time, so no chip of the other device remains
+        box = QWidget()
+        self.chip_grid = QGridLayout(box)
+        self.chip_grid.setSpacing(4)
+        self.chip_grid.setContentsMargins(0, 4, 0, 0)
+        old = self.chip_scroll.takeWidget()
+        if old is not None:
+            old.deleteLater()
         self.chips.clear()
         cols = 16 if self.device == "xtouch" else 18
         for n, c in enumerate(self._targets()):
@@ -224,6 +223,8 @@ class DeviceTest(QWidget):
             self.chips[c] = lb
             self._paint_chip(c, False)
             self.chip_grid.addWidget(lb, n // cols, n % cols)
+        self.chip_grid.setRowStretch(len(self.chips) // cols + 1, 1)
+        self.chip_scroll.setWidget(box)
         self.seen[self.device] = set()
         self.fader_range.clear()
         self._update_progress()

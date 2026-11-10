@@ -10,7 +10,7 @@ name: App bauen (macOS + Windows)
 on:
   workflow_dispatch:          # Button "Run workflow" im Reiter Actions
   push:
-    branches: [main, mac-app, release, xtouch]   # Push auf "release" = Release aktualisieren
+    branches: [release, xtouch]   # Push auf "release" = Release aktualisieren
     tags: ["v*"]
 
 concurrency:
@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write             # nötig für Releases und den Screenshot-Zweig
+  contents: write             # nötig für Releases
 
 env:
   # Versionsnummer für Pushes auf den Zweig "release" – hier hochzählen
@@ -52,6 +52,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements.txt
 
       - name: Abhängigkeiten installieren
         run: |
@@ -103,41 +105,6 @@ jobs:
           echo "--- selftest.log (exit code $rc) ---"; cat selftest.log 2>/dev/null || echo "(kein Log)"
           echo "--- stdout/stderr ---"; tail -50 selftest-stdout.log
           [ "$rc" = 0 ] && grep -q '^ok' selftest.log
-
-      - name: Screenshots aus dem Quellcode
-        # Der Selbsttest oben ist die eigentliche Prüfung. Die Screenshots
-        # hängen auf den Mac-Testservern manchmal am MIDI-System (CoreMIDI)
-        # und dürfen den Build daher nicht aufhalten.
-        continue-on-error: true
-        run: |
-          mkdir -p shots
-          set -o pipefail
-          python packaging/screenshots.py shots 2>&1 | tee shots/log.txt
-
-      - name: Screenshot vom Mac-Bildschirm
-        if: matrix.arch == 'apple-silicon'
-        continue-on-error: true
-        run: |
-          # Die gebaute App, wie sie auf dem Mac-Bildschirm erscheint
-          open "dist/MPC Mapper.app"
-          sleep 20
-          screencapture -x shots/bildschirm.png || true
-          pkill -f "MPC Mapper.app" || true
-
-      - name: Screenshots und Test-Protokoll in den Zweig "screenshots" legen
-        if: always() && matrix.arch == 'apple-silicon'
-        continue-on-error: true
-        run: |
-          mkdir -p shots
-          cp selftest.log shots/selftest.log 2>/dev/null || true
-          cp selftest-stdout.log shots/selftest-stdout.log 2>/dev/null || true
-          cd shots
-          git init -q -b screenshots
-          git config user.name "github-actions"
-          git config user.email "github-actions@users.noreply.github.com"
-          git add -A
-          git commit -q -m "macOS-Screenshots vom Build ${GITHUB_SHA::7}"
-          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" screenshots
 
       - name: DMG bauen
         run: |
@@ -195,6 +162,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements.txt
 
       - name: Abhängigkeiten installieren
         run: |
@@ -234,30 +203,6 @@ jobs:
           if (Test-Path selftest.log) { Get-Content selftest.log } else { Write-Output "(kein Log)" }
           if ($p.ExitCode -ne 0) { throw "Programm mit Fehler beendet" }
           if (-not (Select-String -Path selftest.log -Pattern '^ok' -Quiet)) { throw "Selbsttest nicht bestanden" }
-
-      - name: Screenshots aus dem Quellcode
-        # Der Selbsttest oben ist die eigentliche Prüfung. Die Screenshots
-        # hängen auf den Mac-Testservern manchmal am MIDI-System (CoreMIDI)
-        # und dürfen den Build daher nicht aufhalten.
-        continue-on-error: true
-        run: |
-          mkdir -p shots
-          set -o pipefail
-          python packaging/screenshots.py shots 2>&1 | tee shots/log.txt
-
-      - name: Screenshots und Test-Protokoll in den Zweig "screenshots-windows" legen
-        if: always()
-        continue-on-error: true
-        run: |
-          mkdir -p shots
-          cp selftest.log shots/selftest.log 2>/dev/null || true
-          cd shots
-          git init -q -b screenshots-windows
-          git config user.name "github-actions"
-          git config user.email "github-actions@users.noreply.github.com"
-          git add -A
-          git commit -q -m "Windows-Screenshots vom Build ${GITHUB_SHA::7}"
-          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" screenshots-windows
 
       - name: Installer bauen (Setup.exe)
         run: |

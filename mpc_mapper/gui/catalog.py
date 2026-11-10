@@ -6,7 +6,7 @@ from PySide6.QtGui import QColor, QDrag, QFont
 from PySide6.QtWidgets import (QComboBox, QFormLayout, QGroupBox, QLabel, QLineEdit,
                                QSpinBox, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget)
 
-from .. import apc
+from .. import apc, controls
 from ..model import CATALOG, CATALOG_BY_ID, CatalogItem
 from . import theme
 from .apc_widget import MIME_CATALOG
@@ -155,9 +155,9 @@ class CatalogPanel(QWidget):
         item = CATALOG_BY_ID.get(catalog_id)
         if item is None:
             return False
-        is_fader = control.startswith("fader:")
+        is_fader = controls.is_value(control)
         if item.kind == "fader":
             return is_fader
         if item.kind == "button":
-            return apc.is_button(control)
+            return controls.is_button(control)
         return True

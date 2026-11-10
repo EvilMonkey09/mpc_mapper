@@ -9,18 +9,21 @@ from typing import Optional
 from PySide6.QtCore import QSettings, QStandardPaths, Qt, QTimer
 from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import (QAbstractSpinBox, QButtonGroup, QCheckBox, QComboBox, QFileDialog,
+                               QGridLayout,
                                QFormLayout, QFrame, QHBoxLayout, QInputDialog, QLabel,
                                QLineEdit, QMainWindow, QMenu, QMessageBox, QPlainTextEdit,
                                QPushButton, QScrollArea, QSizePolicy, QSpinBox, QSplitter,
                                QStackedWidget, QTextBrowser, QVBoxLayout, QWidget,
                                QWidgetAction)
 
-from .. import apc
+from .. import apc, controls
 from ..engine import Engine
 from ..model import CATALOG_BY_ID, Mapping, assignment_from_catalog, demo_mapping
 from .apc_widget import APCWidget
+from .xtouch_widget import XTouchWidget
 from .catalog import CatalogPanel
 from .inspector import Inspector
+from .device_test import DeviceTest
 from .led_lab import LedLab
 from . import theme
 from .widgets import mono_font
@@ -60,7 +63,7 @@ MA3_SETUP_HTML = """
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("MPC Mapper — APC mini mk2 → grandMA3")
+        self.setWindowTitle("MPC Mapper — APC mini mk2 / X-Touch Compact → grandMA3")
         self.qs = QSettings("MPCMapper", "MPCMapper")
         self.path: Optional[str] = None
         self.dirty = False
@@ -79,7 +82,37 @@ class MainWindow(QMainWindow):
         top = QSplitter(Qt.Horizontal)
         top.setChildrenCollapsible(False)
         top.addWidget(self.catalog)
-        top.addWidget(self.diagram)
+        # middle: switch between the device drawings
+        self.xdiagram = XTouchWidget(mapping)
+        self.xdiagram.accepts = self.catalog.accepts
+        self.device_stack = QStackedWidget()
+        self.device_stack.addWidget(self.diagram)
+        self.device_stack.addWidget(self.xdiagram)
+        dev_nav = QFrame()
+        dev_nav.setObjectName("Nav")
+        dl = QHBoxLayout(dev_nav)
+        dl.setContentsMargins(4, 4, 4, 4)
+        dl.setSpacing(4)
+        self.dev_group = QButtonGroup(self)
+        for i, text in enumerate(("APC mini mk2", "X-Touch Compact")):
+            b = QPushButton(text)
+            b.setObjectName("Seg")
+            b.setCheckable(True)
+            self.dev_group.addButton(b, i)
+            dl.addWidget(b)
+        self.dev_group.button(0).setChecked(True)
+        self.dev_group.idClicked.connect(self.device_stack.setCurrentIndex)
+        middle = QWidget()
+        ml = QVBoxLayout(middle)
+        ml.setContentsMargins(0, 0, 0, 0)
+        ml.setSpacing(8)
+        dev_row = QHBoxLayout()
+        dev_row.addStretch(1)
+        dev_row.addWidget(dev_nav)
+        dev_row.addStretch(1)
+        ml.addLayout(dev_row)
+        ml.addWidget(self.device_stack, 1)
+        top.addWidget(middle)
         # the inspector is tall: scroll instead of being cut off on small screens
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -113,7 +146,10 @@ class MainWindow(QMainWindow):
         lab_page.addWidget(lab_scroll)
         lab_page.setStretchFactor(0, 1)
 
-        # 3) Log
+        # 3) Device test (APC + X-Touch)
+        self.device_test = DeviceTest(self.engine)
+
+        # 4) Log
         log_page = self._make_log()
 
         # 4) Setup help
@@ -122,7 +158,7 @@ class MainWindow(QMainWindow):
         help_.setHtml(MA3_SETUP_HTML)
 
         self.pages = QStackedWidget()
-        for w in (mapping_page, lab_page, log_page, help_):
+        for w in (mapping_page, lab_page, self.device_test, log_page, help_):
             self.pages.addWidget(w)
         self.tabs = self.pages          # kept for older code paths / screenshots
 
@@ -136,8 +172,9 @@ class MainWindow(QMainWindow):
         self.nav_group.setExclusive(True)
         shortcut_mod = "⌘" if sys.platform == "darwin" else "Ctrl"
         for i, (text, tip) in enumerate([
-            ("Mapping", "Assign grandMA3 commands to the APC"),
+            ("Mapping", "Assign grandMA3 commands to the APC and the X-Touch"),
             ("LED Lab", "Try colours and effects on the real APC"),
+            ("Device test", "Check every LED, motor fader and control of your controllers"),
             ("Log", "See every MIDI and OSC message"),
             ("Setup help", "How to set up grandMA3 and the plugin"),
         ]):
@@ -177,12 +214,18 @@ class MainWindow(QMainWindow):
         self.engine.log.connect(self._log)
         self.engine.status_changed.connect(self._update_status)
         self.engine.page_changed.connect(lambda _p: self._update_status())
-        self.diagram.selected.connect(self.inspector.set_control)
-        self.diagram.catalog_dropped.connect(self._on_catalog_drop)
-        self.diagram.control_moved.connect(self._on_move)
-        self.diagram.simulate_button.connect(self.engine.handle_button)
-        self.diagram.simulate_fader.connect(self.engine.handle_fader)
-        self.diagram.clear_requested.connect(self._clear)
+        self.engine.led_changed.connect(self.xdiagram.set_led)
+        self.engine.control_event.connect(self.xdiagram.hw_event)
+        self.engine.position_changed.connect(self.xdiagram.hw_event)
+        self.engine.touch_changed.connect(self.xdiagram.set_touch)
+        for d in (self.diagram, self.xdiagram):
+            d.selected.connect(self.inspector.set_control)
+            d.selected.connect(self._on_select)
+            d.catalog_dropped.connect(self._on_catalog_drop)
+            d.control_moved.connect(self._on_move)
+            d.simulate_button.connect(self.engine.handle_button)
+            d.simulate_fader.connect(self.engine.handle_fader)
+            d.clear_requested.connect(self._clear)
         self.inspector.changed.connect(self._on_inspector_change)
         self.inspector.cleared.connect(self._clear)
         self.lab.lab_mode_changed.connect(self.engine.set_lab_mode)
@@ -243,29 +286,50 @@ class MainWindow(QMainWindow):
         hl.setContentsMargins(0, 0, 0, 4)
         hl.setSpacing(10)
 
-        # ---- APC card
-        card, h, self.dot_apc = self._card("APC mini mk2")
-        self.midi_in = QComboBox()
-        self.midi_in.setToolTip("MIDI input port (the APC's \"Control\" port)")
-        self.midi_out = QComboBox()
-        self.midi_out.setToolTip("MIDI output port for the LEDs")
-        for c in (self.midi_in, self.midi_out):
-            c.setMinimumWidth(100)
-            c.setMaximumWidth(240)
-            c.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            c.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
-            c.setMinimumContentsLength(8)
-        h.addWidget(self._field("In", self.midi_in), 1)
-        h.addWidget(self._field("Out", self.midi_out), 1)
+        # ---- controllers card: one row per device. Each row has one port
+        # combo; the matching output port is picked automatically (same name),
+        # which is what both devices use on every platform.
+        card = QFrame()
+        card.setObjectName("Card")
+        grid = QGridLayout(card)
+        grid.setContentsMargins(12, 6, 8, 6)
+        grid.setHorizontalSpacing(10)
+        grid.setVerticalSpacing(4)
+
+        def device_row(row: int, title: str, tip: str):
+            dot = QLabel()
+            dot.setTextFormat(Qt.RichText)
+            name = QLabel(title)
+            name.setObjectName("CardTitle")
+            cin, cout = QComboBox(), QComboBox()
+            cin.setToolTip(tip)
+            cin.setMinimumWidth(110)
+            cin.setMaximumWidth(260)
+            cin.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            cin.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+            cin.setMinimumContentsLength(10)
+            cout.setVisible(False)
+            cin.currentIndexChanged.connect(lambda _i, a=cin, b=cout: self._pair_out(a, b))
+            btn = QPushButton("Connect")
+            btn.setMinimumWidth(100)
+            grid.addWidget(dot, row, 0)
+            grid.addWidget(name, row, 1)
+            grid.addWidget(cin, row, 2)
+            grid.addWidget(btn, row, 3)
+            return dot, cin, cout, btn
+
+        (self.dot_apc, self.midi_in, self.midi_out,
+         self.midi_btn) = device_row(0, "APC mini mk2", "MIDI port of the APC (its \"Control\" port)")
+        (self.dot_xt, self.xt_in, self.xt_out,
+         self.xt_btn) = device_row(1, "X-Touch Compact", "MIDI port of the X-Touch Compact")
+        self.midi_btn.clicked.connect(self._toggle_midi)
+        self.xt_btn.clicked.connect(self._toggle_xtouch)
         rb = QPushButton("↻")
         rb.setObjectName("Icon")
-        rb.setToolTip("Rescan MIDI ports (after plugging in the APC)")
+        rb.setToolTip("Rescan MIDI ports (after plugging in a controller)")
         rb.clicked.connect(self._scan_ports)
-        h.addWidget(rb)
-        self.midi_btn = QPushButton("Connect")
-        self.midi_btn.setMinimumWidth(100)
-        self.midi_btn.clicked.connect(self._toggle_midi)
-        h.addWidget(self.midi_btn)
+        grid.addWidget(rb, 0, 4, 2, 1)
+        grid.setColumnStretch(2, 1)
         hl.addWidget(card, 5)
 
         # ---- MA3 card
@@ -380,12 +444,12 @@ class MainWindow(QMainWindow):
         v.setContentsMargins(0, 0, 0, 0)
         v.setSpacing(8)
         h = QHBoxLayout()
-        hint = QLabel("Every message between this app, the APC (MIDI) and grandMA3 (OSC).")
+        hint = QLabel("Every message between this app, the controllers (MIDI) and grandMA3 (OSC).")
         hint.setObjectName("Hint")
         h.addWidget(hint, 1)
         self.log_midi = QCheckBox("MIDI")
         self.log_midi.setChecked(False)
-        self.log_midi.setToolTip("Show messages to and from the APC")
+        self.log_midi.setToolTip("Show messages to and from the APC and the X-Touch")
         self.log_osc = QCheckBox("OSC")
         self.log_osc.setChecked(True)
         self.log_osc.setToolTip("Show messages to and from grandMA3")
@@ -407,18 +471,68 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------ #
     # connection
     # ------------------------------------------------------------------ #
+    @staticmethod
+    def _guess_xtouch(names: list[str]) -> Optional[str]:
+        cands = [n for n in names if "touch" in n.lower() and "one" not in n.lower()]
+        for n in cands:
+            if "compact" in n.lower() and not apc._is_secondary_port(n):
+                return n
+        return cands[0] if cands else None
+
+    @staticmethod
+    def _pair_out(cin: QComboBox, cout: QComboBox) -> None:
+        """Pick the output port that belongs to the chosen input port."""
+        name = cin.currentData() or ""
+        if not name:
+            cout.setCurrentIndex(0)
+            return
+        i = cout.findData(name)
+        if i < 0:
+            base = apc.port_base_name(name).lower()
+            for j in range(cout.count()):
+                d = cout.itemData(j) or ""
+                if d and apc.port_base_name(d).lower() == base:
+                    i = j
+                    break
+        cout.setCurrentIndex(max(0, i))
+
     def _scan_ports(self) -> None:
         ins, outs = apc.list_ports()
         s = self.mapping.settings
-        for combo, names, saved in ((self.midi_in, ins, s.midi_in),
-                                    (self.midi_out, outs, s.midi_out)):
+        xt_names = {self._guess_xtouch(ins), self._guess_xtouch(outs)}
+        for combo, names, saved, guess in (
+                (self.midi_out, outs, s.midi_out, apc.guess_port),
+                (self.midi_in, ins, s.midi_in, apc.guess_port),
+                (self.xt_out, outs, s.xt_out, self._guess_xtouch),
+                (self.xt_in, ins, s.xt_in, self._guess_xtouch)):
+            combo.blockSignals(True)
             combo.clear()
             combo.addItem("—", "")
             for n in names:
                 combo.addItem(n, n)
-            pick = apc.match_port(saved, names) or apc.guess_port(names)
+            pick = apc.match_port(saved, names) or guess(
+                [n for n in names if n not in xt_names] if guess is apc.guess_port else names)
             if pick:
                 combo.setCurrentIndex(combo.findData(pick))
+            combo.blockSignals(False)
+        # output follows input unless a saved output was found
+        if not apc.match_port(s.midi_out, outs):
+            self._pair_out(self.midi_in, self.midi_out)
+        if not apc.match_port(s.xt_out, outs):
+            self._pair_out(self.xt_in, self.xt_out)
+
+    def _toggle_xtouch(self) -> None:
+        if self.engine.xt.connected:
+            self.engine.disconnect_xtouch()
+        else:
+            try:
+                self.engine.connect_xtouch(self.xt_in.currentData(), self.xt_out.currentData())
+            except Exception as e:
+                hint = ("\n\nA MIDI port can only be used by one program at a time on "
+                        "Windows. Close other software using the X-Touch and try again."
+                        if sys.platform == "win32" else "")
+                QMessageBox.warning(self, "MIDI", f"Could not open the X-Touch:\n{e}{hint}")
+        self._update_status()
 
     def _toggle_midi(self) -> None:
         if self.engine.apc.connected:
@@ -455,6 +569,11 @@ class MainWindow(QMainWindow):
                 self.engine.connect_midi(self.midi_in.currentData(), self.midi_out.currentData())
             except Exception as e:
                 self._log("midi", "err", f"auto-connect failed: {e}")
+        if self.xt_in.currentData() or self.xt_out.currentData():
+            try:
+                self.engine.connect_xtouch(self.xt_in.currentData(), self.xt_out.currentData())
+            except Exception as e:
+                self._log("midi", "err", f"X-Touch auto-connect failed: {e}")
         self._connect_ma3()
 
     def _update_status(self) -> None:
@@ -473,8 +592,16 @@ class MainWindow(QMainWindow):
                                  "to simulate</span>")
             self.midi_btn.setText("Connect")
             self.midi_btn.setObjectName("Primary")
-        self.midi_btn.style().unpolish(self.midi_btn)
-        self.midi_btn.style().polish(self.midi_btn)
+        x = self.engine.xt
+        self.dot_xt.setText(theme.dot(theme.OK if x.connected else theme.FAINT))
+        self.dot_xt.setToolTip("X-Touch connected" if x.connected else "X-Touch not connected")
+        self.xt_btn.setText("Disconnect" if x.connected else "Connect")
+        self.xt_btn.setObjectName("" if x.connected or not self.xt_in.currentData() else "Primary")
+        if x.connected:
+            self.st_midi.setText(self.st_midi.text() + f"  {theme.dot(theme.OK, 8)} X-Touch")
+        for b in (self.midi_btn, self.xt_btn):
+            b.style().unpolish(b)
+            b.style().polish(b)
         m = self.engine.ma3
         if m.client is None:
             col, text = theme.ERR, "MA3 not connected"
@@ -493,6 +620,12 @@ class MainWindow(QMainWindow):
         self.st_page.setText(f"Page <b>{m.current_page}</b>")
         if hasattr(self, "lab"):
             self.lab.set_target(self.lab_diagram.selected_control)
+
+    def _on_select(self, control: str) -> None:
+        for d in (self.diagram, self.xdiagram):
+            if control not in d.controls() and d.selected_control:
+                d.selected_control = None
+                d.update()
 
     def _fader_sync(self, values: list) -> None:
         for i, v in enumerate(values):
@@ -525,9 +658,9 @@ class MainWindow(QMainWindow):
         if a is None:
             return
         new = copy.deepcopy(a)
-        if apc.is_rgb(src) != apc.is_rgb(dst):  # pad <-> single colour button
+        if controls.is_rgb(src) != controls.is_rgb(dst):  # pad <-> single colour button
             new.led.off_color, new.led.on_color = (
-                (apc.SINGLE_OFF, apc.SINGLE_ON) if not apc.is_rgb(dst) else (1, 21))
+                (apc.SINGLE_OFF, apc.SINGLE_ON) if not controls.is_rgb(dst) else (1, 21))
             new.led.off_mode = new.led.on_mode = apc.MODE_SOLID_100
             new.led.use_ma3_color = False
         self.mapping.assignments[dst] = new
@@ -594,11 +727,16 @@ class MainWindow(QMainWindow):
                     self.engine.connect_midi(self.midi_in.currentData(), self.midi_out.currentData())
                 except Exception as e:
                     self._log("midi", "err", f"connect failed: {e}")
+            if (old.xt_in, old.xt_out) != (s.xt_in, s.xt_out) and (s.xt_in or s.xt_out):
+                try:
+                    self.engine.connect_xtouch(self.xt_in.currentData(), self.xt_out.currentData())
+                except Exception as e:
+                    self._log("midi", "err", f"X-Touch connect failed: {e}")
         self.path = path
         self.dirty = False
         self.engine.latched.clear()
         self.engine.mapping_changed()
-        self.inspector.set_control(self.diagram.selected_control)
+        self.inspector.set_control(self.diagram.selected_control or self.xdiagram.selected_control)
         self.diagram.update()
         self._title()
 
@@ -683,6 +821,8 @@ class MainWindow(QMainWindow):
         s.osc_prefix = self.prefix.text().strip().strip("/")
         s.midi_in = self.midi_in.currentData() or ""
         s.midi_out = self.midi_out.currentData() or ""
+        s.xt_in = self.xt_in.currentData() or ""
+        s.xt_out = self.xt_out.currentData() or ""
 
     def fit_to_screen(self) -> None:
         """Restore the last window size/position, or pick one that fits the screen."""

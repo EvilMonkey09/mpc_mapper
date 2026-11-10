@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (QCheckBox, QComboBox, QDoubleSpinBox, QFormLayout
                                QHBoxLayout, QLabel, QLineEdit, QPushButton, QSpinBox,
                                QVBoxLayout, QWidget)
 
-from .. import apc
+from .. import apc, controls
 from ..model import CATALOG_BY_ID, FEEDBACK_SOURCES, Assignment, Mapping
 from .widgets import PaletteButton, mono_font
 
@@ -110,6 +110,11 @@ class Inspector(QWidget):
         g.addRow(self.off_single_label, self.off_single)
         g.addRow(self.on_single_label, self.on_single)
         lay.addWidget(self.led_box)
+        self.motor_hint = QLabel()
+        self.motor_hint.setObjectName("Hint")
+        self.motor_hint.setWordWrap(True)
+        self.motor_hint.setVisible(False)
+        lay.addWidget(self.motor_hint)
 
         btns = QHBoxLayout()
         self.reset_btn = QPushButton("Reset to defaults")
@@ -151,7 +156,7 @@ class Inspector(QWidget):
                 "3. Shift+click a pad to try it without the hardware.<br>"
                 "4. Save with File → Save.")
         else:
-            self.title.setText(f"<b>{apc.control_label(control)}</b>  <span style='color:#888'>"
+            self.title.setText(f"<b>{controls.label(control)}</b>  <span style='color:#888'>"
                                f"({control})</span>")
             if a is None:
                 self.subtitle.setText("Unassigned — drag a grandMA3 control here.")
@@ -159,8 +164,19 @@ class Inspector(QWidget):
                 cat = CATALOG_BY_ID.get(a.catalog_id)
                 self.subtitle.setText(f"Type: {cat.group + ' / ' + cat.name if cat else 'Custom'}")
         self.action_box.setVisible(a is not None)
-        is_btn = control is not None and apc.is_button(control)
+        is_btn = control is not None and controls.has_led(control)
         self.led_box.setVisible(a is not None and is_btn)
+        self.motor_hint.setVisible(a is not None and control is not None
+                                   and controls.has_motor(control))
+        if a is not None and control is not None and controls.has_motor(control):
+            from ..engine import Engine
+            follows = Engine.follows_ma3(a)
+            what = "motor fader" if "fader" in control else "LED ring"
+            self.motor_hint.setText(
+                f"The {what} follows the executor's master level in grandMA3."
+                if follows else
+                f"The {what} shows your own moves only – grandMA3 reports just the "
+                "executor master level (use Fader Master to make it follow).")
         self.reset_btn.setVisible(a is not None)
         self.clear_btn.setVisible(a is not None)
         if a is None:
@@ -175,14 +191,14 @@ class Inspector(QWidget):
             self.value.setText(a.value_cmd)
             self.osc_key.setChecked(a.osc_key)
             self.osc_fader.setChecked(a.osc_fader)
-            fader = control.startswith("fader:")
+            fader = controls.is_value(control)
             for w in (self.press, self.release, self.osc_key):
                 w.setEnabled(not fader)
             for w in (self.value, self.osc_fader):
                 w.setEnabled(fader)
             led = a.led
             self.source.setCurrentIndex(max(0, self.source.findData(led.source)))
-            rgb = apc.is_rgb(control)
+            rgb = controls.is_rgb(control)
             for w in (self.off_color, self.on_color, self.off_mode, self.on_mode, self.use_ma3,
                       self.dim, self.off_row_label, self.on_row_label):
                 w.setVisible(rgb)
@@ -205,7 +221,7 @@ class Inspector(QWidget):
     def _update_preview(self, a: Assignment) -> None:
         page = 1
         lines = []
-        if self.control and self.control.startswith("fader:"):
+        if self.control and controls.is_value(self.control):
             if a.osc_fader:
                 lines.append(f"OSC /PageN/Fader{a.exec} ← 0..100")
             elif a.value_cmd:
@@ -237,7 +253,7 @@ class Inspector(QWidget):
         a.osc_fader = self.osc_fader.isChecked()
         led = a.led
         led.source = self.source.currentData()
-        if apc.is_rgb(self.control):
+        if controls.is_rgb(self.control):
             led.off_color = self.off_color.index
             led.on_color = self.on_color.index
             led.off_mode = self.off_mode.currentIndex()

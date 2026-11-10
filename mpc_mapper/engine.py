@@ -1,11 +1,11 @@
-"""Runtime bridge: APC events -> MA3 actions, MA3 feedback -> APC LEDs."""
+"""Runtime bridge: controller events -> MA3 actions, MA3 feedback -> LEDs / motor faders."""
 from __future__ import annotations
 
 from typing import Optional
 
 from PySide6.QtCore import QObject, QTimer, Signal, Slot
 
-from . import apc
+from . import apc, controls, xtouch
 from .apc import APCMini, LedState
 from .ma3 import ExecState, MA3Link
 from .model import Assignment, Mapping
@@ -18,6 +18,8 @@ class Engine(QObject):
     _sig_exec = Signal(object)
     _sig_page = Signal(int)
     _sig_log = Signal(str, str, str)
+    _sig_touch = Signal(str, bool)
+    _sig_layer = Signal()
 
     # public signals for the GUI
     led_changed = Signal(str, object)        # control, LedState
@@ -26,15 +28,20 @@ class Engine(QObject):
     page_changed = Signal(int)
     status_changed = Signal()
     fader_sync = Signal(list)                # fader positions from intro reply
+    position_changed = Signal(str, int)      # motor fader / encoder ring sent (raw 0-127)
+    touch_changed = Signal(str, bool)
 
     def __init__(self, mapping: Mapping, parent=None) -> None:
         super().__init__(parent)
         self.mapping = mapping
         self.apc = APCMini()
+        self.xt = xtouch.XTouchCompact()
+        self.xt.out_channel = mapping.settings.xt_out_channel
         self.ma3 = MA3Link()
         self.latched: dict[str, bool] = {}
         self.pressed: set[str] = set()
         self.lab_mode = False          # LED lab takes over the LEDs
+        self.test_mode = False         # device test: no MA3 output, no LED feedback
         self._pending_fader: dict[str, float] = {}
         self._last_fader: dict[str, float] = {}
 
@@ -43,12 +50,21 @@ class Engine(QObject):
         self._sig_exec.connect(self._on_exec)
         self._sig_page.connect(self._on_page)
         self._sig_log.connect(self.log)
+        self._sig_touch.connect(self._on_touch)
+        self._sig_layer.connect(lambda: self.refresh_all_leds(force=True))
 
         self.apc.on_button = lambda c, p: self._sig_button.emit(c, p)
         self.apc.on_fader = lambda c, v: self._sig_fader.emit(c, v)
         self.apc.on_led = lambda c, s: self.led_changed.emit(c, s)
         self.apc.on_raw = lambda d, t: self._sig_log.emit("midi", d, t)
         self.apc.on_fader_sync = lambda vals: self.fader_sync.emit(list(vals))
+        self.xt.on_button = lambda c, p: self._sig_button.emit(c, p)
+        self.xt.on_value = lambda c, v: self._sig_fader.emit(c, v)
+        self.xt.on_touch = lambda c, t: self._sig_touch.emit(c, t)
+        self.xt.on_led = lambda c, s: self.led_changed.emit(c, LedState(s, 0))
+        self.xt.on_motor = lambda c, v: self.position_changed.emit(c, v)
+        self.xt.on_layer_b = lambda: self._sig_layer.emit()
+        self.xt.on_raw = lambda d, t: self._sig_log.emit("midi", d, t)
         self.ma3.on_exec = lambda st: self._sig_exec.emit(st)
         self.ma3.on_page = lambda p: self._sig_page.emit(p)
         self.ma3.on_log = lambda d, t: self._sig_log.emit("osc", d, t)
@@ -73,7 +89,20 @@ class Engine(QObject):
 
     def disconnect_midi(self) -> None:
         self.apc.close()
-        self.pressed.clear()
+        self.pressed = {c for c in self.pressed if xtouch.is_xtouch(c)}
+        self.status_changed.emit()
+
+    def connect_xtouch(self, in_name: Optional[str], out_name: Optional[str]) -> None:
+        self.xt.out_channel = self.mapping.settings.xt_out_channel
+        self.xt.open(in_name or None, out_name or None)
+        self.mapping.settings.xt_in = in_name or ""
+        self.mapping.settings.xt_out = out_name or ""
+        self.refresh_all_leds(force=True)
+        self.status_changed.emit()
+
+    def disconnect_xtouch(self) -> None:
+        self.xt.close()
+        self.pressed = {c for c in self.pressed if not xtouch.is_xtouch(c)}
         self.status_changed.emit()
 
     def connect_ma3(self) -> None:
@@ -82,11 +111,12 @@ class Engine(QObject):
         self.status_changed.emit()
 
     def shutdown(self) -> None:
-        try:
-            self.apc.clear_all()
-        except Exception:
-            pass
-        self.apc.close()
+        for dev in (self.apc, self.xt):
+            try:
+                dev.clear_all()
+            except Exception:
+                pass
+            dev.close()
         self.ma3.stop()
 
     # ------------------------------------------------------------------ #
@@ -95,6 +125,8 @@ class Engine(QObject):
     @Slot(str, bool)
     def handle_button(self, control: str, pressed: bool) -> None:
         self.control_event.emit(control, pressed)
+        if self.test_mode:
+            return
         if pressed:
             self.pressed.add(control)
         else:
@@ -116,6 +148,10 @@ class Engine(QObject):
     @Slot(str, int)
     def handle_fader(self, control: str, raw: int) -> None:
         self.control_event.emit(control, raw)
+        if xtouch.kind(control) == "enc":
+            self.xt.set_position(control, raw, force=True)   # ring shows the turn
+        if self.test_mode:
+            return
         value = round(raw * 100.0 / 127.0, 1)
         last = self._pending_fader.get(control, self._last_fader.get(control))
         db = self.mapping.settings.fader_deadband
@@ -152,13 +188,45 @@ class Engine(QObject):
         for control, a in self.mapping.assignments.items():
             if a.eff_page(page) == st.page and a.exec == st.exec:
                 self.update_led(control)
+                self.update_motor(control)
         self.status_changed.emit()
+
+    @Slot(str, bool)
+    def _on_touch(self, control: str, touched: bool) -> None:
+        self.touch_changed.emit(control, touched)
+        if not touched:
+            # fader released: go to the console value if it differs
+            QTimer.singleShot(int(xtouch.XTouchCompact.MOTOR_HOLD_S * 1000) + 50,
+                              lambda: self.update_motor(control))
+
+    @staticmethod
+    def follows_ma3(a: Assignment) -> bool:
+        """Only the executor master level is reported by the MA3 plugin."""
+        return a.uses_exec() and (a.osc_fader or "FaderMaster" in a.value_cmd)
+
+    def update_motor(self, control: str, force: bool = False) -> None:
+        """Move a motor fader / encoder ring to the executor level in MA3."""
+        if (self.test_mode or not controls.has_motor(control)
+                or not self.mapping.settings.xt_follow):
+            return
+        a = self.mapping.assignments.get(control)
+        if a is None or not self.follows_ma3(a):
+            return
+        st = self.ma3.state(a.eff_page(self.ma3.current_page), a.exec)
+        if not self.ma3.plugin_alive:
+            return
+        self.xt.set_position(control, round(st.fader * 127 / 100), force=force)
+
+    def refresh_motors(self, force: bool = False) -> None:
+        for c in xtouch.ALL_CONTROLS:
+            self.update_motor(c, force=force)
 
     @Slot(int)
     def _on_page(self, page: int) -> None:
         self.page_changed.emit(page)
         if not self.lab_mode:
             self.refresh_all_leds()
+        self.refresh_motors()
 
     def is_on(self, control: str, a: Assignment) -> bool:
         src = a.led.source
@@ -177,7 +245,7 @@ class Engine(QObject):
 
     def compute_led(self, control: str) -> LedState:
         a = self.mapping.assignments.get(control)
-        rgb_pad = apc.is_rgb(control)
+        rgb_pad = controls.is_rgb(control)
         if a is None:
             return LedState(0, apc.MODE_SOLID_100 if rgb_pad else 0)
         on = self.is_on(control, a)
@@ -197,16 +265,27 @@ class Engine(QObject):
         return LedState(cfg.off_color, cfg.off_mode if rgb_pad else 0)
 
     def update_led(self, control: str, force: bool = False) -> None:
+        if self.test_mode:
+            return
+        if xtouch.is_xtouch(control):
+            # the LED lab is for the APC; X-Touch LEDs always show the state
+            if xtouch.has_led(control):
+                self.xt.set_led(control, self.compute_led(control).color, force=force)
+            return
         if self.lab_mode:
             return
         if apc.is_button(control):
             self.apc.set_led(control, self.compute_led(control), force=force)
 
     def refresh_all_leds(self, force: bool = False) -> None:
-        if self.lab_mode:
-            return
-        for c in apc.ALL_CONTROLS:
+        for c in controls.ALL_CONTROLS:
             self.update_led(c, force=force)
+        self.refresh_motors(force=force)
+
+    def set_test_mode(self, on: bool) -> None:
+        self.test_mode = on
+        if not on:
+            self.refresh_all_leds(force=True)
 
     def set_lab_mode(self, on: bool) -> None:
         self.lab_mode = on
@@ -219,6 +298,7 @@ class Engine(QObject):
     def assignment_replaced(self, control: str) -> None:
         self.latched.pop(control, None)
         self.update_led(control)
+        self.update_motor(control, force=True)
 
     def mapping_changed(self) -> None:
         self.apply_settings()

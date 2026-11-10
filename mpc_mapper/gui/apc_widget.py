@@ -15,7 +15,7 @@ from PySide6.QtGui import (QBrush, QColor, QDrag, QLinearGradient, QPainter,
                            QPen)
 from PySide6.QtWidgets import QMenu, QWidget
 
-from .. import apc
+from .. import apc, controls
 from ..apc import LedState
 from ..model import Mapping
 from . import theme
@@ -62,6 +62,9 @@ def control_rect(control: str) -> QRectF:
 
 
 class APCWidget(QWidget):
+    """Interactive device drawing. Subclasses (X-Touch) override the
+    geometry (LW/LH, controls(), rect()) and paint_device()."""
+    LW, LH = W, H
     selected = Signal(str)
     catalog_dropped = Signal(str, str)      # catalog_id, control
     control_moved = Signal(str, str, bool)  # src, dst, copy
@@ -73,7 +76,8 @@ class APCWidget(QWidget):
         super().__init__(parent)
         self.mapping = mapping
         self.leds: dict[str, LedState] = {}
-        self.fader_values: dict[str, int] = {f"fader:{i}": 0 for i in range(9)}
+        self.fader_values: dict[str, int] = {}
+        self.touched: set[str] = set()
         self.hw_pressed: set[str] = set()
         self.selected_control: Optional[str] = None
         self.drop_hover: Optional[str] = None
@@ -84,7 +88,7 @@ class APCWidget(QWidget):
         self._blink = False
         self.setAcceptDrops(True)
         self.setMouseTracking(True)
-        self.setMinimumSize(int(W * 0.5), int(H * 0.5))
+        self.setMinimumSize(int(self.LW * 0.5), int(self.LH * 0.5))
         self._timer = QTimer(self)
         self._timer.timeout.connect(self._tick)
         self._timer.start(250)
@@ -93,15 +97,32 @@ class APCWidget(QWidget):
     def _tick(self) -> None:
         self._blink = not self._blink
         if any(s.animated for s in self.leds.values()) or any(
-                s.color == apc.SINGLE_BLINK for c, s in self.leds.items() if not apc.is_rgb(c)):
+                s.color == apc.SINGLE_BLINK for c, s in self.leds.items() if not controls.is_rgb(c)):
             self.update()
 
     def set_led(self, control: str, state: LedState) -> None:
         self.leds[control] = state
         self.update()
 
+    def set_touch(self, control: str, touched: bool) -> None:
+        (self.touched.add if touched else self.touched.discard)(control)
+        self.update()
+
+    # overridable geometry / classification
+    def controls(self) -> list[str]:
+        return apc.ALL_CONTROLS
+
+    def rect(self, control: str) -> QRectF:
+        return control_rect(control)
+
+    @staticmethod
+    def is_value(control: str) -> bool:
+        return controls.is_value(control)
+
     def hw_event(self, control: str, value) -> None:
-        if control.startswith("fader:"):
+        if control not in self.controls():
+            return
+        if self.is_value(control):
             self.fader_values[control] = int(value)
         elif value:
             self.hw_pressed.add(control)
@@ -117,9 +138,9 @@ class APCWidget(QWidget):
 
     # ---------------- geometry ----------------
     def _scale(self) -> tuple[float, float, float]:
-        s = min(self.width() / W, self.height() / H)
-        ox = (self.width() - W * s) / 2
-        oy = (self.height() - H * s) / 2
+        s = min(self.width() / self.LW, self.height() / self.LH)
+        ox = (self.width() - self.LW * s) / 2
+        oy = (self.height() - self.LH * s) / 2
         return s, ox, oy
 
     def _to_logical(self, p: QPointF) -> QPointF:
@@ -128,8 +149,8 @@ class APCWidget(QWidget):
 
     def control_at(self, p: QPointF) -> Optional[str]:
         lp = self._to_logical(p)
-        for c in apc.ALL_CONTROLS:
-            if control_rect(c).adjusted(-3, -3, 3, 3).contains(lp):
+        for c in self.controls():
+            if self.rect(c).adjusted(-3, -3, 3, 3).contains(lp):
                 return c
         return None
 
@@ -141,7 +162,9 @@ class APCWidget(QWidget):
         s, ox, oy = self._scale()
         p.translate(ox, oy)
         p.scale(s, s)
+        self.paint_device(p)
 
+    def paint_device(self, p: QPainter) -> None:
         # body
         body = QRectF(6, 6, W - 12, H - 12)
         grad = QLinearGradient(0, 0, 0, H)
@@ -272,7 +295,7 @@ class APCWidget(QWidget):
         if e.button() != Qt.LeftButton:
             return
         if c and e.modifiers() & Qt.ShiftModifier:
-            if c.startswith("fader:"):
+            if self.is_value(c):
                 self._sim_down = c
                 self._sim_fader_to(c, e.position())
             else:
@@ -284,14 +307,14 @@ class APCWidget(QWidget):
         self.select(c)
 
     def _sim_fader_to(self, c: str, pos: QPointF) -> None:
-        rect = control_rect(c)
+        rect = self.rect(c)
         lp = self._to_logical(pos)
         top, bot = rect.top() + 8, rect.bottom() - 8
         v = int(round(max(0.0, min(1.0, (bot - lp.y()) / (bot - top))) * 127))
         self.simulate_fader.emit(c, v)
 
     def mouseMoveEvent(self, e) -> None:
-        if self._sim_down and self._sim_down.startswith("fader:"):
+        if self._sim_down and self.is_value(self._sim_down):
             self._sim_fader_to(self._sim_down, e.position())
             return
         if (self._press_ctrl and self._press_pos is not None and e.buttons() & Qt.LeftButton
@@ -306,7 +329,7 @@ class APCWidget(QWidget):
 
     def mouseReleaseEvent(self, e) -> None:
         if self._sim_down:
-            if not self._sim_down.startswith("fader:"):
+            if not self.is_value(self._sim_down):
                 self.simulate_button.emit(self._sim_down, False)
             self._sim_down = None
         self._press_ctrl = None
@@ -315,7 +338,7 @@ class APCWidget(QWidget):
     def _context_menu(self, c: str, gpos) -> None:
         self.select(c)
         m = QMenu(self)
-        if apc.is_button(c):
+        if controls.is_button(c):
             act = m.addAction("Simulate press")
             act.triggered.connect(lambda: (self.simulate_button.emit(c, True),
                                            QTimer.singleShot(150, lambda: self.simulate_button.emit(c, False))))
@@ -337,7 +360,7 @@ class APCWidget(QWidget):
             src = bytes(md.data(MIME_CONTROL)).decode()
             if src == c:
                 return None
-            same = (src.startswith("fader:")) == (c.startswith("fader:"))
+            same = self.is_value(src) == self.is_value(c)
             return c if same else None
         return None
 

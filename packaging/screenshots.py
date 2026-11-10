@@ -40,12 +40,27 @@ def _shoot() -> None:
     w.diagram.update()
     app.processEvents()
     w.grab().save(os.path.join(out, "auswahl.png"))
-    for i, name in ((1, "led-lab.png"), (2, "log.png"), (3, "setup.png")):
+    # X-Touch drawing with a selected fader
+    w.dev_group.button(1).click()
+    w.xdiagram.select("xt.fader:0")
+    for i in range(8):
+        w.xdiagram.hw_event(f"xt.fader:{i}", 20 + i * 12)
+        w.xdiagram.hw_event(f"xt.enc:{i}", 16 * i)
+    w.engine.led_changed.emit("xt.btn:0", __import__("mpc_mapper.apc", fromlist=["x"]).LedState(1, 0))
+    app.processEvents()
+    w.grab().save(os.path.join(out, "xtouch.png"))
+    w.dev_group.button(0).click()
+    for i, name in ((1, "led-lab.png"), (2, "geraetetest.png"), (3, "log.png"), (4, "setup.png")):
         w.nav_group.button(i).click()
         if i == 1:
             w.lab_diagram.selected_control = "pad:56"
             w.lab.set_target("pad:56")
             w.lab_diagram.update()
+        if i == 2:
+            w.device_test.dev_group.button(1).click()
+            w.device_test._choose_device(1)
+            for c in ("xt.btn:0", "xt.btn:1", "xt.fader:0", "xt.tr:5", "xt.touch:0"):
+                w.device_test._mark(c)
         app.processEvents()
         w.grab().save(os.path.join(out, name))
     w.nav_group.button(0).click()

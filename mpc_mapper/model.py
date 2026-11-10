@@ -17,7 +17,7 @@ import json
 from dataclasses import asdict, dataclass, field
 from typing import Optional
 
-from . import apc
+from . import apc, controls
 
 # --------------------------------------------------------------------------- #
 # LED feedback configuration
@@ -44,7 +44,7 @@ class LedConfig:
 
     @staticmethod
     def default_for(control: str) -> "LedConfig":
-        if apc.is_rgb(control):
+        if controls.is_rgb(control):
             return LedConfig()
         return LedConfig(off_color=apc.SINGLE_OFF, on_color=apc.SINGLE_ON)
 
@@ -122,7 +122,7 @@ class Assignment:
         led = self.led
         if led.source not in FEEDBACK_SOURCES:
             led.source = "static"
-        cmax = 127 if (not control or apc.is_rgb(control)) else 2
+        cmax = 127 if (not control or controls.is_rgb(control)) else 2
         led.off_color = _int(led.off_color, 0, cmax, 0)
         led.on_color = _int(led.on_color, 0, cmax, 0)
         led.off_mode = _int(led.off_mode, 0, 15, apc.MODE_SOLID_100)
@@ -243,7 +243,7 @@ def assignment_from_catalog(item: CatalogItem, control: str, page: int = 0,
                             exec_no: int = 201) -> Assignment:
     led = LedConfig.default_for(control)
     led.source = item.feedback
-    if item.feedback == "press" and apc.is_rgb(control):
+    if item.feedback == "press" and controls.is_rgb(control):
         led.on_color, led.off_color = 3, 1
     name = item.name.replace("{page}", str(page or 1))
     if item.needs_exec:
@@ -268,6 +268,10 @@ class Settings:
     midi_out: str = ""
     fader_deadband: int = 0       # ignore tiny CC jitter
     fader_rate_hz: float = 40.0
+    xt_in: str = ""               # X-Touch Compact MIDI ports
+    xt_out: str = ""
+    xt_out_channel: int = 0       # 0 = send on channels 1 and 2, else 1-16
+    xt_follow: bool = True        # motor faders / rings follow grandMA3
 
 
 @dataclass
@@ -288,7 +292,7 @@ class Mapping:
                         if k in Settings.__dataclass_fields__})
         a = {}
         for k, v in (d.get("assignments") or {}).items():
-            if k in apc.ALL_CONTROLS and isinstance(v, dict):
+            if controls.exists(k) and isinstance(v, dict):
                 a[k] = Assignment.from_json(v)
                 a[k].sanitize(k)
         return Mapping(assignments=a, settings=s)
@@ -330,6 +334,7 @@ def demo_mapping() -> Mapping:
     m.assignments["scene:6"] = assignment_from_catalog(cat["page.prev"], "scene:6")
     m.assignments["scene:7"] = assignment_from_catalog(cat["page.next"], "scene:7")
     m.assignments["fader:8"] = assignment_from_catalog(cat["master.grand"], "fader:8")
+    add_xtouch_demo(m)
     # colour the rows differently so the grid reads nicely
     for col in range(8):
         m.assignments[apc.pad_id(7, col)].led.on_color = 21
@@ -342,3 +347,26 @@ def demo_mapping() -> Mapping:
         m.assignments[apc.pad_id(4, col)].led.on_color = 3
         m.assignments[apc.pad_id(4, col)].led.off_color = 1
     return m
+
+
+def add_xtouch_demo(m: Mapping) -> None:
+    """X-Touch Compact part of the demo: one strip per executor 201-208.
+
+    encoder = Fader Rate, rows = Go+ / Go- / Toggle, fader = master (motor
+    follows MA3), channel button = Flash, main fader = Grand Master,
+    transport = page -/+ and Go+ / Off on the selected executor.
+    """
+    cat = CATALOG_BY_ID
+    for col in range(8):
+        ex = 201 + col
+        m.assignments[f"xt.enc:{col}"] = assignment_from_catalog(cat["fader.rate"], f"xt.enc:{col}", 0, ex)
+        m.assignments[f"xt.btn:{col}"] = assignment_from_catalog(cat["exec.go"], f"xt.btn:{col}", 0, ex)
+        m.assignments[f"xt.btn:{8 + col}"] = assignment_from_catalog(cat["exec.goback"], f"xt.btn:{8 + col}", 0, ex)
+        m.assignments[f"xt.btn:{16 + col}"] = assignment_from_catalog(cat["exec.toggle"], f"xt.btn:{16 + col}", 0, ex)
+        m.assignments[f"xt.fader:{col}"] = assignment_from_catalog(cat["fader.master"], f"xt.fader:{col}", 0, ex)
+        m.assignments[f"xt.ch:{col}"] = assignment_from_catalog(cat["exec.flash"], f"xt.ch:{col}", 0, ex)
+    m.assignments["xt.fader:8"] = assignment_from_catalog(cat["master.grand"], "xt.fader:8")
+    m.assignments["xt.tr:0"] = assignment_from_catalog(cat["page.prev"], "xt.tr:0")
+    m.assignments["xt.tr:1"] = assignment_from_catalog(cat["page.next"], "xt.tr:1")
+    m.assignments["xt.tr:4"] = assignment_from_catalog(cat["glob.offall"], "xt.tr:4")
+    m.assignments["xt.tr:5"] = assignment_from_catalog(cat["glob.goall"], "xt.tr:5")

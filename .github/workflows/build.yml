@@ -9,7 +9,7 @@ name: App bauen (macOS + Windows)
 on:
   workflow_dispatch:          # Button "Run workflow" im Reiter Actions
   push:
-    branches: [main, mac-app, release]   # Push auf "release" = Release aktualisieren
+    branches: [main, mac-app, release, xtouch]   # Push auf "release" = Release aktualisieren
     tags: ["v*"]
 
 permissions:
@@ -48,7 +48,12 @@ jobs:
       - name: Abhängigkeiten installieren
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt "pyinstaller>=6.0"
+          python -m pip install -r requirements.txt "pyinstaller>=6.0" pytest
+
+      - name: Automatische Tests (ohne Hardware)
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: python -m pytest -q tests
 
       - name: App bauen
         run: |
@@ -171,7 +176,12 @@ jobs:
       - name: Abhängigkeiten installieren
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt "pyinstaller>=6.0"
+          python -m pip install -r requirements.txt "pyinstaller>=6.0" pytest
+
+      - name: Automatische Tests (ohne Hardware)
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: python -m pytest -q tests
 
       - name: Programm bauen
         run: |

@@ -84,8 +84,10 @@ jobs:
           # Jeder Fehler beim Start lässt diesen Schritt fehlschlagen.
           export MPC_MAPPER_SELFTEST="$PWD/selftest.log"
           rc=0
-          perl -e 'alarm 90; exec @ARGV' "$APP/Contents/MacOS/MPC Mapper" || rc=$?
+          perl -e 'alarm 90; exec @ARGV' "$APP/Contents/MacOS/MPC Mapper" > selftest-stdout.log 2>&1 || rc=$?
+          echo "exit code $rc" >> selftest-stdout.log
           echo "--- selftest.log (exit code $rc) ---"; cat selftest.log 2>/dev/null || echo "(kein Log)"
+          echo "--- stdout/stderr ---"; tail -50 selftest-stdout.log
           [ "$rc" = 0 ] && grep -q '^ok' selftest.log
 
       - name: Programm-Test (Fenster öffnen + Screenshots)
@@ -105,10 +107,13 @@ jobs:
           screencapture -x shots/bildschirm.png || true
           pkill -f "MPC Mapper.app" || true
 
-      - name: Screenshots in den Zweig "screenshots" legen
-        if: matrix.arch == 'apple-silicon'
+      - name: Screenshots und Test-Protokoll in den Zweig "screenshots" legen
+        if: always() && matrix.arch == 'apple-silicon'
         continue-on-error: true
         run: |
+          mkdir -p shots
+          cp selftest.log shots/selftest.log 2>/dev/null || true
+          cp selftest-stdout.log shots/selftest-stdout.log 2>/dev/null || true
           cd shots
           git init -q -b screenshots
           git config user.name "github-actions"
@@ -203,9 +208,12 @@ jobs:
           set -o pipefail
           python packaging/screenshots.py shots 2>&1 | tee shots/log.txt
 
-      - name: Screenshots in den Zweig "screenshots-windows" legen
+      - name: Screenshots und Test-Protokoll in den Zweig "screenshots-windows" legen
+        if: always()
         continue-on-error: true
         run: |
+          mkdir -p shots
+          cp selftest.log shots/selftest.log 2>/dev/null || true
           cd shots
           git init -q -b screenshots-windows
           git config user.name "github-actions"

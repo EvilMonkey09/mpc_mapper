@@ -177,9 +177,18 @@ class MA3Check(QWidget):
         # 3 messages
         if m.rx_count:
             ago = now - m.last_any_rx
-            self._set("rx", OK if ago < 10 else WARN,
-                      f"<b>{m.rx_count}</b> received, the last one {ago:.0f} s ago from "
-                      f"<b>{m.last_rx_from}</b>.")
+            text = (f"<b>{m.rx_count}</b> received, the last one {ago:.0f} s ago from "
+                    f"<b>{m.last_rx_from}</b>.")
+            state = OK if ago < 10 else WARN
+            if m.rx_prefix is not None:
+                text += f"<br>MA3 sends with the prefix <b>{m.rx_prefix or '(none)'}</b>."
+                if m.rx_prefix != (s.osc_prefix or "").strip("/"):
+                    state = WARN
+                    text += (f" The app uses <b>{s.osc_prefix or '(none)'}</b>. If MA3's line 1 "
+                             "has the same prefix as its feedback line, set it under <b>Ports</b> "
+                             "at the top – the prefix must match exactly, including upper and "
+                             "lower case.")
+            self._set("rx", state, text)
         else:
             self._set("rx", WARN if m.listening else INFO,
                       "Nothing received from MA3 yet. Run the return test (step 4) to find out "
@@ -201,7 +210,8 @@ class MA3Check(QWidget):
                       "No answer from MA3. Check in MA3 under Menu → In &amp; Out → OSC:<br>"
                       "• <b>Enable Input</b> and <b>Enable Output</b> are on<br>"
                       f"• Line 1: Destination IP <b>{ip}</b>, Port <b>{s.ma3_port}</b>, "
-                      f"Prefix <b>{s.osc_prefix}</b>, Receive = Yes, <b>Receive Command = Yes</b><br>"
+                      f"Prefix exactly <b>{s.osc_prefix}</b> (same as under Ports in the app, "
+                      "upper/lower case matters), Receive = Yes, <b>Receive Command = Yes</b><br>"
                       f"• Line {line}: Destination IP <b>{fb_ip}</b>, Port <b>{s.listen_port}</b>, "
                       "Send = Yes, <b>Send Command = Yes</b><br>"
                       "• The console IP at the top is right, both are on the same network<br>"

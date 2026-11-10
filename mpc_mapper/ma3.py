@@ -61,6 +61,7 @@ class MA3Link:
         self.last_any_rx = 0.0
         self.last_hello_rx = 0.0
         self.last_rx_from = ""
+        self.rx_prefix: Optional[str] = None     # prefix MA3 put in front of /apc/...
         self.recent: collections.deque = collections.deque(maxlen=30)
         self.bind_error = ""
         self.diag_token = ""
@@ -110,6 +111,7 @@ class MA3Link:
         self.rx_count = 0
         self.last_any_rx = self.last_hello_rx = 0.0
         self.last_rx_from = ""
+        self.rx_prefix = None
         self.recent.clear()
 
     @property
@@ -215,6 +217,9 @@ class MA3Link:
         self.rx_count += 1
         self.last_any_rx = time.time()
         self.last_rx_from = f"{client[0]}:{client[1]}" if client else ""
+        i = addr.find("/apc/")
+        if i >= 0:
+            self.rx_prefix = addr[:i].strip("/")
         self.recent.append((time.strftime("%H:%M:%S"), self.last_rx_from, addr,
                             " ".join(map(str, args))[:80]))
         self._h_default(addr, *args)

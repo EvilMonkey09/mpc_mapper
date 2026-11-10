@@ -351,6 +351,7 @@ def test_return_test_and_heartbeat_are_told_apart():
     m._h_any(("192.168.1.20", 8001), "/gma3/apc/hello", token)
     assert m.diag_ok_at and not m.plugin_alive and m.rx_count == 1
     assert m.last_rx_from == "192.168.1.20:8001"
+    assert m.rx_prefix == "gma3"
     m._h_any(("192.168.1.20", 8001), "/gma3/apc/hello", "1.0")
     assert m.plugin_alive and m.plugin_version == "1.0"
 

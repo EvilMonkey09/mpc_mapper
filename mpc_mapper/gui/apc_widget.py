@@ -84,7 +84,7 @@ class APCWidget(QWidget):
         self._blink = False
         self.setAcceptDrops(True)
         self.setMouseTracking(True)
-        self.setMinimumSize(int(W * 0.75), int(H * 0.75))
+        self.setMinimumSize(int(W * 0.5), int(H * 0.5))
         self._timer = QTimer(self)
         self._timer.timeout.connect(self._tick)
         self._timer.start(250)

@@ -123,6 +123,10 @@ QPushButton#Primary:hover {{ background: {ACCENT_HOVER}; border-color: {ACCENT_H
 QPushButton#Danger {{ background: transparent; border: 1px solid {ERR}; color: {ERR}; }}
 QPushButton#Danger:hover {{ background: rgba(239, 83, 80, 0.15); }}
 QPushButton#Icon {{ padding: 6px 8px; min-width: 18px; }}
+QPushButton#Menu {{ padding-right: 28px; }}
+QPushButton#Menu::menu-indicator {{ subcontrol-origin: padding; subcontrol-position: center right;
+                                   right: 8px; image: url("{a['down']}"); width: 12px; height: 12px; }}
+QWidget#Popup {{ background: {PANEL}; }}
 
 /* ---------- inputs ---------- */
 QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QPlainTextEdit, QTextBrowser {{

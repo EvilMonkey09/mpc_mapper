@@ -35,6 +35,12 @@ def shoot() -> None:
     w.resize(1280, 780)
     app.processEvents()
     w.grab().save(os.path.join(out, "klein.png"))
+    w.resize(1024, 680)
+    app.processEvents()
+    w.grab().save(os.path.join(out, "sehr-klein.png"))
+    ms = w.minimumSizeHint()
+    print("minimum size hint:", ms.width(), "x", ms.height(),
+          "| actual after resize(1024, 680):", w.width(), "x", w.height())
     print("screenshots saved to", out)
     app.quit()
 

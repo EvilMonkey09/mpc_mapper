@@ -7,13 +7,12 @@ import sys
 from typing import Optional
 
 from PySide6.QtCore import QSettings, QStandardPaths, Qt, QTimer
-from PySide6.QtGui import QAction, QKeySequence
-from PySide6.QtWidgets import (QAbstractSpinBox, QCheckBox, QComboBox, QFileDialog, QFrame,
-                               QHBoxLayout, QInputDialog, QLabel, QLineEdit, QMainWindow,
-                               QMessageBox, QPlainTextEdit, QPushButton, QScrollArea, QSizePolicy,
-                               QSpinBox,
-                               QSplitter, QTabWidget, QTextBrowser, QToolBar, QVBoxLayout,
-                               QWidget)
+from PySide6.QtGui import QAction, QKeySequence, QWidgetAction
+from PySide6.QtWidgets import (QAbstractSpinBox, QCheckBox, QComboBox, QFileDialog,
+                               QFormLayout, QFrame, QHBoxLayout, QInputDialog, QLabel,
+                               QLineEdit, QMainWindow, QMenu, QMessageBox, QPlainTextEdit,
+                               QPushButton, QScrollArea, QSizePolicy, QSpinBox, QSplitter,
+                               QTabWidget, QTextBrowser, QVBoxLayout, QWidget)
 
 from .. import apc
 from ..engine import Engine
@@ -93,7 +92,12 @@ class MainWindow(QMainWindow):
 
         self.tabs = QTabWidget()
         self.lab = LedLab(self.engine.apc, lambda: self.diagram.selected_control)
-        self.tabs.addTab(self.lab, "LED Lab")
+        lab_scroll = QScrollArea()
+        lab_scroll.setWidgetResizable(True)
+        lab_scroll.setFrameShape(QFrame.NoFrame)
+        lab_scroll.setWidget(self.lab)
+        self.tabs.addTab(lab_scroll, "LED Lab")
+        self.tabs.setMinimumHeight(120)
         self.tabs.addTab(self._make_log(), "Log")
         help_ = QTextBrowser()
         help_.setHtml(MA3_SETUP_HTML)
@@ -103,7 +107,9 @@ class MainWindow(QMainWindow):
         vs.addWidget(top)
         vs.addWidget(self.tabs)
         vs.setStretchFactor(0, 1)
-        vs.setSizes([700, 230])
+        vs.setStretchFactor(1, 0)
+        vs.setCollapsible(0, False)
+        vs.setSizes([720, 210])
         self.vsplit, self.hsplit = vs, top
         central = QWidget()
         cl = QVBoxLayout(central)
@@ -177,12 +183,16 @@ class MainWindow(QMainWindow):
         return card, h, dot
 
     def _make_toolbar(self) -> None:
-        tb = QToolBar("Connection")
-        tb.setMovable(False)
-        tb.setFloatable(False)
-        tb.toggleViewAction().setVisible(False)
-        self.addToolBar(tb)
+        """Connection header: one card for the APC, one for grandMA3.
+
+        A plain widget (not a QToolBar) so nothing is ever hidden behind an
+        overflow arrow; the port combos shrink when the window gets narrow.
+        """
         s = self.mapping.settings
+        header = QWidget()
+        hl = QHBoxLayout(header)
+        hl.setContentsMargins(0, 0, 0, 4)
+        hl.setSpacing(10)
 
         # ---- APC card
         card, h, self.dot_apc = self._card("APC mini mk2")
@@ -191,30 +201,35 @@ class MainWindow(QMainWindow):
         self.midi_out = QComboBox()
         self.midi_out.setToolTip("MIDI output port for the LEDs")
         for c in (self.midi_in, self.midi_out):
-            c.setMinimumWidth(150)
-            c.setMaximumWidth(220)
+            c.setMinimumWidth(90)
+            c.setMaximumWidth(240)
+            c.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
             c.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
-            c.setMinimumContentsLength(12)
-        h.addWidget(self._field("In", self.midi_in))
-        h.addWidget(self._field("Out", self.midi_out))
+            c.setMinimumContentsLength(8)
+        h.addWidget(self._field("In", self.midi_in), 1)
+        h.addWidget(self._field("Out", self.midi_out), 1)
         rb = QPushButton("↻")
         rb.setObjectName("Icon")
         rb.setToolTip("Rescan MIDI ports (after plugging in the APC)")
         rb.clicked.connect(self._scan_ports)
         h.addWidget(rb)
         self.midi_btn = QPushButton("Connect")
-        self.midi_btn.setMinimumWidth(104)
+        self.midi_btn.setMinimumWidth(100)
         self.midi_btn.clicked.connect(self._toggle_midi)
         h.addWidget(self.midi_btn)
-        tb.addWidget(card)
+        hl.addWidget(card, 5)
 
         # ---- MA3 card
         card, h, self.dot_ma3 = self._card("grandMA3")
         self.host = QLineEdit(s.ma3_host)
-        self.host.setPlaceholderText("Console IP")
+        self.host.setPlaceholderText("192.168.1.10")
         self.host.setToolTip("IP address of the grandMA3 console or onPC")
-        self.host.setFixedWidth(130)
+        self.host.setMinimumWidth(110)
+        self.host.setMaximumWidth(170)
         self.host.returnPressed.connect(self._connect_ma3)
+        h.addWidget(self._field("Console IP", self.host), 1)
+
+        # rarely changed: ports + prefix live in a small popup
         self.port = QSpinBox()
         self.port.setToolTip("OSC port the console receives commands on (OSC line 1)")
         self.listen = QSpinBox()
@@ -224,24 +239,42 @@ class MainWindow(QMainWindow):
             sp.setValue(v)
             sp.setButtonSymbols(QAbstractSpinBox.NoButtons)
             sp.setObjectName("Compact")
-            sp.setFixedWidth(64)
+            sp.setFixedWidth(90)
         self.prefix = QLineEdit(s.osc_prefix)
         self.prefix.setToolTip("OSC prefix set on line 1 in MA3")
-        self.prefix.setFixedWidth(64)
-        h.addWidget(self._field("IP", self.host))
-        h.addWidget(self._field("Port", self.port))
-        h.addWidget(self._field("Listen", self.listen))
-        h.addWidget(self._field("Prefix", self.prefix))
+        self.prefix.setFixedWidth(90)
+        pop = QWidget()
+        pop.setObjectName("Popup")
+        form = QFormLayout(pop)
+        form.setContentsMargins(14, 12, 14, 12)
+        form.setSpacing(8)
+        title = QLabel("OSC settings")
+        title.setObjectName("CardTitle")
+        form.addRow(title)
+        form.addRow("Send port (line 1)", self.port)
+        form.addRow("Listen port (line 2)", self.listen)
+        form.addRow("Prefix", self.prefix)
+        hint = QLabel("Defaults: 8000 · 8001 · gma3")
+        hint.setObjectName("Hint")
+        form.addRow(hint)
+        menu = QMenu(self)
+        wa = QWidgetAction(menu)
+        wa.setDefaultWidget(pop)
+        menu.addAction(wa)
+        self.osc_btn = QPushButton("Ports")
+        self.osc_btn.setObjectName("Menu")
+        self.osc_btn.setToolTip("OSC ports and prefix")
+        self.osc_btn.setMenu(menu)
+        h.addWidget(self.osc_btn)
+
         self.ma3_btn = QPushButton("Connect")
         self.ma3_btn.setObjectName("Primary")
-        self.ma3_btn.setMinimumWidth(104)
+        self.ma3_btn.setMinimumWidth(100)
         self.ma3_btn.clicked.connect(self._connect_ma3)
         h.addWidget(self.ma3_btn)
-        tb.addWidget(card)
+        hl.addWidget(card, 4)
 
-        spacer = QWidget()
-        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        tb.addWidget(spacer)
+        self.centralWidget().layout().insertWidget(0, header)
         self._scan_ports()
 
     def _make_menu(self) -> None:

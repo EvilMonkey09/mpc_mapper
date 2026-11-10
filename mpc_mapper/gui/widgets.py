@@ -107,7 +107,7 @@ class PaletteButton(QPushButton):
 
     def __init__(self, index: int = 0, parent=None) -> None:
         super().__init__(parent)
-        self.setMinimumWidth(90)
+        self.setMinimumWidth(56)
         self.set_index(index)
         self.clicked.connect(self._open)
 

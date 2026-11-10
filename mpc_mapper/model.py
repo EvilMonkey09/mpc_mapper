@@ -17,7 +17,7 @@ import json
 from dataclasses import asdict, dataclass, field
 from typing import Optional
 
-from . import apc, controls
+from . import apc, controls, xtouch
 
 # --------------------------------------------------------------------------- #
 # LED feedback configuration
@@ -314,59 +314,87 @@ class Mapping:
         return out
 
 
-def demo_mapping() -> Mapping:
-    """Sensible starting layout: grid columns = executors 201-208 on page 1."""
-    m = Mapping()
-    cat = CATALOG_BY_ID
-    for col in range(8):
-        ex = 201 + col
-        # top row: Go+, then toggle, flash; bottom rows free
-        m.assignments[apc.pad_id(7, col)] = assignment_from_catalog(cat["exec.go"], apc.pad_id(7, col), 0, ex)
-        m.assignments[apc.pad_id(6, col)] = assignment_from_catalog(cat["exec.goback"], apc.pad_id(6, col), 0, ex)
-        m.assignments[apc.pad_id(5, col)] = assignment_from_catalog(cat["exec.toggle"], apc.pad_id(5, col), 0, ex)
-        m.assignments[apc.pad_id(4, col)] = assignment_from_catalog(cat["exec.flash"], apc.pad_id(4, col), 0, ex)
-        m.assignments[f"fader:{col}"] = assignment_from_catalog(cat["fader.master"], f"fader:{col}", 0, ex)
-        m.assignments[f"track:{col}"] = assignment_from_catalog(cat["exec.off"], f"track:{col}", 0, ex)
-    for i in range(4):
-        a = assignment_from_catalog(cat["page.goto"], f"scene:{i}", i + 1)
-        a.name = f"Page {i + 1}"
-        m.assignments[f"scene:{i}"] = a
-    m.assignments["scene:6"] = assignment_from_catalog(cat["page.prev"], "scene:6")
-    m.assignments["scene:7"] = assignment_from_catalog(cat["page.next"], "scene:7")
-    m.assignments["fader:8"] = assignment_from_catalog(cat["master.grand"], "fader:8")
-    add_xtouch_demo(m)
-    # colour the rows differently so the grid reads nicely
-    for col in range(8):
-        m.assignments[apc.pad_id(7, col)].led.on_color = 21
-        m.assignments[apc.pad_id(7, col)].led.off_color = 23
-        m.assignments[apc.pad_id(6, col)].led.on_color = 9
-        m.assignments[apc.pad_id(6, col)].led.off_color = 11
-        m.assignments[apc.pad_id(5, col)].led.on_color = 45
-        m.assignments[apc.pad_id(5, col)].led.off_color = 47
-        m.assignments[apc.pad_id(5, col)].led.on_mode = 9   # pulse 1/4 while running
-        m.assignments[apc.pad_id(4, col)].led.on_color = 3
-        m.assignments[apc.pad_id(4, col)].led.off_color = 1
-    return m
+# --------------------------------------------------------------------------- #
+# Standard layouts: executors placed like on a grandMA3 console.
+#
+#   console (per column, top to bottom): 4xx encoder+key, 3xx encoder+key,
+#   2xx fader + key, 1xx key; X-keys 191-198 and 291-298.
+#
+# Every executor appears only once per device. Keys use "Physical key" (OSC
+# Key), so they do whatever function the key has in MA3 (Go+, Flash, Temp...);
+# faders and encoders use the OSC executor fader.
+# --------------------------------------------------------------------------- #
+# APC pad colours per executor row: (on, off) palette index
+_ROW_COLOURS = {4: (45, 47), 3: (37, 39), 2: (21, 23), 1: (9, 11)}
 
 
-def add_xtouch_demo(m: Mapping) -> None:
-    """X-Touch Compact part of the demo: one strip per executor 201-208.
+def _key(control: str, ex: int) -> Assignment:
+    a = assignment_from_catalog(CATALOG_BY_ID["exec.key"], control, 0, ex)
+    a.name = str(ex)
+    a.led.source = "exec_active"
+    if controls.is_rgb(control):
+        a.led.on_color, a.led.off_color = _ROW_COLOURS.get(ex // 100, (21, 23))
+    return a
 
-    encoder = Fader Rate, rows = Go+ / Go- / Toggle, fader = master (motor
-    follows MA3), channel button = Flash, main fader = Grand Master,
-    transport = page -/+ and Go+ / Off on the selected executor.
+
+def _fader(control: str, ex: int) -> Assignment:
+    a = assignment_from_catalog(CATALOG_BY_ID["fader.master"], control, 0, ex)
+    a.name = f"Fader {ex}"
+    return a
+
+
+def standard_apc(m: Mapping) -> None:
+    """APC mini mk2 laid out like the console (replaces all APC assignments).
+
+    pads, top half ...... 409-416, 309-316, 209-216, 109-116
+    pads, bottom half ... 401-408, 301-308, 201-208, 101-108
+    faders 1-8 .......... faders of 201-208, fader 9 = Grand Master
+    soft keys (right) ... X-keys 291-298, red track keys: X-keys 191-198
     """
-    cat = CATALOG_BY_ID
+    for c in apc.ALL_CONTROLS:
+        m.assignments.pop(c, None)
+    rows_top_down = [409, 309, 209, 109, 401, 301, 201, 101]
+    for r, first in enumerate(rows_top_down):
+        for col in range(8):
+            pad = apc.pad_id(7 - r, col)
+            m.assignments[pad] = _key(pad, first + col)
     for col in range(8):
-        ex = 201 + col
-        m.assignments[f"xt.enc:{col}"] = assignment_from_catalog(cat["fader.rate"], f"xt.enc:{col}", 0, ex)
-        m.assignments[f"xt.btn:{col}"] = assignment_from_catalog(cat["exec.go"], f"xt.btn:{col}", 0, ex)
-        m.assignments[f"xt.btn:{8 + col}"] = assignment_from_catalog(cat["exec.goback"], f"xt.btn:{8 + col}", 0, ex)
-        m.assignments[f"xt.btn:{16 + col}"] = assignment_from_catalog(cat["exec.toggle"], f"xt.btn:{16 + col}", 0, ex)
-        m.assignments[f"xt.fader:{col}"] = assignment_from_catalog(cat["fader.master"], f"xt.fader:{col}", 0, ex)
-        m.assignments[f"xt.ch:{col}"] = assignment_from_catalog(cat["exec.flash"], f"xt.ch:{col}", 0, ex)
-    m.assignments["xt.fader:8"] = assignment_from_catalog(cat["master.grand"], "xt.fader:8")
-    m.assignments["xt.tr:0"] = assignment_from_catalog(cat["page.prev"], "xt.tr:0")
-    m.assignments["xt.tr:1"] = assignment_from_catalog(cat["page.next"], "xt.tr:1")
-    m.assignments["xt.tr:4"] = assignment_from_catalog(cat["glob.offall"], "xt.tr:4")
-    m.assignments["xt.tr:5"] = assignment_from_catalog(cat["glob.goall"], "xt.tr:5")
+        m.assignments[f"fader:{col}"] = _fader(f"fader:{col}", 201 + col)
+        m.assignments[f"scene:{col}"] = _key(f"scene:{col}", 291 + col)
+        m.assignments[f"track:{col}"] = _key(f"track:{col}", 191 + col)
+    m.assignments["fader:8"] = assignment_from_catalog(CATALOG_BY_ID["master.grand"], "fader:8")
+
+
+def standard_xtouch(m: Mapping) -> None:
+    """X-Touch Compact laid out like the console (replaces all X-Touch assignments).
+
+    encoders 1-8 / 9-16 . 401-408 / 301-308
+    key rows ............ 401-408, 301-308, 101-108
+    faders + keys below . 201-208 (like the console), main fader = Grand Master
+    transport ........... page -/+, then X-keys 191-194
+    """
+    for c in xtouch.ALL_CONTROLS:
+        m.assignments.pop(c, None)
+    for col in range(8):
+        m.assignments[f"xt.enc:{col}"] = _fader(f"xt.enc:{col}", 401 + col)
+        m.assignments[f"xt.enc:{8 + col}"] = _fader(f"xt.enc:{8 + col}", 301 + col)
+        m.assignments[f"xt.btn:{col}"] = _key(f"xt.btn:{col}", 401 + col)
+        m.assignments[f"xt.btn:{8 + col}"] = _key(f"xt.btn:{8 + col}", 301 + col)
+        m.assignments[f"xt.btn:{16 + col}"] = _key(f"xt.btn:{16 + col}", 101 + col)
+        m.assignments[f"xt.fader:{col}"] = _fader(f"xt.fader:{col}", 201 + col)
+        m.assignments[f"xt.ch:{col}"] = _key(f"xt.ch:{col}", 201 + col)
+    for i in range(16):
+        m.assignments[f"xt.enc:{i}"].name = f"Enc {m.assignments[f'xt.enc:{i}'].exec}"
+    m.assignments["xt.fader:8"] = assignment_from_catalog(CATALOG_BY_ID["master.grand"], "xt.fader:8")
+    m.assignments["xt.tr:0"] = assignment_from_catalog(CATALOG_BY_ID["page.prev"], "xt.tr:0")
+    m.assignments["xt.tr:1"] = assignment_from_catalog(CATALOG_BY_ID["page.next"], "xt.tr:1")
+    for i in range(4):
+        m.assignments[f"xt.tr:{2 + i}"] = _key(f"xt.tr:{2 + i}", 191 + i)
+
+
+def demo_mapping() -> Mapping:
+    """Starting layout: both devices with their standard (console-like) layout."""
+    m = Mapping()
+    standard_apc(m)
+    standard_xtouch(m)
+    return m

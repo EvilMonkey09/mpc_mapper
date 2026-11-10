@@ -18,7 +18,8 @@ from PySide6.QtWidgets import (QAbstractSpinBox, QButtonGroup, QCheckBox, QCombo
 
 from .. import apc, controls
 from ..engine import Engine
-from ..model import CATALOG_BY_ID, Mapping, assignment_from_catalog, demo_mapping
+from ..model import (CATALOG_BY_ID, Mapping, assignment_from_catalog, demo_mapping,
+                     standard_apc, standard_xtouch)
 from .apc_widget import APCWidget
 from .xtouch_widget import XTouchWidget
 from .catalog import CatalogPanel
@@ -395,7 +396,6 @@ class MainWindow(QMainWindow):
         f = mb.addMenu("&File")
         for text, key, fn in [
             ("New (empty)", QKeySequence.New, self._new),
-            ("Load demo layout", None, self._demo),
             ("Open…", QKeySequence.Open, self._open),
             ("Save", QKeySequence.Save, self._save),
             ("Save as…", QKeySequence.SaveAs, self._save_as),
@@ -410,6 +410,13 @@ class MainWindow(QMainWindow):
                 a.setShortcut(key)
             a.triggered.connect(fn)
             f.addAction(a)
+            if text == "New (empty)":
+                std = f.addMenu("Load standard layout (like the MA3 console)")
+                for label, which in (("APC mini mk2", "apc"), ("X-Touch Compact", "xtouch"),
+                                     ("Both", "both")):
+                    sa = QAction(label, self)
+                    sa.triggered.connect(lambda _=False, w=which: self._load_standard(w))
+                    std.addAction(sa)
         m = mb.addMenu("&MA3")
         for text, fn in [
             ("Send watch list", self.engine.sync_watch_list),
@@ -754,6 +761,34 @@ class MainWindow(QMainWindow):
     def _new(self) -> None:
         if self._maybe_save():
             self._replace_mapping(Mapping(), None)
+
+    def _load_standard(self, which: str) -> None:
+        """Replace one device's assignments with its console-like standard layout."""
+        devs = {"apc": ["apc"], "xtouch": ["xtouch"], "both": ["apc", "xtouch"]}[which]
+        names = {"apc": "APC mini mk2", "xtouch": "X-Touch Compact"}
+        used = [c for c in self.mapping.assignments if controls.device(c) in devs]
+        if used:
+            r = QMessageBox.question(
+                self, "Load standard layout",
+                f"Replace the current {' and '.join(names[d] for d in devs)} assignments "
+                "with the standard layout?\n\nIt places the executors like on the grandMA3 "
+                "console; every key does what it is set to in MA3.")
+            if r != QMessageBox.Yes:
+                return
+        before = set(self.mapping.assignments)
+        if "apc" in devs:
+            standard_apc(self.mapping)
+        if "xtouch" in devs:
+            standard_xtouch(self.mapping)
+        for c in before | set(self.mapping.assignments):
+            if controls.device(c) in devs:
+                self.engine.assignment_replaced(c)
+        self.engine.sync_watch_list()
+        self.dirty = True
+        self._title()
+        self.diagram.update()
+        self.xdiagram.update()
+        self.inspector.set_control(self.diagram.selected_control or self.xdiagram.selected_control)
 
     def _demo(self) -> None:
         if self._maybe_save():

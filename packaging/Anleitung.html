@@ -53,7 +53,7 @@
   <tr><th>Datei / Ordner</th><th>Wofür?</th></tr>
   <tr><td><code>MPC Mapper.app</code> (Mac)<br><code>MPC Mapper.exe</code> (Windows)</td><td>Das Programm</td></tr>
   <tr><td><code>grandMA3-Plugin</code></td><td>Plugin fürs Pult, schon in der richtigen Ordnerstruktur für den USB-Stick – schickt den Status der Executoren an die App. Mit Kurzanleitung <code>LIESMICH.txt</code></td></tr>
-  <tr><td><code>Demo-Layout.json</code></td><td>Fertige Beispiel-Belegung zum Ausprobieren (<i>File → Open…</i>)</td></tr>
+  <tr><td><code>Demo-Layout.json</code></td><td>Die Standardbelegung als Datei (<i>File → Open…</i>)</td></tr>
   <tr><td><code>Anleitung.html</code></td><td>Diese Anleitung</td></tr>
 </table>
 <p>Du brauchst außerdem: einen <b>APC mini mk2</b> (nicht das alte Modell) und ein <b>grandMA3-Pult oder grandMA3 onPC</b> im selben Netzwerk wie dein Computer.</p>
@@ -131,7 +131,12 @@
 
 <h2 id="benutzen">5. Benutzen</h2>
 <ul>
-  <li><b>Schnellstart:</b> Beim ersten Start ist schon eine Demo-Belegung geladen: Executoren 201–208 mit Go+, Go−, Toggle, Flash, Off; Fader als Master; Scene-Tasten wechseln die Seite.</li>
+  <li><b>Standardbelegung wie am Pult:</b> Beim ersten Start sind APC und X-Touch schon so belegt wie die Executoren am grandMA3-Pult – jeder Executor genau einmal. Jede Taste macht, was in MA3 auf dem Executor eingestellt ist (Go+, Flash, Temp …).
+    <ul>
+      <li><b>APC:</b> Pads oben 409–416, 309–316, 209–216, 109–116, unten 401–408, 301–308, 201–208, 101–108; Fader 1–8 = 201–208, Fader 9 = Grand Master; Soft-Keys rechts = X-Keys 291–298, rote Tasten = X-Keys 191–198.</li>
+      <li><b>X-Touch:</b> Drehregler 1–8 = 401–408, 9–16 = 301–308; Tastenreihen = 401–408, 301–308, 101–108; Fader und Tasten darunter = 201–208; Main-Fader = Grand Master; Transport = Page −/+ und X-Keys 191–194.</li>
+      <li>Zurücksetzen: <i>File → Load standard layout</i> (APC, X-Touch oder beide).</li>
+    </ul></li>
   <li><b>Belegen:</b> Einen Befehl aus der Liste links auf ein Pad, eine Taste oder einen Fader ziehen.</li>
   <li><b>Welcher Executor?</b> Unten links festlegen: <i>By column</i> (Spalte 1 = Basis, Spalte 2 = Basis+1 …), <i>Fixed number</i> oder <i>Auto-increment</i>.</li>
   <li><b>Ändern:</b> Element anklicken – rechts im Inspector Befehl und LED-Farben anpassen.</li>

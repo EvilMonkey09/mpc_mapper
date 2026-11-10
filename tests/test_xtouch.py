@@ -197,19 +197,23 @@ def engine(monkeypatch):
     sent_cmds = []
     eng.ma3.command = lambda text: sent_cmds.append(text)
     eng.ma3.fader = lambda page, ex, v: sent_cmds.append(f"fader {page}.{ex} {v}")
+    eng.ma3.key = lambda page, ex, down: sent_cmds.append(f"key {page}.{ex} {int(down)}")
     eng.ma3.current_page = 1
     eng.connect_xtouch("X-TOUCH COMPACT", "X-TOUCH COMPACT")
     eng.ports, eng.cmds, eng.ExecState = ports, sent_cmds, ExecState
     return eng
 
 
-def test_button_sends_ma3_command(engine):
-    engine.handle_button("xt.btn:0", True)       # demo: Go+ 201
-    assert any(c.startswith("Go+") and "201" in c for c in engine.cmds)
+def test_button_presses_ma3_key(engine):
+    engine.handle_button("xt.btn:0", True)       # standard: key of executor 401
+    engine.handle_button("xt.btn:0", False)
+    assert engine.cmds[-2:] == ["key 1.401 1", "key 1.401 0"]
+    engine.handle_button("xt.ch:3", True)        # key under fader 4 = executor 204
+    assert engine.cmds[-1] == "key 1.204 1"
 
 
 def test_fader_sends_osc_fader(engine):
-    engine.handle_fader("xt.fader:2", 127)       # demo: Fader Master 203 via OSC
+    engine.handle_fader("xt.fader:2", 127)       # standard: fader of executor 203
     engine._flush_faders()
     assert any(c.startswith("fader 1.203 100") for c in engine.cmds)
 
@@ -222,11 +226,11 @@ def test_feedback_lights_led_and_moves_motor(engine):
     engine.ports.out.sent.clear()
     engine._on_exec(st)
     sent = engine.ports.out.sent
-    # Go+ 201 button (row 1, column 1) lit
-    assert any(m.type == "note_on" and m.note == 0 and m.velocity == 1 for m in sent)
+    # key 201 (channel button under fader 1, LED note 24) lit
+    assert any(m.type == "note_on" and m.note == 24 and m.velocity == 1 for m in sent)
     # fader 1 follows the executor master: 50 % -> 64
     assert any(m.type == "control_change" and m.control == 1 and m.value == 64 for m in sent)
-    # encoder 1 is Fader Rate: MA3 does not report it, so no ring move
+    # encoder 1 belongs to executor 401, not 201: its ring must not move
     assert not any(m.type == "control_change" and m.control == 26 for m in sent)
 
 
@@ -251,3 +255,59 @@ def test_saved_mapping_roundtrip(tmp_path):
     assert m2.settings.xt_out_channel == 2
     assert "xt.fader:3" in m2.assignments and "xt.tr:5" in m2.assignments
     assert m2.assignments["xt.btn:0"].led.on_color == 1     # single-colour LED
+
+
+# --------------------------------------------------------------------------- #
+# standard layouts: like the console, every executor once per device
+# --------------------------------------------------------------------------- #
+def _executors_per_control(m, dev):
+    from mpc_mapper import controls as ctl
+    out = {}
+    for c, a in m.assignments.items():
+        if ctl.device(c) == dev and a.uses_exec():
+            out[c] = a.exec
+    return out
+
+
+def test_standard_apc_layout():
+    from mpc_mapper.model import Mapping, standard_apc
+    m = Mapping()
+    standard_apc(m)
+    a = m.assignments
+    assert a["pad:56"].exec == 409 and a["pad:63"].exec == 416      # top row
+    assert a["pad:7"].exec == 108 and a["pad:0"].exec == 101        # bottom row
+    assert a["pad:24"].exec == 401 and a["pad:16"].exec == 301 and a["pad:8"].exec == 201
+    assert [a[f"fader:{i}"].exec for i in range(8)] == list(range(201, 209))
+    assert [a[f"scene:{i}"].exec for i in range(8)] == list(range(291, 299))
+    assert [a[f"track:{i}"].exec for i in range(8)] == list(range(191, 199))
+    assert a["fader:8"].catalog_id == "master.grand"
+    keys = [a[c].exec for c in a if not c.startswith("fader:")]
+    assert len(keys) == len(set(keys)) == 80                      # every key unique
+    assert all(a[c].osc_key for c in a if not c.startswith("fader:"))
+
+
+def test_standard_xtouch_layout():
+    from mpc_mapper.model import Mapping, standard_xtouch
+    m = Mapping()
+    standard_xtouch(m)
+    a = m.assignments
+    assert [a[f"xt.enc:{i}"].exec for i in range(16)] == list(range(401, 409)) + list(range(301, 309))
+    assert [a[f"xt.btn:{i}"].exec for i in range(24)] == (
+        list(range(401, 409)) + list(range(301, 309)) + list(range(101, 109)))
+    assert [a[f"xt.fader:{i}"].exec for i in range(8)] == list(range(201, 209))
+    assert [a[f"xt.ch:{i}"].exec for i in range(8)] == list(range(201, 209))
+    assert a["xt.fader:8"].catalog_id == "master.grand"
+    keys = [a[c].exec for c in a if a[c].osc_key]
+    assert len(keys) == len(set(keys))                            # no key twice
+    assert all(a[f"xt.fader:{i}"].osc_fader for i in range(8))
+
+
+def test_both_layouts_together_keep_each_other():
+    from mpc_mapper.model import Mapping, standard_apc, standard_xtouch
+    m = Mapping()
+    standard_apc(m)
+    n_apc = len(m.assignments)
+    standard_xtouch(m)
+    standard_apc(m)                                  # reloading APC keeps the X-Touch part
+    assert len([c for c in m.assignments if c.startswith("xt.")]) > 0
+    assert len([c for c in m.assignments if not c.startswith("xt.")]) == n_apc

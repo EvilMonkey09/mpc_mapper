@@ -1,6 +1,7 @@
 # Baut MPC Mapper für macOS (Apple Silicon + Intel) und Windows 10/11 auf GitHub-Servern.
 #
-# Ergebnis herunterladen: Reiter "Actions" → letzter Lauf → unten "Artifacts".
+# Ergebnis: Windows-Installer (MPC-Mapper-Setup-Windows.exe) und macOS-Disk-Images (.dmg).
+# Herunterladen: Reiter "Actions" → letzter Lauf → unten "Artifacts".
 # Ein Push auf den Zweig "release" (oder ein Tag "v*") erstellt bzw. aktualisiert
 # zusätzlich das Release mit allen Dateien.
 
@@ -138,27 +139,40 @@ jobs:
           git commit -q -m "macOS-Screenshots vom Build ${GITHUB_SHA::7}"
           git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" screenshots
 
-      - name: Paket zusammenstellen
+      - name: DMG bauen
         run: |
-          OUT="MPC Mapper"
-          P="$OUT/grandMA3-Plugin"
+          # Inhalt des Disk-Images: App, Verknüpfung "Programme" zum Hineinziehen,
+          # Plugin fürs Pult, Anleitung und Demo-Layout
+          STAGE="dmg/MPC Mapper"
+          P="$STAGE/grandMA3-Plugin"
           mkdir -p "$P/gma3_library/datapools/plugins"
+          ditto "dist/MPC Mapper.app" "$STAGE/MPC Mapper.app"
+          ln -s /Applications "$STAGE/Programme"
           cp ma3_plugin/APC_Feedback.xml ma3_plugin/APC_Feedback.lua "$P/gma3_library/datapools/plugins/"
           cp packaging/LIESMICH.txt "$P/"
-          cp packaging/Anleitung.html "$OUT/"
-          cp mappings/demo.json "$OUT/Demo-Layout.json"
-          # ditto erhält Symlinks und Rechte im .app-Paket (normales zip zerstört sie)
-          ditto "dist/MPC Mapper.app" "$OUT/MPC Mapper.app"
-          ditto -c -k --keepParent "$OUT" "MPC-Mapper-macOS-${{ matrix.arch }}.zip"
-          # Einzeldateien für die Release-Seite
-          ditto -c -k --keepParent "$P" grandMA3-Plugin.zip
-          cp packaging/Anleitung.html mappings/demo.json .
-          mv demo.json Demo-Layout.json
+          cp packaging/Anleitung.html "$STAGE/"
+          cp mappings/demo.json "$STAGE/Demo-Layout.json"
+          DMG="MPC-Mapper-macOS-${{ matrix.arch }}.dmg"
+          # hdiutil meldet auf den Servern gelegentlich "Resource busy" – dann neu versuchen
+          for i in 1 2 3 4 5; do
+            hdiutil create -volname "MPC Mapper" -srcfolder "$STAGE" -ov -format UDZO "$DMG" && break
+            echo "hdiutil fehlgeschlagen, Versuch $i"; sleep 10
+          done
+          # Prüfen: DMG einhängen, App darin vorhanden und gültig
+          MNT=$(mktemp -d)
+          hdiutil attach -nobrowse -readonly -mountpoint "$MNT" "$DMG"
+          ls -la "$MNT"
+          test -x "$MNT/MPC Mapper.app/Contents/MacOS/MPC Mapper"
+          test -L "$MNT/Programme"
+          test -f "$MNT/grandMA3-Plugin/gma3_library/datapools/plugins/APC_Feedback.lua"
+          codesign --verify --deep "$MNT/MPC Mapper.app"
+          hdiutil detach "$MNT"
+          ls -lh "$DMG"
 
       - uses: actions/upload-artifact@v4
         with:
           name: MPC-Mapper-macOS-${{ matrix.arch }}
-          path: MPC-Mapper-macOS-${{ matrix.arch }}.zip
+          path: MPC-Mapper-macOS-${{ matrix.arch }}.dmg
 
       - name: Release aktualisieren
         if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/release' || github.ref == 'refs/heads/xtouch'
@@ -166,7 +180,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           source packaging/release.sh
-          gh release upload "$TAG" "MPC-Mapper-macOS-${{ matrix.arch }}.zip" --clobber
+          gh release upload "$TAG" "MPC-Mapper-macOS-${{ matrix.arch }}.dmg" --clobber
+          # alte ZIP-Pakete früherer Builds entfernen
+          gh release delete-asset "$TAG" "MPC-Mapper-macOS-${{ matrix.arch }}.zip" -y 2>/dev/null || true
 
   # ------------------------------------------------------------------------- #
   windows:
@@ -243,29 +259,54 @@ jobs:
           git commit -q -m "Windows-Screenshots vom Build ${GITHUB_SHA::7}"
           git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" screenshots-windows
 
-      - name: Paket zusammenstellen
+      - name: Installer bauen (Setup.exe)
         run: |
-          # Programm (MPC Mapper.exe + _internal) direkt in die oberste Ebene,
-          # damit man die .exe sofort findet
-          OUT="MPC Mapper"
-          mkdir -p "$OUT"
-          cp -r "dist/MPC Mapper/." "$OUT/"
-          P="$OUT/grandMA3-Plugin"
+          # Plugin-Ordner für den Installer bereitlegen
+          P="pkg/grandMA3-Plugin"
           mkdir -p "$P/gma3_library/datapools/plugins"
           cp ma3_plugin/APC_Feedback.xml ma3_plugin/APC_Feedback.lua "$P/gma3_library/datapools/plugins/"
           cp packaging/LIESMICH.txt "$P/"
-          cp packaging/Anleitung.html "$OUT/"
-          cp mappings/demo.json "$OUT/Demo-Layout.json"
-          7z a -tzip -mx=7 MPC-Mapper-Windows.zip "$OUT" > /dev/null
-          (cd "$OUT" && 7z a -tzip ../grandMA3-Plugin.zip grandMA3-Plugin > /dev/null)
+          # Versionsnummer
+          case "$GITHUB_REF" in
+            refs/tags/*)          VER="$GITHUB_REF_NAME" ;;
+            refs/heads/release)   VER="$RELEASE_VERSION" ;;
+            refs/heads/xtouch)    VER="$BETA_VERSION" ;;
+            *)                    VER="dev-${GITHUB_SHA::7}" ;;
+          esac
+          VER="${VER#v}"
+          # Inno Setup ist auf den Windows-Servern meist schon installiert
+          ISCC="/c/Program Files (x86)/Inno Setup 6/ISCC.exe"
+          if [ ! -f "$ISCC" ]; then
+            choco install innosetup -y --no-progress
+          fi
+          "$ISCC" -Q "/DAppVersion=$VER" "/DSrcRoot=$(cygpath -w "$GITHUB_WORKSPACE")" packaging/windows/installer.iss
+          ls -l MPC-Mapper-Setup-Windows.exe
+          # Einzeldateien für die Release-Seite
+          (cd pkg && 7z a -tzip ../grandMA3-Plugin.zip grandMA3-Plugin > /dev/null)
           cp packaging/Anleitung.html Anleitung.html
           cp mappings/demo.json Demo-Layout.json
-          7z l MPC-Mapper-Windows.zip | tail -3
+
+      - name: Installer testen (still installieren, starten, deinstallieren)
+        shell: pwsh
+        run: |
+          $dir = "$env:RUNNER_TEMP\MPC Mapper Test"
+          $p = Start-Process -FilePath ".\MPC-Mapper-Setup-Windows.exe" -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART","/CURRENTUSER","/DIR=`"$dir`"" -PassThru -Wait
+          if ($p.ExitCode -ne 0) { throw "Setup mit Fehler $($p.ExitCode) beendet" }
+          foreach ($f in "MPC Mapper.exe","Anleitung.html","Demo-Layout.json","grandMA3-Plugin\gma3_library\datapools\plugins\APC_Feedback.lua","unins000.exe") {
+            if (-not (Test-Path (Join-Path $dir $f))) { throw "$f fehlt nach der Installation" }
+          }
+          $log = "$PWD\installed-selftest.log"
+          $a = Start-Process -FilePath (Join-Path $dir "MPC Mapper.exe") -ArgumentList "--selftest=$log" -PassThru
+          if (-not $a.WaitForExit(90000)) { Stop-Process -Id $a.Id -Force; throw "Installiertes Programm hängt" }
+          Get-Content $log
+          if (-not (Select-String -Path $log -Pattern '^ok' -Quiet)) { throw "Selbsttest des installierten Programms nicht bestanden" }
+          $u = Start-Process -FilePath (Join-Path $dir "unins000.exe") -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART" -PassThru -Wait
+          Write-Output "Deinstallation: exit code $($u.ExitCode)"
 
       - uses: actions/upload-artifact@v4
         with:
           name: MPC-Mapper-Windows
-          path: MPC-Mapper-Windows.zip
+          path: MPC-Mapper-Setup-Windows.exe
 
       - name: Release aktualisieren
         if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/release' || github.ref == 'refs/heads/xtouch'
@@ -273,6 +314,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           source packaging/release.sh
-          gh release upload "$TAG" MPC-Mapper-Windows.zip --clobber
+          gh release upload "$TAG" MPC-Mapper-Setup-Windows.exe --clobber
+          # alte ZIP-Pakete früherer Builds entfernen
+          gh release delete-asset "$TAG" MPC-Mapper-Windows.zip -y 2>/dev/null || true
           # Einzeldateien (Plugin, Anleitung, Demo) für die Release-Seite
           gh release upload "$TAG" grandMA3-Plugin.zip Anleitung.html Demo-Layout.json --clobber

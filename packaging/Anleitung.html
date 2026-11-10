@@ -51,7 +51,7 @@
 <h2 id="paket">1. Was ist im Paket?</h2>
 <table>
   <tr><th>Datei / Ordner</th><th>Wofür?</th></tr>
-  <tr><td><code>MPC Mapper.app</code> (Mac)<br><code>MPC Mapper.exe</code> (Windows)</td><td>Das Programm</td></tr>
+  <tr><td><code>MPC Mapper.app</code> (Mac)<br><code>MPC Mapper.exe</code> (Windows)</td><td>Das Programm (Windows: wird vom Setup installiert, Mac: im Disk-Image)</td></tr>
   <tr><td><code>grandMA3-Plugin</code></td><td>Plugin fürs Pult, schon in der richtigen Ordnerstruktur für den USB-Stick – schickt den Status der Executoren an die App. Mit Kurzanleitung <code>LIESMICH.txt</code></td></tr>
   <tr><td><code>Demo-Layout.json</code></td><td>Die Standardbelegung als Datei (<i>File → Open…</i>)</td></tr>
   <tr><td><code>Anleitung.html</code></td><td>Diese Anleitung</td></tr>
@@ -62,13 +62,13 @@
 
 <h3>Windows 10 / 11</h3>
 <ol>
-  <li><b>MPC-Mapper-Windows.zip</b> herunterladen.</li>
-  <li>Rechtsklick auf die ZIP → <b>„Alle extrahieren…“</b> → <b>„Extrahieren“</b>. Wichtig: Nicht direkt aus der ZIP heraus starten!</li>
-  <li>Den entpackten Ordner z.&nbsp;B. nach <code>C:\MPC Mapper</code> oder in „Dokumente“ verschieben.</li>
-  <li>Im Ordner <b><code>MPC Mapper.exe</code></b> doppelklicken. Tipp: Rechtsklick → <i>Senden an → Desktop (Verknüpfung erstellen)</i> für ein Symbol auf dem Desktop.</li>
+  <li><b>MPC-Mapper-Setup-Windows.exe</b> herunterladen und doppelklicken.</li>
+  <li>Dem Installations-Assistenten folgen (<b>Weiter → Installieren</b>). Auf Wunsch einen Haken bei „Desktop-Symbol erstellen“ setzen. Administratorrechte sind nicht nötig.</li>
+  <li>Fertig: MPC Mapper startet automatisch und steht im <b>Startmenü</b>. Dort findest du auch die <b>Anleitung</b>, den Ordner <b>grandMA3-Plugin</b> und „MPC Mapper deinstallieren“.</li>
 </ol>
+<p>Für ein Update einfach die neue Setup-Datei ausführen – deine Belegungen bleiben erhalten (sie liegen in <i>Dokumente\MPC Mapper</i>). Entfernen geht auch über <i>Einstellungen → Apps</i>.</p>
 <div class="box warn">
-  <b>„Der Computer wurde durch Windows geschützt“?</b> Das ist normal, weil das Programm nicht signiert ist.
+  <b>„Der Computer wurde durch Windows geschützt“?</b> Das ist normal, weil die Setup-Datei nicht signiert ist.
   Klicke auf <b>„Weitere Informationen“</b> und dann auf <b>„Trotzdem ausführen“</b>.
 </div>
 <div class="box">
@@ -78,8 +78,10 @@
 <h3>Mac</h3>
 <ol>
   <li>Prüfe, welchen Mac du hast: Apfel-Menü  → <b>Über diesen Mac</b>. Steht bei „Chip“ <i>Apple M…</i>, brauchst du die Version <b>apple-silicon</b>, sonst <b>intel</b>.</li>
-  <li>Die heruntergeladene ZIP doppelklicken – es entsteht ein Ordner.</li>
-  <li><code>MPC Mapper.app</code> in den Ordner <b>Programme</b> ziehen.</li>
+  <li>Die passende <b>.dmg</b>-Datei herunterladen und doppelklicken – es öffnet sich ein Fenster „MPC Mapper“.</li>
+  <li><code>MPC Mapper.app</code> auf die Verknüpfung <b>Programme</b> im selben Fenster ziehen.</li>
+  <li>Den Ordner <b>grandMA3-Plugin</b> und die <b>Anleitung</b> bei Bedarf auf den Schreibtisch ziehen (das Plugin brauchst du für das Pult).</li>
+  <li>Das Fenster schließen und „MPC Mapper“ in der Seitenleiste des Finders <b>auswerfen</b>. Die .dmg-Datei kannst du danach löschen.</li>
   <li>App starten (Launchpad oder Programme-Ordner).</li>
 </ol>
 <div class="box warn">
@@ -187,7 +189,7 @@ Alternative: nur bei Line 2 <b>127.0.0.1</b>. Die Node läuft in beiden Fällen 
 <h2 id="probleme">8. Wenn etwas nicht klappt</h2>
 <table>
   <tr><th>Problem</th><th>Lösung</th></tr>
-  <tr><td>Programm lässt sich nicht öffnen</td><td><b>Windows:</b> „Weitere Informationen“ → „Trotzdem ausführen“. ZIP vorher entpacken! Schlägt der Virenscanner an, das Programm dort als Ausnahme zulassen.<br><b>Mac:</b> Systemeinstellungen → Datenschutz &amp; Sicherheit → „Dennoch öffnen“.</td></tr>
+  <tr><td>Programm lässt sich nicht öffnen</td><td><b>Windows:</b> „Weitere Informationen“ → „Trotzdem ausführen“. Schlägt der Virenscanner an, das Programm dort als Ausnahme zulassen.<br><b>Mac:</b> Systemeinstellungen → Datenschutz &amp; Sicherheit → „Dennoch öffnen“.</td></tr>
   <tr><td>APC wird nicht gefunden</td><td>USB neu einstecken, App neu starten, andere Musik-/MIDI-Programme schließen. Rechts neben den Ports auf ↻ klicken.</td></tr>
   <tr><td>X-Touch: Lämpchen oder Motorfader reagieren nicht</td><td>Gerätetest durchführen und den Testbericht schicken. Das Gerät erwartet die Befehle auf seinem „Global Channel“; die App sendet sie auf Kanal 1 und 2.</td></tr>
   <tr><td>Pads reagieren nicht mehr</td><td>Der APC ist im Drum/Note-Modus. Am Gerät <b>Shift + Scene 5</b> drücken.</td></tr>

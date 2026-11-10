@@ -3,6 +3,7 @@
 Steuert grandMA3 mit einem **Akai APC mini mk2** und/oder einem **Behringer X-Touch Compact**, inklusive LED-Rückmeldung.
 
 ### Neu in v2.1
+- **Richtige Installation:** Windows bekommt einen Installer (`Setup.exe`) mit Startmenü, Desktop-Symbol und Deinstallation, der Mac ein Disk-Image (`.dmg`) zum Hineinziehen in „Programme“.
 - **Standardbelegung wie am grandMA3-Pult** für APC und X-Touch (beide Layer), jeder Executor genau einmal; *File → Load standard layout*.
 - **X-Touch Layer A und B** mit eigenen Belegungen (Executoren 1–9 und 10–18).
 - **Pult-Verbindung prüfen** auf der Seite *Setup & check*: findet heraus, warum kein Feedback ankommt.
@@ -14,33 +15,34 @@ Steuert grandMA3 mit einem **Akai APC mini mk2** und/oder einem **Behringer X-To
 - Verbindungsleiste mit einer Zeile pro Controller; die passende Ausgangs-Schnittstelle wird automatisch gewählt.
 
 ### Welche Datei brauche ich?
-Du brauchst nur **ein Komplettpaket**. Darin ist alles: das Programm, das Plugin fürs Pult, die Anleitung und ein Demo-Layout.
+Du brauchst nur **eine Datei** für dein System. Darin ist alles: das Programm, das Plugin fürs Pult, die Anleitung und ein Demo-Layout.
 
 | Datei | Für |
 | --- | --- |
-| **MPC-Mapper-Windows.zip** | Windows 10 und 11 (64 Bit) |
-| **MPC-Mapper-macOS-apple-silicon.zip** | Macs mit M1, M2, M3 oder M4 |
-| **MPC-Mapper-macOS-intel.zip** | ältere Macs mit Intel-Prozessor |
-| grandMA3-Plugin.zip | nur das Plugin fürs Pult (steckt auch in jedem Komplettpaket) |
-| Anleitung.html | ausführliche Anleitung auf Deutsch (steckt auch in jedem Komplettpaket) |
-| Demo-Layout.json | Beispiel-Belegung (steckt auch in jedem Komplettpaket) |
+| **MPC-Mapper-Setup-Windows.exe** | Windows 10 und 11 (64 Bit) |
+| **MPC-Mapper-macOS-apple-silicon.dmg** | Macs mit M1, M2, M3 oder M4 |
+| **MPC-Mapper-macOS-intel.dmg** | ältere Macs mit Intel-Prozessor |
+| grandMA3-Plugin.zip | nur das Plugin fürs Pult (steckt auch im Installer bzw. in der .dmg) |
+| Anleitung.html | ausführliche Anleitung auf Deutsch (steckt auch im Installer bzw. in der .dmg) |
+| Demo-Layout.json | Beispiel-Belegung (steckt auch im Installer bzw. in der .dmg) |
 
 Welchen Mac du hast, steht unter  → „Über diesen Mac“ bei „Chip“ bzw. „Prozessor“.
 
-### Windows in 4 Schritten
-1. ZIP herunterladen, **Rechtsklick → „Alle extrahieren…“** (nicht direkt aus der ZIP starten).
-2. Im entpackten Ordner **`MPC Mapper.exe`** doppelklicken.
-3. Erscheint „Der Computer wurde durch Windows geschützt“: **„Weitere Informationen“ → „Trotzdem ausführen“**.
-4. Fragt die Windows-Firewall nach Netzwerkzugriff: **Zugriff zulassen**.
+### Windows in 3 Schritten
+1. **`MPC-Mapper-Setup-Windows.exe`** herunterladen und doppelklicken.
+2. Erscheint „Der Computer wurde durch Windows geschützt“: **„Weitere Informationen“ → „Trotzdem ausführen“**. Dann **Weiter → Installieren** (keine Administratorrechte nötig).
+3. Fragt die Windows-Firewall nach Netzwerkzugriff: **Zugriff zulassen**.
+
+MPC Mapper steht danach im Startmenü, zusammen mit Anleitung, Plugin-Ordner und Deinstallation.
 
 ### Mac in 4 Schritten
-1. ZIP herunterladen und doppelklicken.
-2. `MPC Mapper.app` in den Ordner **Programme** ziehen.
+1. Die passende **`.dmg`** herunterladen und doppelklicken.
+2. `MPC Mapper.app` im geöffneten Fenster auf **Programme** ziehen. Den Ordner `grandMA3-Plugin` bei Bedarf auf den Schreibtisch ziehen.
 3. App starten. Blockiert macOS sie: **Systemeinstellungen → Datenschutz & Sicherheit** → ganz unten **„Dennoch öffnen“**.
 4. Fragt macOS nach eingehenden Netzwerkverbindungen: **Erlauben**.
 
 ### Danach (beide Systeme)
-- **Pult einrichten:** Ordner `gma3_library` aus `grandMA3-Plugin` auf einen USB-Stick kopieren, Plugin importieren und starten, zwei OSC-Lines anlegen (siehe `LIESMICH.txt` bzw. `Anleitung.html`).
+- **Pult einrichten:** Ordner `gma3_library` aus `grandMA3-Plugin` (Windows: Startmenü → MPC Mapper → grandMA3-Plugin) auf einen USB-Stick kopieren, Plugin importieren und starten, zwei OSC-Lines anlegen (siehe `LIESMICH.txt` bzw. `Anleitung.html`).
 - **Verbinden:** In MPC Mapper die IP des Pults eintragen und bei grandMA3 auf **Connect** klicken.
 
 Original-Projekt: https://github.com/miles-p/MPC_Mapper

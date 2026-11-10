@@ -5,7 +5,7 @@ Steuert grandMA3 mit einem **Akai APC mini mk2** und/oder einem **Behringer X-To
 ### Neu in v2.2
 - **X-Touch: Layer umschalten mit der MAIN-Taste** (unter dem Main-Fader). Die Motorfader und Lämpchen springen sofort auf die richtige Ebene, auf Layer B leuchtet die MAIN-Taste, und die App zeigt automatisch die passende Ebene. Die Tasten LAYER A/B am Gerät bitte nicht mehr benutzen – sie schicken dem Computer nichts.
 - Hast du schon eine eigene Belegung gespeichert: einmal *File → Load standard layout → X-Touch* laden, damit die MAIN-Taste den Layer umschaltet.
-- Am Mac mit M1–M4 läuft auch die Intel-Version (über Rosetta), falls die Apple-Silicon-Datei einmal fehlt.
+- **Eine Mac-Datei für alle Macs:** `MPC-Mapper-macOS-universal.dmg` läuft nativ auf M1–M4 und auf Intel-Macs.
 
 ### Neu in v2.1
 - **Richtige Installation:** Windows bekommt einen Installer (`Setup.exe`) mit Startmenü, Desktop-Symbol und Deinstallation, der Mac ein Disk-Image (`.dmg`) zum Hineinziehen in „Programme“.
@@ -25,13 +25,12 @@ Du brauchst nur **eine Datei** für dein System. Darin ist alles: das Programm, 
 | Datei | Für |
 | --- | --- |
 | **MPC-Mapper-Setup-Windows.exe** | Windows 10 und 11 (64 Bit) |
-| **MPC-Mapper-macOS-apple-silicon.dmg** | Macs mit M1, M2, M3 oder M4 |
-| **MPC-Mapper-macOS-intel.dmg** | ältere Macs mit Intel-Prozessor |
+| **MPC-Mapper-macOS-universal.dmg** | alle Macs (M1–M4 und Intel) |
+| MPC-Mapper-macOS-intel.dmg | nur Intel-Macs – Ersatz, falls die Universal-Version nicht startet |
 | grandMA3-Plugin.zip | nur das Plugin fürs Pult (steckt auch im Installer bzw. in der .dmg) |
 | Anleitung.html | ausführliche Anleitung auf Deutsch (steckt auch im Installer bzw. in der .dmg) |
 | Demo-Layout.json | Beispiel-Belegung (steckt auch im Installer bzw. in der .dmg) |
 
-Welchen Mac du hast, steht unter  → „Über diesen Mac“ bei „Chip“ bzw. „Prozessor“.
 
 ### Windows in 3 Schritten
 1. **`MPC-Mapper-Setup-Windows.exe`** herunterladen und doppelklicken.
@@ -41,7 +40,7 @@ Welchen Mac du hast, steht unter  → „Über diesen Mac“ bei „Chip“ bzw.
 MPC Mapper steht danach im Startmenü, zusammen mit Anleitung, Plugin-Ordner und Deinstallation.
 
 ### Mac in 4 Schritten
-1. Die passende **`.dmg`** herunterladen und doppelklicken.
+1. **`MPC-Mapper-macOS-universal.dmg`** herunterladen und doppelklicken.
 2. `MPC Mapper.app` im geöffneten Fenster auf **Programme** ziehen. Den Ordner `grandMA3-Plugin` bei Bedarf auf den Schreibtisch ziehen.
 3. App starten. Blockiert macOS sie: **Systemeinstellungen → Datenschutz & Sicherheit** → ganz unten **„Dennoch öffnen“**.
 4. Fragt macOS nach eingehenden Netzwerkverbindungen: **Erlauben**.

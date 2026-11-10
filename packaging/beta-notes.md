@@ -15,5 +15,5 @@ Neu gegenüber v1.2:
 | Datei | Für |
 | --- | --- |
 | **MPC-Mapper-Setup-Windows.exe** | Windows 10 und 11 (64 Bit) |
-| **MPC-Mapper-macOS-apple-silicon.dmg** | Macs mit M1–M4 |
-| **MPC-Mapper-macOS-intel.dmg** | Macs mit Intel-Prozessor |
+| **MPC-Mapper-macOS-universal.dmg** | alle Macs (M1–M4 und Intel) |
+| MPC-Mapper-macOS-intel.dmg | nur Intel-Macs (Ersatz) |

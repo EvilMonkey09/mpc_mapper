@@ -2,12 +2,13 @@
 from __future__ import annotations
 
 from PySide6.QtCore import QMimeData, Qt
-from PySide6.QtGui import QDrag
+from PySide6.QtGui import QColor, QDrag, QFont
 from PySide6.QtWidgets import (QComboBox, QFormLayout, QGroupBox, QLabel, QLineEdit,
                                QSpinBox, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget)
 
 from .. import apc
 from ..model import CATALOG, CATALOG_BY_ID, CatalogItem
+from . import theme
 from .apc_widget import MIME_CATALOG
 
 ROLE_ID = Qt.UserRole + 1
@@ -17,21 +18,28 @@ class CatalogTree(QTreeWidget):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setHeaderHidden(True)
+        self.setIndentation(14)
+        self.setRootIsDecorated(True)
+        self.setAnimated(True)
         self.setDragEnabled(True)
         self.setDragDropMode(QTreeWidget.DragOnly)
         groups: dict[str, QTreeWidgetItem] = {}
         for item in CATALOG:
             g = groups.get(item.group)
             if g is None:
-                g = QTreeWidgetItem([item.group])
+                g = QTreeWidgetItem([item.group.upper()])
                 g.setFlags(Qt.ItemIsEnabled)
                 f = g.font(0)
                 f.setBold(True)
+                f.setPointSizeF(f.pointSizeF() * 0.85)
+                f.setLetterSpacing(QFont.PercentageSpacing, 108)
                 g.setFont(0, f)
+                g.setForeground(0, QColor(theme.MUTED))
                 self.addTopLevelItem(g)
                 groups[item.group] = g
-            icon = "▮" if item.kind == "fader" else "■"
-            ti = QTreeWidgetItem([f"{icon}  {item.name.replace('{page}', 'N')}"])
+            ti = QTreeWidgetItem([item.name.replace('{page}', 'N')])
+            if item.kind == "fader":
+                ti.setForeground(0, QColor("#cfd6e0"))
             ti.setData(0, ROLE_ID, item.id)
             ti.setToolTip(0, self._tooltip(item))
             ti.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled)
@@ -84,16 +92,24 @@ class CatalogPanel(QWidget):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         lay = QVBoxLayout(self)
-        lay.setContentsMargins(4, 4, 4, 4)
-        lay.addWidget(QLabel("<b>grandMA3 controls</b> — drag onto the APC"))
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.setSpacing(8)
+        title = QLabel("CONTROLS")
+        title.setObjectName("SectionTitle")
+        lay.addWidget(title)
+        sub = QLabel("Drag a command onto a pad, button or fader.")
+        sub.setObjectName("Hint")
+        sub.setWordWrap(True)
+        lay.addWidget(sub)
         self.search = QLineEdit()
-        self.search.setPlaceholderText("Filter…")
+        self.search.setPlaceholderText("Search commands…")
+        self.search.setClearButtonEnabled(True)
         lay.addWidget(self.search)
         self.tree = CatalogTree()
         lay.addWidget(self.tree, 1)
         self.search.textChanged.connect(self.tree.filter)
 
-        box = QGroupBox("Executor for dropped controls")
+        box = QGroupBox("Target executor for new drops")
         f = QFormLayout(box)
         self.mode = QComboBox()
         self.mode.addItems(["By column (base + column)", "Fixed number", "Auto-increment"])
@@ -109,7 +125,7 @@ class CatalogPanel(QWidget):
         hint = QLabel("Column mode: pad column 1 → base, column 2 → base+1 … "
                       "Fader 1-8 likewise.")
         hint.setWordWrap(True)
-        hint.setStyleSheet("color: #888; font-size: 10px;")
+        hint.setObjectName("Hint")
         f.addRow(hint)
         lay.addWidget(box)
 

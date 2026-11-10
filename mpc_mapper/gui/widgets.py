@@ -117,8 +117,8 @@ class PaletteButton(QPushButton):
         fg = text_color_for(rgb)
         self.setText(f"{i}")
         self.setStyleSheet(
-            f"background-color: rgb{rgb}; color: {fg.name()}; border: 1px solid #555;"
-            "padding: 4px; border-radius: 3px;")
+            f"background-color: rgb{rgb}; color: {fg.name()}; border: 1px solid #424955;"
+            "padding: 5px 8px; border-radius: 7px; font-weight: 600;")
 
     def _open(self) -> None:
         pop = PalettePopup(self.index, self)

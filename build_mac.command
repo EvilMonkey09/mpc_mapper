@@ -43,12 +43,21 @@ fi
 
 # 3. App bauen --------------------------------------------------------------
 say_step "Baue \"$APP_NAME.app\" …"
-rm -rf build dist
+rm -rf build dist iconbuild
+# App-Icon (.icns) aus dem 1024er PNG erzeugen
+ICONSET=iconbuild/AppIcon.iconset
+mkdir -p "$ICONSET"
+for sz in 16 32 128 256 512; do
+    sips -z $sz $sz mpc_mapper/assets/icon.png --out "$ICONSET/icon_${sz}x${sz}.png" >/dev/null
+    sips -z $((sz*2)) $((sz*2)) mpc_mapper/assets/icon.png --out "$ICONSET/icon_${sz}x${sz}@2x.png" >/dev/null
+done
+iconutil -c icns "$ICONSET" -o iconbuild/AppIcon.icns
 # mido lädt seinen MIDI-Treiber (rtmidi) erst zur Laufzeit per Name –
 # deshalb muss er ausdrücklich mit eingepackt werden.
 "$BUILD_VENV/bin/pyinstaller" \
     --noconfirm --clean --log-level WARN \
     --windowed \
+    --icon iconbuild/AppIcon.icns \
     --name "$APP_NAME" \
     --osx-bundle-identifier "com.mpcmapper.app" \
     --paths "$PROJECT_DIR" \
@@ -56,6 +65,7 @@ rm -rf build dist
     --hidden-import rtmidi \
     --add-data "ma3_plugin:ma3_plugin" \
     --add-data "mappings:mappings" \
+    --add-data "mpc_mapper/assets:mpc_mapper/assets" \
     mac/launcher.py
 
 APP_PATH="$PROJECT_DIR/dist/$APP_NAME.app"

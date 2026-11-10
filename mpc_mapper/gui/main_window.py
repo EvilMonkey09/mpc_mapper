@@ -6,12 +6,14 @@ import os
 import sys
 from typing import Optional
 
-from PySide6.QtCore import QSettings, Qt, QTimer
+from PySide6.QtCore import QSettings, QStandardPaths, Qt, QTimer
 from PySide6.QtGui import QAction, QKeySequence
-from PySide6.QtWidgets import (QCheckBox, QComboBox, QFileDialog, QHBoxLayout, QInputDialog,
-                               QLabel, QLineEdit, QMainWindow, QMessageBox, QPlainTextEdit,
-                               QPushButton, QSpinBox, QSplitter, QTabWidget, QTextBrowser,
-                               QToolBar, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QAbstractSpinBox, QCheckBox, QComboBox, QFileDialog, QFrame,
+                               QHBoxLayout, QInputDialog, QLabel, QLineEdit, QMainWindow,
+                               QMessageBox, QPlainTextEdit, QPushButton, QScrollArea, QSizePolicy,
+                               QSpinBox,
+                               QSplitter, QTabWidget, QTextBrowser, QToolBar, QVBoxLayout,
+                               QWidget)
 
 from .. import apc
 from ..engine import Engine
@@ -20,6 +22,7 @@ from .apc_widget import APCWidget
 from .catalog import CatalogPanel
 from .inspector import Inspector
 from .led_lab import LedLab
+from . import theme
 from .widgets import mono_font
 
 MA3_SETUP_HTML = """
@@ -71,14 +74,22 @@ class MainWindow(QMainWindow):
         self.diagram = APCWidget(mapping)
         self.diagram.accepts = self.catalog.accepts
         self.inspector = Inspector(mapping)
-        self.inspector.setMinimumWidth(330)
+        self.inspector.setMinimumWidth(320)
 
         top = QSplitter(Qt.Horizontal)
+        top.setChildrenCollapsible(False)
         top.addWidget(self.catalog)
         top.addWidget(self.diagram)
-        top.addWidget(self.inspector)
+        # the inspector is tall: scroll instead of being cut off on small screens
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll.setWidget(self.inspector)
+        scroll.setMinimumWidth(340)
+        top.addWidget(scroll)
         top.setStretchFactor(1, 1)
-        top.setSizes([260, 760, 360])
+        top.setSizes([270, 760, 360])
 
         self.tabs = QTabWidget()
         self.lab = LedLab(self.engine.apc, lambda: self.diagram.selected_control)
@@ -92,8 +103,13 @@ class MainWindow(QMainWindow):
         vs.addWidget(top)
         vs.addWidget(self.tabs)
         vs.setStretchFactor(0, 1)
-        vs.setSizes([640, 260])
-        self.setCentralWidget(vs)
+        vs.setSizes([700, 230])
+        self.vsplit, self.hsplit = vs, top
+        central = QWidget()
+        cl = QVBoxLayout(central)
+        cl.setContentsMargins(10, 10, 10, 6)
+        cl.addWidget(vs)
+        self.setCentralWidget(central)
 
         self._make_toolbar()
         self._make_menu()
@@ -133,50 +149,99 @@ class MainWindow(QMainWindow):
                 print(f"MPC Mapper: could not load {last}: {e}")
         return demo_mapping()
 
+    @staticmethod
+    def _field(label: str, w: QWidget) -> QWidget:
+        box = QWidget()
+        h = QHBoxLayout(box)
+        h.setContentsMargins(0, 0, 0, 0)
+        h.setSpacing(6)
+        lb = QLabel(label)
+        lb.setObjectName("Hint")
+        h.addWidget(lb)
+        h.addWidget(w)
+        return box
+
+    @staticmethod
+    def _card(title: str) -> tuple[QFrame, QHBoxLayout, QLabel]:
+        card = QFrame()
+        card.setObjectName("Card")
+        h = QHBoxLayout(card)
+        h.setContentsMargins(12, 6, 8, 6)
+        h.setSpacing(10)
+        dot = QLabel()
+        dot.setTextFormat(Qt.RichText)
+        h.addWidget(dot)
+        t = QLabel(title)
+        t.setObjectName("CardTitle")
+        h.addWidget(t)
+        return card, h, dot
+
     def _make_toolbar(self) -> None:
         tb = QToolBar("Connection")
         tb.setMovable(False)
+        tb.setFloatable(False)
+        tb.toggleViewAction().setVisible(False)
         self.addToolBar(tb)
         s = self.mapping.settings
 
-        tb.addWidget(QLabel(" APC in "))
+        # ---- APC card
+        card, h, self.dot_apc = self._card("APC mini mk2")
         self.midi_in = QComboBox()
-        self.midi_in.setMinimumWidth(180)
-        tb.addWidget(self.midi_in)
-        tb.addWidget(QLabel(" out "))
+        self.midi_in.setToolTip("MIDI input port (the APC's \"Control\" port)")
         self.midi_out = QComboBox()
-        self.midi_out.setMinimumWidth(180)
-        tb.addWidget(self.midi_out)
+        self.midi_out.setToolTip("MIDI output port for the LEDs")
+        for c in (self.midi_in, self.midi_out):
+            c.setMinimumWidth(150)
+            c.setMaximumWidth(220)
+            c.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+            c.setMinimumContentsLength(12)
+        h.addWidget(self._field("In", self.midi_in))
+        h.addWidget(self._field("Out", self.midi_out))
         rb = QPushButton("↻")
-        rb.setToolTip("Rescan MIDI ports")
+        rb.setObjectName("Icon")
+        rb.setToolTip("Rescan MIDI ports (after plugging in the APC)")
         rb.clicked.connect(self._scan_ports)
-        tb.addWidget(rb)
-        self.midi_btn = QPushButton("Connect APC")
+        h.addWidget(rb)
+        self.midi_btn = QPushButton("Connect")
+        self.midi_btn.setMinimumWidth(104)
         self.midi_btn.clicked.connect(self._toggle_midi)
-        tb.addWidget(self.midi_btn)
-        tb.addSeparator()
+        h.addWidget(self.midi_btn)
+        tb.addWidget(card)
 
-        tb.addWidget(QLabel(" MA3 IP "))
+        # ---- MA3 card
+        card, h, self.dot_ma3 = self._card("grandMA3")
         self.host = QLineEdit(s.ma3_host)
-        self.host.setFixedWidth(120)
-        tb.addWidget(self.host)
-        tb.addWidget(QLabel(" port "))
+        self.host.setPlaceholderText("Console IP")
+        self.host.setToolTip("IP address of the grandMA3 console or onPC")
+        self.host.setFixedWidth(130)
+        self.host.returnPressed.connect(self._connect_ma3)
         self.port = QSpinBox()
-        self.port.setRange(1, 65535)
-        self.port.setValue(s.ma3_port)
-        tb.addWidget(self.port)
-        tb.addWidget(QLabel(" listen "))
+        self.port.setToolTip("OSC port the console receives commands on (OSC line 1)")
         self.listen = QSpinBox()
-        self.listen.setRange(1, 65535)
-        self.listen.setValue(s.listen_port)
-        tb.addWidget(self.listen)
-        tb.addWidget(QLabel(" prefix "))
+        self.listen.setToolTip("Port this app listens on for feedback (OSC line 2)")
+        for sp, v in ((self.port, s.ma3_port), (self.listen, s.listen_port)):
+            sp.setRange(1, 65535)
+            sp.setValue(v)
+            sp.setButtonSymbols(QAbstractSpinBox.NoButtons)
+            sp.setObjectName("Compact")
+            sp.setFixedWidth(64)
         self.prefix = QLineEdit(s.osc_prefix)
-        self.prefix.setFixedWidth(60)
-        tb.addWidget(self.prefix)
-        self.ma3_btn = QPushButton("Connect MA3")
+        self.prefix.setToolTip("OSC prefix set on line 1 in MA3")
+        self.prefix.setFixedWidth(64)
+        h.addWidget(self._field("IP", self.host))
+        h.addWidget(self._field("Port", self.port))
+        h.addWidget(self._field("Listen", self.listen))
+        h.addWidget(self._field("Prefix", self.prefix))
+        self.ma3_btn = QPushButton("Connect")
+        self.ma3_btn.setObjectName("Primary")
+        self.ma3_btn.setMinimumWidth(104)
         self.ma3_btn.clicked.connect(self._connect_ma3)
-        tb.addWidget(self.ma3_btn)
+        h.addWidget(self.ma3_btn)
+        tb.addWidget(card)
+
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        tb.addWidget(spacer)
         self._scan_ports()
 
     def _make_menu(self) -> None:
@@ -218,11 +283,13 @@ class MainWindow(QMainWindow):
 
     def _make_status(self) -> None:
         sb = self.statusBar()
+        sb.setSizeGripEnabled(False)
         self.st_midi = QLabel()
         self.st_ma3 = QLabel()
         self.st_page = QLabel()
-        for w in (self.st_midi, self.st_ma3, self.st_page):
-            sb.addPermanentWidget(w)
+        sb.addWidget(self.st_midi)
+        sb.addWidget(self.st_ma3)
+        sb.addPermanentWidget(self.st_page)
         self._update_status()
 
     def _make_log(self) -> QWidget:
@@ -290,7 +357,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "OSC", f"Could not open listen port {s.listen_port}:\n{e}")
             return
         self.engine.sync_watch_list()
-        self.ma3_btn.setText("Reconnect MA3")
+        self.ma3_btn.setText("Reconnect")
         self._update_status()
 
     def _autoconnect(self) -> None:
@@ -304,22 +371,37 @@ class MainWindow(QMainWindow):
     def _update_status(self) -> None:
         a = self.engine.apc
         if a.connected:
-            self.st_midi.setText("<span style='color:#4c4'>●</span> APC connected")
-            self.midi_btn.setText("Disconnect APC")
+            self.dot_apc.setText(theme.dot(theme.OK))
+            self.dot_apc.setToolTip("APC connected")
+            self.st_midi.setText(f"{theme.dot(theme.OK, 8)} APC connected")
+            self.midi_btn.setText("Disconnect")
+            self.midi_btn.setObjectName("")
         else:
-            self.st_midi.setText("<span style='color:#c44'>●</span> APC not connected "
-                                 "(Shift+click the drawing to simulate)")
-            self.midi_btn.setText("Connect APC")
+            self.dot_apc.setText(theme.dot(theme.ERR))
+            self.dot_apc.setToolTip("APC not connected")
+            self.st_midi.setText(f"{theme.dot(theme.ERR, 8)} APC not connected  "
+                                 f"<span style='color:{theme.FAINT}'>· Shift+click the drawing "
+                                 "to simulate</span>")
+            self.midi_btn.setText("Connect")
+            self.midi_btn.setObjectName("Primary")
+        self.midi_btn.style().unpolish(self.midi_btn)
+        self.midi_btn.style().polish(self.midi_btn)
         m = self.engine.ma3
         if m.client is None:
-            self.st_ma3.setText("<span style='color:#c44'>●</span> MA3 off")
+            col, text = theme.ERR, "MA3 not connected"
         elif m.plugin_alive:
-            self.st_ma3.setText(f"<span style='color:#4c4'>●</span> MA3 feedback "
-                                f"{('v' + m.plugin_version) if m.plugin_version else ''}")
+            col = theme.OK
+            text = f"MA3 feedback {('v' + m.plugin_version) if m.plugin_version else ''}"
         else:
-            self.st_ma3.setText(f"<span style='color:#ca4'>●</span> MA3 → {m.host}:{m.port} "
-                                f"(no feedback on :{m.listen_port})")
-        self.st_page.setText(f"  Page {m.current_page}  ")
+            col = theme.WARN
+            text = (f"MA3 → {m.host}:{m.port}  <span style='color:{theme.FAINT}'>· no feedback "
+                    f"on :{m.listen_port} – is the APC_Feedback plugin running?</span>")
+        self.dot_ma3.setText(theme.dot(col))
+        self.dot_ma3.setToolTip("Feedback plugin answers" if col == theme.OK else
+                                "Sending commands, no feedback yet" if col == theme.WARN else
+                                "Not connected")
+        self.st_ma3.setText(f"{theme.dot(col, 8)} {text}")
+        self.st_page.setText(f"Page <b>{m.current_page}</b>")
 
     def _fader_sync(self, values: list) -> None:
         for i, v in enumerate(values):
@@ -461,9 +543,20 @@ class MainWindow(QMainWindow):
                 QMessageBox.warning(self, "Open", f"Could not load {path}:\n{e}")
 
     def _dir(self) -> str:
+        if self.path:
+            return os.path.dirname(self.path)
         here = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
             os.path.abspath(__file__)))), "mappings")
-        return os.path.dirname(self.path) if self.path else here
+        if not getattr(sys, "frozen", False) and os.access(here, os.W_OK):
+            return here          # running from the source folder
+        docs = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation) \
+            or os.path.expanduser("~")
+        d = os.path.join(docs, "MPC Mapper")
+        try:
+            os.makedirs(d, exist_ok=True)
+        except OSError:
+            return docs
+        return d
 
     def _save(self) -> bool:
         if not self.path:
@@ -499,9 +592,21 @@ class MainWindow(QMainWindow):
         s.midi_in = self.midi_in.currentData() or ""
         s.midi_out = self.midi_out.currentData() or ""
 
+    def fit_to_screen(self) -> None:
+        """Restore the last window size/position, or pick one that fits the screen."""
+        geo = self.qs.value("window_geometry")
+        if geo is not None and self.restoreGeometry(geo):
+            return
+        scr = self.screen().availableGeometry()
+        w = min(1450, int(scr.width() * 0.94))
+        h = min(950, int(scr.height() * 0.92))
+        self.resize(w, h)
+        self.move(scr.x() + (scr.width() - w) // 2, scr.y() + (scr.height() - h) // 2)
+
     def closeEvent(self, e) -> None:
         if not self._maybe_save():
             e.ignore()
             return
+        self.qs.setValue("window_geometry", self.saveGeometry())
         self.engine.shutdown()
         e.accept()

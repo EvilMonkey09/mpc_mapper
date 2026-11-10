@@ -24,12 +24,16 @@ class Inspector(QWidget):
         self._loading = False
 
         lay = QVBoxLayout(self)
-        lay.setContentsMargins(4, 4, 4, 4)
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.setSpacing(8)
+        head = QLabel("INSPECTOR")
+        head.setObjectName("SectionTitle")
+        lay.addWidget(head)
         self.title = QLabel("<b>Select a control</b>")
         lay.addWidget(self.title)
         self.subtitle = QLabel("")
         self.subtitle.setWordWrap(True)
-        self.subtitle.setStyleSheet("color: #888;")
+        self.subtitle.setObjectName("Hint")
         lay.addWidget(self.subtitle)
 
         # ---- action
@@ -61,10 +65,10 @@ class Inspector(QWidget):
         self.preview = QLabel()
         self.preview.setWordWrap(True)
         self.preview.setFont(mono_font(8))
-        self.preview.setStyleSheet("color: #7fbf7f;")
+        self.preview.setStyleSheet("color: #7fd18f;")
         f.addRow(self.preview)
         help_ = QLabel("Placeholders: {target} {page} {exec} {value}")
-        help_.setStyleSheet("color: #888; font-size: 10px;")
+        help_.setObjectName("Hint")
         f.addRow(help_)
         lay.addWidget(self.action_box)
 
@@ -108,9 +112,12 @@ class Inspector(QWidget):
         lay.addWidget(self.led_box)
 
         btns = QHBoxLayout()
-        self.reset_btn = QPushButton("Reset to catalogue defaults")
+        self.reset_btn = QPushButton("Reset to defaults")
+        self.reset_btn.setToolTip("Restore the catalogue defaults for this command")
         self.clear_btn = QPushButton("Clear")
-        btns.addWidget(self.reset_btn)
+        self.clear_btn.setObjectName("Danger")
+        self.clear_btn.setToolTip("Remove the assignment from this control")
+        btns.addWidget(self.reset_btn, 1)
         btns.addWidget(self.clear_btn)
         lay.addLayout(btns)
         lay.addStretch(1)

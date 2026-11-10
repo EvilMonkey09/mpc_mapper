@@ -50,9 +50,18 @@ jobs:
               'if __name__ == "__main__":' \
               '    sys.exit(main())' > mac/launcher.py
           fi
+          # App-Icon (.icns) aus dem 1024er PNG erzeugen
+          ICONSET=iconbuild/AppIcon.iconset
+          mkdir -p "$ICONSET"
+          for sz in 16 32 128 256 512; do
+            sips -z $sz $sz mpc_mapper/assets/icon.png --out "$ICONSET/icon_${sz}x${sz}.png" >/dev/null
+            sips -z $((sz*2)) $((sz*2)) mpc_mapper/assets/icon.png --out "$ICONSET/icon_${sz}x${sz}@2x.png" >/dev/null
+          done
+          iconutil -c icns "$ICONSET" -o iconbuild/AppIcon.icns
           pyinstaller \
             --noconfirm --clean --log-level WARN \
             --windowed \
+            --icon iconbuild/AppIcon.icns \
             --name "MPC Mapper" \
             --osx-bundle-identifier "com.mpcmapper.app" \
             --paths "$GITHUB_WORKSPACE" \
@@ -60,6 +69,7 @@ jobs:
             --hidden-import rtmidi \
             --add-data "ma3_plugin:ma3_plugin" \
             --add-data "mappings:mappings" \
+            --add-data "mpc_mapper/assets:mpc_mapper/assets" \
             mac/launcher.py
 
       - name: Prüfen, ob die App startfähig ist
@@ -75,24 +85,32 @@ jobs:
         run: |
           mkdir -p shots
           # 1) Das komplette Fenster in voller Größe (direkt aus Qt gerendert)
-          python - <<'EOF'
+          (python - <<'EOF'
           import sys
           from PySide6.QtCore import QTimer
           from PySide6.QtWidgets import QApplication
+          from mpc_mapper.gui import theme
           from mpc_mapper.gui.main_window import MainWindow
           app = QApplication(sys.argv)
           app.setApplicationName("MPC Mapper")
-          app.setStyle("Fusion")
+          theme.apply(app)
           w = MainWindow(); w.resize(1450, 950); w.show()
           def shoot():
               w.grab().save("shots/fenster.png")
+              w.diagram.selected_control = "pad:56"
+              w.inspector.set_control("pad:56")
+              w.diagram.update()
               w.tabs.setCurrentIndex(w.tabs.indexOf(w.lab))
               app.processEvents()
-              w.grab().save("shots/led-lab.png")
+              w.grab().save("shots/auswahl.png")
+              w.resize(1280, 780); app.processEvents()
+              w.grab().save("shots/klein.png")
               app.quit()
           QTimer.singleShot(4000, shoot)
           app.exec()
           EOF
+          ) > shots/log.txt 2>&1 || echo "Python-Screenshot fehlgeschlagen" >> shots/log.txt
+          cat shots/log.txt
           # 2) Die gebaute App, wie sie auf dem Mac-Bildschirm erscheint
           open "dist/MPC Mapper.app"
           sleep 20

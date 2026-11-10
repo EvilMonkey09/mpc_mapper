@@ -2,6 +2,7 @@ import sys
 
 from PySide6.QtWidgets import QApplication
 
+from .gui import theme
 from .gui.main_window import MainWindow
 
 
@@ -15,9 +16,10 @@ def main() -> int:
             pass
     app = QApplication(sys.argv)
     app.setApplicationName("MPC Mapper")
-    app.setStyle("Fusion")
+    app.setOrganizationName("MPCMapper")
+    theme.apply(app)
     w = MainWindow()
-    w.resize(1450, 950)
+    w.fit_to_screen()
     w.show()
     return app.exec()
 

@@ -18,6 +18,7 @@ from PySide6.QtWidgets import QMenu, QWidget
 from .. import apc
 from ..apc import LedState
 from ..model import Mapping
+from . import theme
 from .widgets import qcolor, text_color_for, ui_font
 
 MIME_CATALOG = "application/x-ma3-catalog"
@@ -136,7 +137,7 @@ class APCWidget(QWidget):
     def paintEvent(self, _e) -> None:
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
-        p.fillRect(self.rect(), QColor("#1b1d21"))
+        p.fillRect(self.rect(), QColor(theme.BG))
         s, ox, oy = self._scale()
         p.translate(ox, oy)
         p.scale(s, s)
@@ -159,7 +160,7 @@ class APCWidget(QWidget):
         p.setPen(QColor("#8a8d94"))
         p.setFont(ui_font(9))
         p.drawText(QRectF(X0 + 240, 22, W - X0 - 274, 30), Qt.AlignRight | Qt.AlignVCenter,
-                   "Shift+click = simulate · drag = move · Ctrl+drag = copy")
+                   f"Shift+click = simulate · drag = move · {theme.MOD_KEY}+drag = copy")
 
         for c in apc.ALL_CONTROLS:
             kind = apc.control_kind(c)

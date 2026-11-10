@@ -42,6 +42,8 @@
   <li><a href="#ma3">grandMA3 einrichten</a></li>
   <li><a href="#verbinden">Verbinden</a></li>
   <li><a href="#benutzen">Benutzen</a></li>
+  <li><a href="#xtouch">Behringer X-Touch Compact (Beta)</a></li>
+  <li><a href="#test">Gerätetest</a></li>
   <li><a href="#probleme">Wenn etwas nicht klappt</a></li>
 </ol>
 </nav>
@@ -139,11 +141,37 @@
   <li><b>Speichern:</b> <i>File → Save</i> (Strg+S, Mac: ⌘S). Neue Dateien landen in <code>Dokumente\MPC Mapper</code>. Die letzte Datei öffnet sich beim nächsten Start automatisch.</li>
 </ul>
 
-<h2 id="probleme">6. Wenn etwas nicht klappt</h2>
+<h2 id="xtouch">6. Behringer X-Touch Compact (Beta)</h2>
+<p>Zusätzlich zum APC (oder statt ihm) kannst du ein <b>Behringer X-Touch Compact</b> benutzen: 9 Motorfader, 16 Drehregler mit LED-Kranz und 39 beleuchtete Tasten.</p>
+<ol>
+  <li>X-Touch per USB anstecken und einschalten. Ein Behringer-Editor oder Treiber ist nicht nötig.</li>
+  <li>In MPC Mapper oben im Bereich „Controllers“ in der Zeile <b>X-Touch Compact</b> den Port wählen (meist schon automatisch) und auf <b>Connect</b> klicken. Die App schaltet das Gerät selbst in den Standard-MIDI-Modus und auf Layer A.</li>
+  <li>Auf der Seite <b>Mapping</b> oben über der Zeichnung auf <b>X-Touch Compact</b> umschalten und Befehle genauso per Ziehen belegen wie beim APC.</li>
+</ol>
+<ul>
+  <li><b>Motorfader folgen dem Pult:</b> Ist ein Fader mit „Fader Master“ belegt, fährt er auf den Stand des Executors in grandMA3 – z.&nbsp;B. wenn du am Pult die Seite wechselst. Solange du einen Fader berührst, bewegt er sich nicht von selbst.</li>
+  <li><b>Drehregler:</b> Der LED-Kranz zeigt den aktuellen Wert. Mit „Fader Master“ belegt, folgt er ebenfalls dem Pult.</li>
+  <li><b>Tasten-LEDs</b> leuchten orange (an, aus oder blinkend), je nach Einstellung „Lit when“ im Inspector.</li>
+  <li><b>Layer B</b> wird nicht benutzt. Drückst du die Layer-B-Taste, schaltet die App automatisch zurück auf Layer A.</li>
+</ul>
+<div class="box warn">Die X-Touch-Unterstützung ist neu und noch nicht mit dem echten Gerät getestet. Bitte einmal den <a href="#test">Gerätetest</a> durchführen.</div>
+
+<h2 id="test">7. Gerätetest</h2>
+<p>Auf der Seite <b>Device test</b> prüfst du APC und X-Touch komplett. Während des Tests wird nichts ans Pult gesendet.</p>
+<ol>
+  <li>Oben das Gerät wählen (APC mini mk2 oder X-Touch Compact). Es muss verbunden sein.</li>
+  <li><b>Lights and motors:</b> Auf „Run light test“ klicken und das Gerät beobachten: Alle Lämpchen leuchten nacheinander, beim X-Touch fahren die Motorfader hoch und runter und die LED-Kränze laufen voll. Hände weg von den Fadern! Danach „Everything worked“ oder „Something was missing“ klicken (und kurz notieren, was fehlte).</li>
+  <li><b>Buttons, faders and encoders:</b> Auf „Start control test“ klicken. Jetzt jede Taste einmal drücken, jeden Fader ganz hoch und ganz runter schieben, jeden Drehregler drehen und beim X-Touch jeden Fader einmal anfassen. Jedes Feld auf dem Bildschirm wird grün, sobald es ankommt. Oben steht, wie viele schon geschafft sind.</li>
+  <li>Mit „Stop control test“ beenden.</li>
+</ol>
+<p class="lead">Testbericht (vorübergehend): Die Ergebnisse werden zusätzlich als <code>Dokumente/MPC Mapper/device-test-report.txt</code> gespeichert, damit Fehler gezielt behoben werden können. Diese Funktion fällt weg, sobald alles läuft.</p>
+
+<h2 id="probleme">8. Wenn etwas nicht klappt</h2>
 <table>
   <tr><th>Problem</th><th>Lösung</th></tr>
   <tr><td>Programm lässt sich nicht öffnen</td><td><b>Windows:</b> „Weitere Informationen“ → „Trotzdem ausführen“. ZIP vorher entpacken! Schlägt der Virenscanner an, das Programm dort als Ausnahme zulassen.<br><b>Mac:</b> Systemeinstellungen → Datenschutz &amp; Sicherheit → „Dennoch öffnen“.</td></tr>
   <tr><td>APC wird nicht gefunden</td><td>USB neu einstecken, App neu starten, andere Musik-/MIDI-Programme schließen. Rechts neben den Ports auf ↻ klicken.</td></tr>
+  <tr><td>X-Touch: Lämpchen oder Motorfader reagieren nicht</td><td>Gerätetest durchführen und den Testbericht schicken. Das Gerät erwartet die Befehle auf seinem „Global Channel“; die App sendet sie auf Kanal 1 und 2.</td></tr>
   <tr><td>Pads reagieren nicht mehr</td><td>Der APC ist im Drum/Note-Modus. Am Gerät <b>Shift + Scene 5</b> drücken.</td></tr>
   <tr><td>Befehle kommen am Pult nicht an</td><td>Line 1 prüfen: IP des Macs, Port 8000, Prefix <code>gma3</code>, Receive + Receive Command = Yes. Mac und Pult im selben Netz?</td></tr>
   <tr><td>Tasten leuchten nicht / kein „MA3 feedback“</td><td>Plugin gestartet? Line 2: Port 8001, Send + Send Command = Yes. Firewall: <b>Windows:</b> Windows-Sicherheit → Firewall- &amp; Netzwerkschutz → „Zugriff von App durch Firewall zulassen“ → MPC Mapper anhaken. <b>Mac:</b> Systemeinstellungen → Netzwerk → Firewall → Optionen → MPC Mapper erlauben.</td></tr>

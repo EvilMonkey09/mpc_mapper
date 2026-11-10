@@ -1,6 +1,11 @@
 ## MPC Mapper für macOS und Windows
 
-Steuert grandMA3 mit einem Akai APC mini mk2, inklusive LED-Rückmeldung.
+Steuert grandMA3 mit einem **Akai APC mini mk2** und/oder einem **Behringer X-Touch Compact**, inklusive LED-Rückmeldung.
+
+### Neu in v2.0
+- **Behringer X-Touch Compact**: Tasten, Drehregler und Fader belegen wie beim APC. Tasten-LEDs zeigen den Executor-Zustand, **Motorfader und LED-Kränze folgen dem Pult** (bei „Fader Master“), ohne gegen deine Hand zu arbeiten. *Neu und noch nicht am echten Gerät erprobt – bitte einmal den Gerätetest machen.*
+- **Gerätetest** (Seite „Device test“): prüft bei APC und X-Touch alle Lämpchen, Motorfader, LED-Kränze und jedes Bedienelement. Während des Tests geht nichts ans Pult.
+- Verbindungsleiste mit einer Zeile pro Controller; die passende Ausgangs-Schnittstelle wird automatisch gewählt.
 
 ### Welche Datei brauche ich?
 Du brauchst nur **ein Komplettpaket**. Darin ist alles: das Programm, das Plugin fürs Pult, die Anleitung und ein Demo-Layout.

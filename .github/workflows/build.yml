@@ -235,17 +235,28 @@ jobs:
             *)                    VER="dev-${GITHUB_SHA::7}" ;;
           esac
           VER="${VER#v}"
-          # Inno Setup ist auf den Windows-Servern meist schon installiert
-          ISCC="/c/Program Files (x86)/Inno Setup 6/ISCC.exe"
-          if [ ! -f "$ISCC" ]; then
-            choco install innosetup -y --no-progress
-          fi
-          "$ISCC" -Q "/DAppVersion=$VER" "/DSrcRoot=$(cygpath -w "$GITHUB_WORKSPACE")" packaging/windows/installer.iss
-          ls -l MPC-Mapper-Setup-Windows.exe
+          echo "APP_VERSION=$VER" >> "$GITHUB_ENV"
           # Einzeldateien für die Release-Seite
           (cd pkg && 7z a -tzip ../grandMA3-Plugin.zip grandMA3-Plugin > /dev/null)
           cp packaging/Anleitung.html Anleitung.html
           cp mappings/demo.json Demo-Layout.json
+
+      - name: Setup.exe kompilieren (Inno Setup)
+        shell: pwsh
+        run: |
+          # In PowerShell, weil die Bash Argumente wie /DAppVersion als Pfad umschreibt
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress | Out-Null }
+          if (-not (Test-Path $iscc)) { Write-Output "::error title=Inno Setup::ISCC.exe nicht gefunden"; exit 1 }
+          $out = & $iscc "/DAppVersion=$env:APP_VERSION" "/DSrcRoot=$env:GITHUB_WORKSPACE" "packaging\windows\installer.iss" 2>&1
+          $rc = $LASTEXITCODE
+          $out | Write-Output
+          if ($rc -ne 0) {
+            $msg = (($out | Select-Object -Last 25) -join "%0A")
+            Write-Output "::error title=Inno Setup::$msg"
+            exit $rc
+          }
+          Get-Item MPC-Mapper-Setup-Windows.exe | Format-List Name,Length
 
       - name: Installer testen (still installieren, starten, deinstallieren)
         shell: pwsh

@@ -1,0 +1,2 @@
+minimum size hint: 1218 x 689 | actual after resize(1024, 680): 1218 x 689
+screenshots saved to shots

@@ -37,10 +37,16 @@ def _short(control: str) -> str:
     """Compact chip text."""
     if xtouch.is_xtouch(control):
         k, i = xtouch.kind(control), xtouch.index(control)
-        return {"fader": f"F{i + 1}" if i < 8 else "Main", "enc": f"E{i + 1}",
-                "push": f"P{i + 1}", "btn": f"B{i + 1}",
-                "ch": f"C{i + 1}" if i < 8 else "MainB",
-                "tr": xtouch.TRANSPORT[i], "touch": f"T{i + 1}"}.get(k, control)
+        if k == "fader":
+            return f"F{i + 1}" if i < 8 else "Main"
+        if k == "ch":
+            return f"C{i + 1}" if i < 8 else "MainB"
+        if k == "tr":
+            return xtouch.TRANSPORT[i]
+        if k == "touch":
+            return f"T{i + 1}" if i < 8 else "TMain"
+        prefix = {"enc": "E", "push": "P", "btn": "B"}.get(k)
+        return f"{prefix}{i + 1}" if prefix else control
     k, _, i = control.partition(":")
     if k == "pad":
         n = int(i)

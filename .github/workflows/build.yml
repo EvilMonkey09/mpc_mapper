@@ -18,6 +18,8 @@ permissions:
 env:
   # Versionsnummer für Pushes auf den Zweig "release" – hier hochzählen
   RELEASE_VERSION: v1.2
+  # Testversion aus dem Zweig "xtouch" (als Vorabversion veröffentlicht)
+  BETA_VERSION: v2.0-beta
   PYTHON_VERSION: "3.12"
 
 defaults:
@@ -154,7 +156,7 @@ jobs:
           path: MPC-Mapper-macOS-${{ matrix.arch }}.zip
 
       - name: Release aktualisieren
-        if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/release'
+        if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/release' || github.ref == 'refs/heads/xtouch'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -261,7 +263,7 @@ jobs:
           path: MPC-Mapper-Windows.zip
 
       - name: Release aktualisieren
-        if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/release'
+        if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/release' || github.ref == 'refs/heads/xtouch'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

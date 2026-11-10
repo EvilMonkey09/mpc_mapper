@@ -128,7 +128,7 @@ class XTouchWidget(APCWidget):
         text = self._label(c)
         if text:
             p.setPen(QColor("#d8d8d8"))
-            p.setFont(ui_font(6))
+            p.setFont(ui_font(8))
             if xtouch.index(c) < 8:
                 box = QRectF(center.x() - 38, center.y() - ENC_R - 22, 76, 16)
             else:                                  # right block: label beside the knob
@@ -156,7 +156,7 @@ class XTouchWidget(APCWidget):
             text = "push"
         if text:
             p.setPen(QColor("#1a1206") if on and k != "push" else QColor("#d8d8d8"))
-            p.setFont(ui_font(6))
+            p.setFont(ui_font(8))
             p.drawText(rect.adjusted(2, 0, -2, 0), Qt.AlignCenter | Qt.TextWordWrap, text)
         self._outline(p, c, rect, 4)
 
@@ -181,7 +181,7 @@ class XTouchWidget(APCWidget):
         text = self._label(c)
         if text:
             p.setPen(QColor("#d8d8d8"))
-            p.setFont(ui_font(6))
+            p.setFont(ui_font(8))
             p.drawText(QRectF(rect.left() - 10, rect.top() - 18, rect.width() + 20, 16),
                        Qt.AlignCenter, text)
         self._outline(p, c, rect, 6)

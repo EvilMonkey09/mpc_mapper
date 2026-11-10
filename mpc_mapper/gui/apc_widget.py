@@ -63,7 +63,7 @@ def control_rect(control: str) -> QRectF:
 
 class APCWidget(QWidget):
     """Interactive device drawing. Subclasses (X-Touch) override the
-    geometry (LW/LH, controls(), rect()) and paint_device()."""
+    geometry (LW/LH, controls(), ctrl_rect()) and paint_device()."""
     LW, LH = W, H
     selected = Signal(str)
     catalog_dropped = Signal(str, str)      # catalog_id, control
@@ -112,7 +112,7 @@ class APCWidget(QWidget):
     def controls(self) -> list[str]:
         return apc.ALL_CONTROLS
 
-    def rect(self, control: str) -> QRectF:
+    def ctrl_rect(self, control: str) -> QRectF:
         return control_rect(control)
 
     @staticmethod
@@ -150,7 +150,7 @@ class APCWidget(QWidget):
     def control_at(self, p: QPointF) -> Optional[str]:
         lp = self._to_logical(p)
         for c in self.controls():
-            if self.rect(c).adjusted(-3, -3, 3, 3).contains(lp):
+            if self.ctrl_rect(c).adjusted(-3, -3, 3, 3).contains(lp):
                 return c
         return None
 
@@ -307,7 +307,7 @@ class APCWidget(QWidget):
         self.select(c)
 
     def _sim_fader_to(self, c: str, pos: QPointF) -> None:
-        rect = self.rect(c)
+        rect = self.ctrl_rect(c)
         lp = self._to_logical(pos)
         top, bot = rect.top() + 8, rect.bottom() - 8
         v = int(round(max(0.0, min(1.0, (bot - lp.y()) / (bot - top))) * 127))

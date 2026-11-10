@@ -71,7 +71,7 @@ class XTouchWidget(APCWidget):
     def controls(self) -> list[str]:
         return xtouch.ALL_CONTROLS
 
-    def rect(self, control: str) -> QRectF:
+    def ctrl_rect(self, control: str) -> QRectF:
         return control_rect(control)
 
     # ---------------- painting ----------------
@@ -135,10 +135,10 @@ class XTouchWidget(APCWidget):
                 box = QRectF(center.x() + ENC_R + 6, center.y() - 14, 64, 28)
             p.drawText(box, Qt.AlignLeft | Qt.AlignVCenter | Qt.TextWordWrap if xtouch.index(c) >= 8
                        else Qt.AlignCenter, text)
-        self._outline(p, c, self.rect(c), ENC_R)
+        self._outline(p, c, self.ctrl_rect(c), ENC_R)
 
     def _paint_xbutton(self, p: QPainter, c: str) -> None:
-        rect = self.rect(c)
+        rect = self.ctrl_rect(c)
         k = xtouch.kind(c)
         st = self.leds.get(c, LedState(0, 0))
         on = st.color == 1 or (st.color == 2 and not self._blink)
@@ -161,7 +161,7 @@ class XTouchWidget(APCWidget):
         self._outline(p, c, rect, 4)
 
     def _paint_xfader(self, p: QPainter, c: str) -> None:
-        rect = self.rect(c)
+        rect = self.ctrl_rect(c)
         slot = QRectF(rect.center().x() - 4, rect.top() + 10, 8, rect.height() - 20)
         p.setPen(Qt.NoPen)
         p.setBrush(QColor("#0d0e10"))

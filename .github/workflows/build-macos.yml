@@ -8,7 +8,7 @@ name: macOS-App bauen
 on:
   workflow_dispatch:          # Button "Run workflow" im Reiter Actions
   push:
-    branches: [main, mac-app]
+    branches: [main, mac-app, release]   # Push auf "release" = neues Release
     tags: ["v*"]
 
 permissions:
@@ -125,10 +125,12 @@ jobs:
           name: MPC-Mapper-macOS-${{ matrix.arch }}
           path: MPC-Mapper-macOS-${{ matrix.arch }}.zip
 
-      - name: An Release anhängen (nur bei Tags)
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Release erstellen (bei Tag v* oder Push auf Zweig "release")
+        if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/release'
         env:
           GH_TOKEN: ${{ github.token }}
+          # Versionsnummer für Pushes auf den Zweig "release" – hier hochzählen
+          RELEASE_VERSION: v1.0
         run: |
           cat > notes.md <<'EOF'
           ## MPC Mapper für macOS
@@ -152,6 +154,9 @@ jobs:
 
           Original-Projekt: https://github.com/miles-p/MPC_Mapper
           EOF
-          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 \
-            || gh release create "$GITHUB_REF_NAME" --title "MPC Mapper $GITHUB_REF_NAME für macOS" --notes-file notes.md || true
-          gh release upload "$GITHUB_REF_NAME" "MPC-Mapper-macOS-${{ matrix.arch }}.zip" --clobber
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then TAG="$GITHUB_REF_NAME"; else TAG="$RELEASE_VERSION"; fi
+          # Beide Builds laufen parallel – wer zuerst kommt, legt das Release an
+          gh release view "$TAG" >/dev/null 2>&1 \
+            || gh release create "$TAG" --target "$GITHUB_SHA" --title "MPC Mapper $TAG für macOS" --notes-file notes.md \
+            || sleep 10
+          gh release upload "$TAG" "MPC-Mapper-macOS-${{ matrix.arch }}.zip" --clobber

@@ -18,7 +18,7 @@
 local OSC_LINE        = 2      -- In & Out > OSC line that points at the app (Enable Output, Send + Send Command = Yes)
 local INTERVAL        = 0.05   -- seconds between polls
 local FULL_REFRESH    = 3.0    -- resend everything every N seconds (UDP may drop packets)
-local VERSION         = "1.0"
+local VERSION         = "1.1"
 local FALLBACK_EXECS  = {101,102,103,104,105,106,107,108,
                          201,202,203,204,205,206,207,208}
 
@@ -42,12 +42,9 @@ local function currentPageNo()
     return 1
 end
 
--- executor handle for (page, exec); page == current uses GetExecutor (fast path)
-local function findExecutor(pageNo, execNo, curPage)
-    if pageNo == curPage then
-        local ok, ex = pcall(GetExecutor, execNo)
-        if ok and ex then return ex end
-    end
+-- executor handle for (page, exec) on another page: searches the data pool,
+-- which is slow, so the result is cached (see findExecutor)
+local function searchExecutor(pageNo, execNo)
     local ok, ex = pcall(function()
         -- Pages[n] would index by position, not by page number (pools can have gaps)
         local pages = DataPool().Pages
@@ -64,6 +61,29 @@ local function findExecutor(pageNo, execNo, curPage)
     end)
     if ok then return ex end
     return nil
+end
+
+-- cache of data-pool searches: key "p.e" -> handle or false (= empty).
+-- Cleared on every full refresh and page change.
+local otherPages = {}
+
+-- executor handle for (page, exec). The current page uses GetExecutor (fast).
+-- Everything else - and empty executors, for which GetExecutor gives nil -
+-- is searched in the data pool only once per full refresh: searching every
+-- poll made one poll take seconds with many empty executors, so the
+-- feedback lagged by seconds.
+local function findExecutor(pageNo, execNo, curPage)
+    if pageNo == curPage then
+        local ok, ex = pcall(GetExecutor, execNo)
+        if ok and ex then return ex end
+    end
+    local key = pageNo .. "." .. execNo
+    local hit = otherPages[key]
+    if hit == nil then
+        hit = searchExecutor(pageNo, execNo) or false
+        otherPages[key] = hit
+    end
+    return hit or nil
 end
 
 local function num(v)
@@ -145,6 +165,7 @@ local function main(display_handle, argument)
         if full then
             lastFull = t
             last = {}
+            otherPages = {}      -- executors may have been created or deleted
         end
         if (t - lastHello) >= 1.0 then
             lastHello = t
@@ -153,6 +174,7 @@ local function main(display_handle, argument)
 
         local curPage = currentPageNo()
         if curPage ~= lastPage or full then
+            if curPage ~= lastPage then otherPages = {} end
             lastPage = curPage
             sendOSC(string.format("/apc/page,i,%d", curPage))
         end
@@ -168,6 +190,10 @@ local function main(display_handle, argument)
             end
         end
 
+        local took = now() - t
+        if full and took > 0.25 then
+            Printf(string.format("APC_Feedback: one poll took %.2f s - feedback will lag", took))
+        end
         coroutine.yield(INTERVAL)
     end
     Printf("APC_Feedback: stopped")

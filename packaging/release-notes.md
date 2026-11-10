@@ -3,6 +3,7 @@
 Steuert grandMA3 mit einem **Akai APC mini mk2** und/oder einem **Behringer X-Touch Compact**, inklusive LED-Rückmeldung.
 
 ### Neu in v2.2
+- **Schnelleres Feedback vom Pult:** Das grandMA3-Plugin (Version 1.1) meldet Änderungen wieder sofort statt erst nach 2–3 Sekunden. **Bitte das Plugin im Pult neu importieren** (das alte im Plugins-Pool ersetzen) und starten. Meldet MA3 „stopping“, einfach noch einmal starten. Die Seite *Setup & check* zeigt an, wenn noch das alte Plugin läuft.
 - **X-Touch: Layer umschalten mit der MAIN-Taste** (unter dem Main-Fader). Die Motorfader und Lämpchen springen sofort auf die richtige Ebene, auf Layer B leuchtet die MAIN-Taste, und die App zeigt automatisch die passende Ebene. Die Tasten LAYER A/B am Gerät bitte nicht mehr benutzen – sie schicken dem Computer nichts.
 - Hast du schon eine eigene Belegung gespeichert: einmal *File → Load standard layout → X-Touch* laden, damit die MAIN-Taste den Layer umschaltet.
 - **Eine Mac-Datei für alle Macs:** `MPC-Mapper-macOS-universal.dmg` läuft nativ auf M1–M4 und auf Intel-Macs.

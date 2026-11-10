@@ -9,6 +9,11 @@ grandMA3-Plugin für MPC Mapper
 3. Plugins-Pool öffnen -> leeres Feld -> Import -> "APC_Feedback" wählen.
 4. Plugin einmal ausführen = starten (nochmal ausführen = stoppen).
 
+Update auf eine neue Plugin-Version (z. B. 1.0 -> 1.1):
+  Altes APC_Feedback im Plugins-Pool löschen (oder onPC neu starten),
+  dann wie oben neu importieren und starten. Steht in der MA-Kommandozeile
+  "APC_Feedback: stopping", lief noch das alte: einfach noch einmal starten.
+
 OSC-Einstellungen am Pult (Menu -> In & Out -> OSC, Enable Input + Output):
   Line 1: Destination IP = Computer mit MPC Mapper, Port 8000, Prefix gma3,
           Receive = Yes, Receive Command = Yes

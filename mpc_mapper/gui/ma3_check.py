@@ -224,7 +224,13 @@ class MA3Check(QWidget):
                       f"the problem is line {line}, the IP or the firewall.")
 
         # 5 plugin
-        if m.plugin_alive:
+        if m.plugin_alive and m.plugin_version in ("1.0", ""):
+            self._set("plugin", WARN,
+                      f"Running, but an old version ({m.plugin_version or '?'}): with many empty "
+                      "executors its feedback lags by seconds. Import the new APC_Feedback "
+                      "plugin from the grandMA3-Plugin folder into MA3 (replace the old one), "
+                      "then start it. If MA3 prints 'stopping', start it once more.")
+        elif m.plugin_alive:
             self._set("plugin", OK, f"Running (version {m.plugin_version}). LEDs and motor "
                                     "faders follow the console.")
         elif m.diag_ok_at:

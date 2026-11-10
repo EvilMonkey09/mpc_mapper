@@ -69,6 +69,49 @@ jobs:
           find "dist/MPC Mapper.app" -name "*rtmidi*" | grep -q . || { echo "rtmidi fehlt im Bundle"; exit 1; }
           codesign --verify --deep "dist/MPC Mapper.app"
 
+      - name: Screenshots aufnehmen
+        if: matrix.arch == 'apple-silicon'
+        continue-on-error: true
+        run: |
+          mkdir -p shots
+          # 1) Das komplette Fenster in voller Größe (direkt aus Qt gerendert)
+          python - <<'EOF'
+          import sys
+          from PySide6.QtCore import QTimer
+          from PySide6.QtWidgets import QApplication
+          from mpc_mapper.gui.main_window import MainWindow
+          app = QApplication(sys.argv)
+          app.setApplicationName("MPC Mapper")
+          app.setStyle("Fusion")
+          w = MainWindow(); w.resize(1450, 950); w.show()
+          def shoot():
+              w.grab().save("shots/fenster.png")
+              w.tabs.setCurrentIndex(w.tabs.indexOf(w.lab))
+              app.processEvents()
+              w.grab().save("shots/led-lab.png")
+              app.quit()
+          QTimer.singleShot(4000, shoot)
+          app.exec()
+          EOF
+          # 2) Die gebaute App, wie sie auf dem Mac-Bildschirm erscheint
+          open "dist/MPC Mapper.app"
+          sleep 20
+          screencapture -x shots/bildschirm.png || true
+          pkill -f "MPC Mapper.app" || true
+          ls -la shots
+
+      - name: Screenshots in den Zweig "screenshots" legen
+        if: matrix.arch == 'apple-silicon'
+        continue-on-error: true
+        run: |
+          cd shots
+          git init -q -b screenshots
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Screenshots vom Build ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" screenshots
+
       - name: ZIP erstellen
         run: |
           mkdir -p out/grandMA3-Plugin

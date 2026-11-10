@@ -112,13 +112,43 @@ jobs:
           git commit -q -m "Screenshots vom Build ${GITHUB_SHA::7}"
           git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" screenshots
 
-      - name: ZIP erstellen
+      - name: Pakete zusammenstellen
         run: |
-          mkdir -p out/grandMA3-Plugin
-          cp ma3_plugin/APC_Feedback.xml ma3_plugin/APC_Feedback.lua out/grandMA3-Plugin/
+          # --- Plugin fürs Pult: Ordnerstruktur wie auf dem USB-Stick erwartet ---
+          P="out/grandMA3-Plugin"
+          mkdir -p "$P/gma3_library/datapools/plugins"
+          cp ma3_plugin/APC_Feedback.xml ma3_plugin/APC_Feedback.lua "$P/gma3_library/datapools/plugins/"
+          cat > "$P/LIESMICH.txt" <<'EOF'
+          grandMA3-Plugin für MPC Mapper
+          ==============================
+
+          1. Den Ordner "gma3_library" aus diesem Ordner auf einen USB-Stick kopieren
+             (direkt ins Hauptverzeichnis des Sticks).
+             Bei grandMA3 onPC: die beiden Dateien aus gma3_library/datapools/plugins
+             in den gleichnamigen Ordner im onPC-Datenordner kopieren.
+          2. Stick ans Pult stecken.
+          3. Plugins-Pool öffnen -> leeres Feld -> Import -> "APC_Feedback" wählen.
+          4. Plugin einmal ausführen = starten (nochmal ausführen = stoppen).
+
+          OSC-Einstellungen am Pult (Menu -> In & Out -> OSC, Enable Input + Output):
+            Line 1: Destination IP = Mac, Port 8000, Prefix gma3,
+                    Receive = Yes, Receive Command = Yes
+            Line 2: Destination IP = Mac, Port 8001,
+                    Send = Yes, Send Command = Yes, Receive aus
+          Ist die Rückmeldung nicht Line 2: in APC_Feedback.lua oben OSC_LINE ändern.
+
+          Ausführliche Anleitung: Anleitung.html
+          EOF
+          cp mac/Anleitung.html out/Anleitung.html
+          cp mappings/demo.json out/Demo-Layout.json
           # ditto erhält Symlinks und Rechte im .app-Paket (normales zip zerstört sie)
           ditto "dist/MPC Mapper.app" "out/MPC Mapper.app"
-          ditto -c -k --keepParent out "MPC-Mapper-macOS-${{ matrix.arch }}.zip"
+          mv out "MPC Mapper"
+          ditto -c -k --keepParent "MPC Mapper" "MPC-Mapper-macOS-${{ matrix.arch }}.zip"
+          # Plugin zusätzlich als eigene ZIP (für den USB-Stick)
+          ditto -c -k --keepParent "MPC Mapper/grandMA3-Plugin" grandMA3-Plugin.zip
+          cp "MPC Mapper/Anleitung.html" Anleitung.html
+          cp "MPC Mapper/Demo-Layout.json" Demo-Layout.json
 
       - uses: actions/upload-artifact@v4
         with:
@@ -137,20 +167,26 @@ jobs:
 
           Steuert grandMA3 mit einem Akai APC mini mk2, inklusive LED-Rückmeldung.
 
-          ### Welche Datei?
-          - **MPC-Mapper-macOS-apple-silicon.zip**: Macs mit M1, M2, M3 oder M4
-          - **MPC-Mapper-macOS-intel.zip**: ältere Macs mit Intel-Prozessor
+          ### Downloads
+          | Datei | Wofür |
+          | --- | --- |
+          | **MPC-Mapper-macOS-apple-silicon.zip** | Komplettpaket für Macs mit M1, M2, M3 oder M4 |
+          | **MPC-Mapper-macOS-intel.zip** | Komplettpaket für ältere Macs mit Intel-Prozessor |
+          | grandMA3-Plugin.zip | Nur das Plugin fürs Pult (steckt auch im Komplettpaket) |
+          | Anleitung.html | Ausführliche Anleitung auf Deutsch (steckt auch im Komplettpaket) |
+          | Demo-Layout.json | Beispiel-Belegung (steckt auch im Komplettpaket) |
 
+          Du brauchst nur **ein Komplettpaket** – darin ist alles: die App, das Plugin, die Anleitung und das Demo-Layout.
           Welchen Mac du hast, steht unter  → „Über diesen Mac“ bei „Chip“ bzw. „Prozessor“.
 
-          ### Installieren
-          1. Passende ZIP herunterladen und doppelklicken.
+          ### In 5 Schritten
+          1. Komplettpaket herunterladen und doppelklicken.
           2. `MPC Mapper.app` in den Ordner **Programme** ziehen.
           3. App starten. macOS blockiert sie beim ersten Mal, weil sie nicht von Apple signiert ist:
              **Systemeinstellungen → Datenschutz & Sicherheit** → ganz unten **„Dennoch öffnen“**.
-          4. Fragt macOS nach eingehenden Netzwerkverbindungen: **Erlauben**.
-
-          Der Ordner `grandMA3-Plugin` enthält das Feedback-Plugin für das Pult (auf USB-Stick kopieren und in den Plugins-Pool importieren).
+             Fragt macOS nach eingehenden Netzwerkverbindungen: **Erlauben**.
+          4. Pult einrichten: Ordner `gma3_library` aus `grandMA3-Plugin` auf einen USB-Stick kopieren, Plugin importieren und starten, zwei OSC-Lines anlegen (siehe `LIESMICH.txt` bzw. `Anleitung.html`).
+          5. In der App die IP des Pults eintragen und **Connect MA3** klicken.
 
           Original-Projekt: https://github.com/miles-p/MPC_Mapper
           EOF
@@ -159,4 +195,8 @@ jobs:
           gh release view "$TAG" >/dev/null 2>&1 \
             || gh release create "$TAG" --target "$GITHUB_SHA" --title "MPC Mapper $TAG für macOS" --notes-file notes.md \
             || sleep 10
+          gh release edit "$TAG" --notes-file notes.md
           gh release upload "$TAG" "MPC-Mapper-macOS-${{ matrix.arch }}.zip" --clobber
+          if [ "${{ matrix.arch }}" = "apple-silicon" ]; then
+            gh release upload "$TAG" grandMA3-Plugin.zip Anleitung.html Demo-Layout.json --clobber
+          fi

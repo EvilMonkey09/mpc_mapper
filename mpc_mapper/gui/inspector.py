@@ -143,7 +143,13 @@ class Inspector(QWidget):
         a = self.mapping.assignments.get(control) if control else None
         if control is None:
             self.title.setText("<b>Select a control</b>")
-            self.subtitle.setText("Click a pad, button or fader on the APC drawing.")
+            self.subtitle.setText(
+                "Click a pad, button or fader on the drawing to edit it here.<br><br>"
+                "<b>Getting started</b><br>"
+                "1. Drag a command from the list on the left onto a pad.<br>"
+                "2. Click the pad to change its command and LED colours.<br>"
+                "3. Shift+click a pad to try it without the hardware.<br>"
+                "4. Save with File → Save.")
         else:
             self.title.setText(f"<b>{apc.control_label(control)}</b>  <span style='color:#888'>"
                                f"({control})</span>")

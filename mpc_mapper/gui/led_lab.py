@@ -14,6 +14,12 @@ from .widgets import PaletteGrid
 
 
 class LedLab(QWidget):
+    """Controls column of the LED Lab page.
+
+    The page shows its own APC drawing next to this column; clicking a pad or
+    button there calls set_target(). Every action explains itself in the
+    status line instead of silently doing nothing.
+    """
     lab_mode_changed = Signal(bool)
 
     def __init__(self, device: apc.APCMini, selected: Callable[[], Optional[str]],
@@ -24,65 +30,87 @@ class LedLab(QWidget):
         self.color = 21
         self.rgb = (255, 128, 0)
 
-        lay = QHBoxLayout(self)
-        left = QVBoxLayout()
-        self.take = QCheckBox("Lab takes over LEDs (pauses MA3 feedback)")
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.setSpacing(12)
+
+        # ---- status / target
+        self.target_lbl = QLabel()
+        self.target_lbl.setObjectName("CardTitle")
+        self.target_lbl.setWordWrap(True)
+        lay.addWidget(self.target_lbl)
+        self.status = QLabel()
+        self.status.setObjectName("Hint")
+        self.status.setWordWrap(True)
+        lay.addWidget(self.status)
+        self.take = QCheckBox("Take over the LEDs (pauses grandMA3 feedback)")
+        self.take.setToolTip("While this is on, the LEDs only show what you send from here.")
         self.take.toggled.connect(self.lab_mode_changed)
-        left.addWidget(self.take)
-        left.addWidget(QLabel("Palette (velocity = colour index). Click to pick:"))
-        self.grid = PaletteGrid(cell=20)
+        lay.addWidget(self.take)
+
+        # ---- palette colour
+        box = QGroupBox("1  Palette colour")
+        v = QVBoxLayout(box)
+        self.grid = PaletteGrid(cell=22)
         self.grid.selected = self.color
         self.grid.picked.connect(self._pick)
-        left.addWidget(self.grid)
+        v.addWidget(self.grid)
         self.info = QLabel()
-        left.addWidget(self.info)
-        left.addStretch(1)
-        lay.addLayout(left)
-
-        right = QVBoxLayout()
-        box = QGroupBox("Send to selected control")
-        g = QGridLayout(box)
+        self.info.setObjectName("Hint")
+        v.addWidget(self.info)
+        row = QHBoxLayout()
         self.mode = QComboBox()
-        self.mode.addItems([f"ch {i + 1:>2} (0x{0x90 | i:02X})  {m}" for i, m in enumerate(apc.LED_MODES)])
+        self.mode.addItems([m for m in apc.LED_MODES])
         self.mode.setCurrentIndex(apc.MODE_SOLID_100)
+        self.mode.setToolTip("Behaviour = MIDI channel of the Note On message")
         self.mode.currentIndexChanged.connect(self._update_info)
-        g.addWidget(QLabel("Behaviour (MIDI channel)"), 0, 0)
-        g.addWidget(self.mode, 0, 1)
-        b = QPushButton("Send palette colour")
+        row.addWidget(self.mode, 1)
+        b = QPushButton("Send to pad")
+        b.setObjectName("Primary")
         b.clicked.connect(self._send_palette)
-        g.addWidget(b, 1, 0)
-        self.rgb_btn = QPushButton("Pick RGB…")
+        row.addWidget(b)
+        v.addLayout(row)
+        lay.addWidget(box)
+
+        # ---- true RGB
+        box = QGroupBox("2  True RGB colour (pads only, static)")
+        h = QHBoxLayout(box)
+        self.rgb_btn = QPushButton("Pick colour…")
         self.rgb_btn.clicked.connect(self._pick_rgb)
-        g.addWidget(self.rgb_btn, 1, 1)
-        b = QPushButton("Send RGB (SysEx)")
+        h.addWidget(self.rgb_btn, 1)
+        b = QPushButton("Send to pad")
         b.clicked.connect(self._send_rgb)
-        g.addWidget(b, 2, 1)
-        g.addWidget(QLabel("Track / Scene buttons:"), 3, 0)
-        single = QHBoxLayout()
+        h.addWidget(b)
+        lay.addWidget(box)
+
+        # ---- track / scene buttons
+        box = QGroupBox("3  Track / scene buttons")
+        h = QHBoxLayout(box)
         for i, n in enumerate(apc.SINGLE_STATES):
             sb = QPushButton(n)
             sb.clicked.connect(lambda _=False, v=i: self._send_single(v))
-            single.addWidget(sb)
-        g.addLayout(single, 3, 1)
-        right.addWidget(box)
+            h.addWidget(sb)
+        lay.addWidget(box)
 
-        box2 = QGroupBox("Whole-grid demos")
-        h = QGridLayout(box2)
+        # ---- demos
+        box = QGroupBox("Whole-device demos")
+        g = QGridLayout(box)
         for i, (label, fn) in enumerate([
-            ("Palette 0-63", lambda: self._palette_page(0)),
-            ("Palette 64-127", lambda: self._palette_page(64)),
-            ("Behaviours (row = mode)", self._modes_demo),
-            ("RGB rainbow (SysEx)", self._rainbow),
-            ("All buttons blink", self._buttons_blink),
+            ("Palette 0–63", lambda: self._palette_page(0)),
+            ("Palette 64–127", lambda: self._palette_page(64)),
+            ("Behaviours", self._modes_demo),
+            ("RGB rainbow", self._rainbow),
+            ("Buttons blink", self._buttons_blink),
             ("All off", self.device.clear_all),
         ]):
             btn = QPushButton(label)
-            btn.clicked.connect(lambda _=False, f=fn: self._run(f))
-            h.addWidget(btn, i // 2, i % 2)
-        right.addWidget(box2)
+            btn.clicked.connect(lambda _=False, f=fn: self._run_all(f))
+            g.addWidget(btn, i // 2, i % 2)
+        lay.addWidget(box)
 
-        box3 = QGroupBox("Raw MIDI (hex)")
-        r = QHBoxLayout(box3)
+        # ---- raw
+        box = QGroupBox("Advanced: raw MIDI (hex)")
+        r = QHBoxLayout(box)
         self.raw = QLineEdit("96 00 05")
         self.raw.setToolTip("e.g. '96 00 05' = Note On ch7 (0x96) pad 0 colour 5 (pulse)\n"
                             "'F0 47 7F 4F 24 00 08 00 00 01 7F 00 00 00 00 F7' = pad 0 red RGB")
@@ -90,10 +118,50 @@ class LedLab(QWidget):
         sb = QPushButton("Send")
         sb.clicked.connect(self._send_raw)
         r.addWidget(sb)
-        right.addWidget(box3)
-        right.addStretch(1)
-        lay.addLayout(right, 1)
+        lay.addWidget(box)
+        lay.addStretch(1)
         self._update_info()
+        self.set_target(None)
+
+    def set_target(self, control: Optional[str]) -> None:
+        if control and apc.is_button(control):
+            self.target_lbl.setText(f"Target: {apc.control_label(control)}")
+        else:
+            self.target_lbl.setText("Target: none")
+        self._say("Click a pad or button on the drawing to choose where to send."
+                  if not control else "")
+
+    def _say(self, text: str, error: bool = False) -> None:
+        if not text and not self.device.connected:
+            text = "The APC is not connected – the LED Lab needs the real device."
+            error = True
+        color = "#ef5350" if error else ""
+        self.status.setText(f"<span style='color:{color}'>{text}</span>" if color else text)
+
+    def _ready(self, need: str) -> Optional[str]:
+        """Return the target control, or explain why nothing can be sent."""
+        if not self.device.connected:
+            self._say("Connect the APC first (top left), then try again.", error=True)
+            return None
+        c = self._target()
+        if c is None:
+            self._say("Choose a pad or button on the drawing first.", error=True)
+            return None
+        if need == "pad" and not apc.is_rgb(c):
+            self._say("Colours only work on the 64 pads – pick a pad.", error=True)
+            return None
+        if need == "single" and apc.is_rgb(c):
+            self._say("Off/On/Blink is for the track and scene buttons – pick one of those.",
+                      error=True)
+            return None
+        return c
+
+    def _run_all(self, fn) -> None:
+        if not self.device.connected:
+            self._say("Connect the APC first (top left), then try again.", error=True)
+            return
+        self._run(fn)
+        self._say("Sent to the whole device.")
 
     # ------------------------------------------------------------------ #
     def _run(self, fn) -> None:
@@ -109,36 +177,40 @@ class LedLab(QWidget):
         r, g, b = apc.PALETTE[self.color]
         ch = self.mode.currentIndex()
         self.info.setText(
-            f"Colour <b>{self.color}</b> (0x{self.color:02X}) #{r:02X}{g:02X}{b:02X}<br>"
-            f"Pad message: <code>{0x90 | ch:02X} &lt;pad&gt; {self.color:02X}</code> "
-            f"(Note On, MIDI ch {ch + 1})")
+            f"Colour <b>{self.color}</b> · #{r:02X}{g:02X}{b:02X} · "
+            f"MIDI <code>{0x90 | ch:02X} &lt;pad&gt; {self.color:02X}</code>")
 
     def _target(self) -> Optional[str]:
         c = self.selected()
         return c if c and apc.is_button(c) else None
 
     def _send_palette(self) -> None:
-        c = self._target()
-        if c and apc.is_rgb(c):
+        c = self._ready("pad")
+        if c:
             self._run(lambda: self.device.set_led(c, LedState(self.color, self.mode.currentIndex()),
                                                   force=True))
+            self._say(f"Sent colour {self.color} to {apc.control_label(c)}.")
 
     def _pick_rgb(self) -> None:
         from PySide6.QtGui import QColor
         col = QColorDialog.getColor(QColor(*self.rgb), self, "Pad RGB colour")
         if col.isValid():
             self.rgb = (col.red(), col.green(), col.blue())
-            self.rgb_btn.setStyleSheet(f"background-color: rgb{self.rgb};")
+            fg = "#000" if sum(self.rgb) > 380 else "#fff"
+            self.rgb_btn.setStyleSheet(f"background-color: rgb{self.rgb}; color: {fg};")
+            self.rgb_btn.setText(f"#{self.rgb[0]:02X}{self.rgb[1]:02X}{self.rgb[2]:02X}")
 
     def _send_rgb(self) -> None:
-        c = self._target()
-        if c and apc.is_rgb(c):
+        c = self._ready("pad")
+        if c:
             self._run(lambda: self.device.set_led(c, LedState(rgb=self.rgb), force=True))
+            self._say(f"Sent RGB colour to {apc.control_label(c)}.")
 
     def _send_single(self, v: int) -> None:
-        c = self._target()
-        if c and not apc.is_rgb(c):
+        c = self._ready("single")
+        if c:
             self._run(lambda: self.device.set_led(c, LedState(v, 0), force=True))
+            self._say(f"{apc.SINGLE_STATES[v]} sent to {apc.control_label(c)}.")
 
     def _palette_page(self, offset: int) -> None:
         for n in range(64):
@@ -170,6 +242,10 @@ class LedLab(QWidget):
         try:
             data = [int(x, 16) for x in self.raw.text().replace(",", " ").split()]
         except ValueError:
-            self.info.setText("<span style='color:#f66'>Invalid hex</span>")
+            self._say("That is not valid hex. Example: 96 00 05", error=True)
+            return
+        if not self.device.connected:
+            self._say("Connect the APC first (top left), then try again.", error=True)
             return
         self._run(lambda: self.device.send_raw(data))
+        self._say(f"Sent {len(data)} bytes.")

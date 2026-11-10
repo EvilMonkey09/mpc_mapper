@@ -38,9 +38,17 @@ def _shoot() -> None:
     w.diagram.selected_control = "pad:56"
     w.inspector.set_control("pad:56")
     w.diagram.update()
-    w.tabs.setCurrentIndex(0)
     app.processEvents()
     w.grab().save(os.path.join(out, "auswahl.png"))
+    for i, name in ((1, "led-lab.png"), (2, "log.png"), (3, "setup.png")):
+        w.nav_group.button(i).click()
+        if i == 1:
+            w.lab_diagram.selected_control = "pad:56"
+            w.lab.set_target("pad:56")
+            w.lab_diagram.update()
+        app.processEvents()
+        w.grab().save(os.path.join(out, name))
+    w.nav_group.button(0).click()
     w.resize(1280, 780)
     app.processEvents()
     w.grab().save(os.path.join(out, "klein.png"))

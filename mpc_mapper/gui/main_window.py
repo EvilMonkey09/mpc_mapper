@@ -8,11 +8,11 @@ from typing import Optional
 
 from PySide6.QtCore import QSettings, QStandardPaths, Qt, QTimer
 from PySide6.QtGui import QAction, QKeySequence
-from PySide6.QtWidgets import (QAbstractSpinBox, QCheckBox, QComboBox, QFileDialog,
+from PySide6.QtWidgets import (QAbstractSpinBox, QButtonGroup, QCheckBox, QComboBox, QFileDialog,
                                QFormLayout, QFrame, QHBoxLayout, QInputDialog, QLabel,
                                QLineEdit, QMainWindow, QMenu, QMessageBox, QPlainTextEdit,
                                QPushButton, QScrollArea, QSizePolicy, QSpinBox, QSplitter,
-                               QTabWidget, QTextBrowser, QVBoxLayout, QWidget,
+                               QStackedWidget, QTextBrowser, QVBoxLayout, QWidget,
                                QWidgetAction)
 
 from .. import apc
@@ -91,31 +91,77 @@ class MainWindow(QMainWindow):
         top.setStretchFactor(1, 1)
         top.setSizes([270, 760, 360])
 
-        self.tabs = QTabWidget()
-        self.lab = LedLab(self.engine.apc, lambda: self.diagram.selected_control)
+        # ---------------- pages ----------------
+        # 1) Mapping: the main workspace, full height
+        mapping_page = top
+
+        # 2) LED Lab: own drawing to pick a target + controls column
+        self.lab = LedLab(self.engine.apc, lambda: self.lab_diagram.selected_control)
+        self.lab_diagram = APCWidget(mapping)
+        self.lab_diagram.setAcceptDrops(False)
+        self.lab_diagram.selected.connect(self.lab.set_target)
         lab_scroll = QScrollArea()
         lab_scroll.setWidgetResizable(True)
         lab_scroll.setFrameShape(QFrame.NoFrame)
+        lab_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         lab_scroll.setWidget(self.lab)
-        self.tabs.addTab(lab_scroll, "LED Lab")
-        self.tabs.setMinimumHeight(120)
-        self.tabs.addTab(self._make_log(), "Log")
-        help_ = QTextBrowser()
-        help_.setHtml(MA3_SETUP_HTML)
-        self.tabs.addTab(help_, "MA3 setup")
+        lab_scroll.setMinimumWidth(400)
+        lab_scroll.setMaximumWidth(520)
+        lab_page = QSplitter(Qt.Horizontal)
+        lab_page.setChildrenCollapsible(False)
+        lab_page.addWidget(self.lab_diagram)
+        lab_page.addWidget(lab_scroll)
+        lab_page.setStretchFactor(0, 1)
 
-        vs = QSplitter(Qt.Vertical)
-        vs.addWidget(top)
-        vs.addWidget(self.tabs)
-        vs.setStretchFactor(0, 1)
-        vs.setStretchFactor(1, 0)
-        vs.setCollapsible(0, False)
-        vs.setSizes([720, 210])
-        self.vsplit, self.hsplit = vs, top
+        # 3) Log
+        log_page = self._make_log()
+
+        # 4) Setup help
+        help_ = QTextBrowser()
+        help_.setOpenExternalLinks(True)
+        help_.setHtml(MA3_SETUP_HTML)
+
+        self.pages = QStackedWidget()
+        for w in (mapping_page, lab_page, log_page, help_):
+            self.pages.addWidget(w)
+        self.tabs = self.pages          # kept for older code paths / screenshots
+
+        # navigation (segmented buttons)
+        nav = QFrame()
+        nav.setObjectName("Nav")
+        nl = QHBoxLayout(nav)
+        nl.setContentsMargins(4, 4, 4, 4)
+        nl.setSpacing(4)
+        self.nav_group = QButtonGroup(self)
+        self.nav_group.setExclusive(True)
+        shortcut_mod = "⌘" if sys.platform == "darwin" else "Ctrl"
+        for i, (text, tip) in enumerate([
+            ("Mapping", "Assign grandMA3 commands to the APC"),
+            ("LED Lab", "Try colours and effects on the real APC"),
+            ("Log", "See every MIDI and OSC message"),
+            ("Setup help", "How to set up grandMA3 and the plugin"),
+        ]):
+            b = QPushButton(text)
+            b.setObjectName("Seg")
+            b.setCheckable(True)
+            b.setToolTip(f"{tip}  ({shortcut_mod}+{i + 1})")
+            b.setShortcut(QKeySequence(f"Ctrl+{i + 1}"))
+            self.nav_group.addButton(b, i)
+            nl.addWidget(b)
+        self.nav_group.button(0).setChecked(True)
+        self.nav_group.idClicked.connect(self.pages.setCurrentIndex)
+        nav_row = QHBoxLayout()
+        nav_row.setContentsMargins(0, 0, 0, 0)
+        nav_row.addWidget(nav)
+        nav_row.addStretch(1)
+
+        self.hsplit = top
         central = QWidget()
         cl = QVBoxLayout(central)
-        cl.setContentsMargins(10, 10, 10, 6)
-        cl.addWidget(vs)
+        cl.setContentsMargins(12, 10, 12, 6)
+        cl.setSpacing(10)
+        cl.addLayout(nav_row)
+        cl.addWidget(self.pages, 1)
         self.setCentralWidget(central)
 
         self._make_toolbar()
@@ -124,7 +170,9 @@ class MainWindow(QMainWindow):
 
         # ---------------- wiring ----------------
         self.engine.led_changed.connect(self.diagram.set_led)
+        self.engine.led_changed.connect(self.lab_diagram.set_led)
         self.engine.control_event.connect(self.diagram.hw_event)
+        self.engine.control_event.connect(self.lab_diagram.hw_event)
         self.engine.fader_sync.connect(self._fader_sync)
         self.engine.log.connect(self._log)
         self.engine.status_changed.connect(self._update_status)
@@ -329,22 +377,29 @@ class MainWindow(QMainWindow):
     def _make_log(self) -> QWidget:
         w = QWidget()
         v = QVBoxLayout(w)
-        v.setContentsMargins(2, 2, 2, 2)
+        v.setContentsMargins(0, 0, 0, 0)
+        v.setSpacing(8)
         h = QHBoxLayout()
+        hint = QLabel("Every message between this app, the APC (MIDI) and grandMA3 (OSC).")
+        hint.setObjectName("Hint")
+        h.addWidget(hint, 1)
         self.log_midi = QCheckBox("MIDI")
         self.log_midi.setChecked(False)
+        self.log_midi.setToolTip("Show messages to and from the APC")
         self.log_osc = QCheckBox("OSC")
         self.log_osc.setChecked(True)
+        self.log_osc.setToolTip("Show messages to and from grandMA3")
         clear = QPushButton("Clear")
         h.addWidget(self.log_midi)
         h.addWidget(self.log_osc)
-        h.addStretch(1)
         h.addWidget(clear)
         v.addLayout(h)
         self.log_view = QPlainTextEdit()
         self.log_view.setReadOnly(True)
         self.log_view.setMaximumBlockCount(3000)
-        self.log_view.setFont(mono_font(9))
+        self.log_view.setFont(mono_font(11 if sys.platform == "darwin" else 9))
+        self.log_view.setPlaceholderText("Nothing yet. Press a pad (or Shift+click one on the "
+                                         "Mapping page) to see the messages here.")
         clear.clicked.connect(self.log_view.clear)
         v.addWidget(self.log_view)
         return w
@@ -436,10 +491,13 @@ class MainWindow(QMainWindow):
                                 "Not connected")
         self.st_ma3.setText(f"{theme.dot(col, 8)} {text}")
         self.st_page.setText(f"Page <b>{m.current_page}</b>")
+        if hasattr(self, "lab"):
+            self.lab.set_target(self.lab_diagram.selected_control)
 
     def _fader_sync(self, values: list) -> None:
         for i, v in enumerate(values):
             self.diagram.hw_event(f"fader:{i}", v)
+            self.lab_diagram.hw_event(f"fader:{i}", v)
 
     # ------------------------------------------------------------------ #
     # editing

@@ -127,6 +127,12 @@ QPushButton#Menu {{ padding-right: 28px; }}
 QPushButton#Menu::menu-indicator {{ subcontrol-origin: padding; subcontrol-position: center right;
                                    right: 8px; image: url("{a['down']}"); width: 12px; height: 12px; }}
 QWidget#Popup {{ background: {PANEL}; }}
+QFrame#Nav {{ background: {PANEL}; border: 1px solid {BORDER}; border-radius: 9px; }}
+QPushButton#Seg {{ background: transparent; border: none; border-radius: 6px;
+                   padding: 6px 16px; color: {MUTED}; font-weight: 600; }}
+QPushButton#Seg:hover {{ color: {TEXT}; background: {HOVER}; }}
+QPushButton#Seg:checked {{ background: {RAISED}; color: {TEXT};
+                           border: 1px solid {BORDER_STRONG}; }}
 
 /* ---------- inputs ---------- */
 QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QPlainTextEdit, QTextBrowser {{

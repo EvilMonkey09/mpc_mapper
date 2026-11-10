@@ -7,12 +7,13 @@ import sys
 from typing import Optional
 
 from PySide6.QtCore import QSettings, QStandardPaths, Qt, QTimer
-from PySide6.QtGui import QAction, QKeySequence, QWidgetAction
+from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import (QAbstractSpinBox, QCheckBox, QComboBox, QFileDialog,
                                QFormLayout, QFrame, QHBoxLayout, QInputDialog, QLabel,
                                QLineEdit, QMainWindow, QMenu, QMessageBox, QPlainTextEdit,
                                QPushButton, QScrollArea, QSizePolicy, QSpinBox, QSplitter,
-                               QTabWidget, QTextBrowser, QVBoxLayout, QWidget)
+                               QTabWidget, QTextBrowser, QVBoxLayout, QWidget,
+                               QWidgetAction)
 
 from .. import apc
 from ..engine import Engine

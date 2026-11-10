@@ -25,11 +25,20 @@ w.show()
 
 
 def shoot() -> None:
+    try:
+        _shoot()
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        app.exit(1)
+
+
+def _shoot() -> None:
     w.grab().save(os.path.join(out, "fenster.png"))
     w.diagram.selected_control = "pad:56"
     w.inspector.set_control("pad:56")
     w.diagram.update()
-    w.tabs.setCurrentIndex(w.tabs.indexOf(w.lab))
+    w.tabs.setCurrentIndex(0)
     app.processEvents()
     w.grab().save(os.path.join(out, "auswahl.png"))
     w.resize(1280, 780)
@@ -46,4 +55,5 @@ def shoot() -> None:
 
 
 QTimer.singleShot(4000, shoot)
+QTimer.singleShot(90000, lambda: (print('timeout'), app.exit(2)))
 sys.exit(app.exec())

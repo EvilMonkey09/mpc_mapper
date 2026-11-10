@@ -75,20 +75,30 @@ jobs:
             --add-data "mpc_mapper/assets:mpc_mapper/assets" \
             packaging/launcher.py
 
-      - name: Prüfen, ob die App startfähig ist
+      - name: Fertige App starten (Selbsttest)
         run: |
-          test -x "dist/MPC Mapper.app/Contents/MacOS/MPC Mapper"
-          find "dist/MPC Mapper.app" -name "*rtmidi*" | grep -q . || { echo "rtmidi fehlt im Bundle"; exit 1; }
-          codesign --verify --deep "dist/MPC Mapper.app"
+          APP="dist/MPC Mapper.app"
+          find "$APP" -name "*rtmidi*" | grep -q . || { echo "rtmidi fehlt im Bundle"; exit 1; }
+          codesign --verify --deep "$APP"
+          # Startet die gebaute App, die sich nach 5 s selbst schließt.
+          # Jeder Fehler beim Start lässt diesen Schritt fehlschlagen.
+          export MPC_MAPPER_SELFTEST="$PWD/selftest.log"
+          rc=0
+          perl -e 'alarm 90; exec @ARGV' "$APP/Contents/MacOS/MPC Mapper" || rc=$?
+          echo "--- selftest.log (exit code $rc) ---"; cat selftest.log 2>/dev/null || echo "(kein Log)"
+          [ "$rc" = 0 ] && grep -q '^ok' selftest.log
 
-      - name: Screenshots aufnehmen
+      - name: Programm-Test (Fenster öffnen + Screenshots)
+        run: |
+          # Schlägt fehl, wenn das Programm beim Start einen Fehler hat
+          mkdir -p shots
+          set -o pipefail
+          python packaging/screenshots.py shots 2>&1 | tee shots/log.txt
+
+      - name: Screenshot vom Mac-Bildschirm
         if: matrix.arch == 'apple-silicon'
         continue-on-error: true
         run: |
-          mkdir -p shots
-          python packaging/screenshots.py shots > shots/log.txt 2>&1 \
-            || echo "Python-Screenshot fehlgeschlagen" >> shots/log.txt
-          cat shots/log.txt
           # Die gebaute App, wie sie auf dem Mac-Bildschirm erscheint
           open "dist/MPC Mapper.app"
           sleep 20
@@ -172,24 +182,30 @@ jobs:
             --add-data "mpc_mapper/assets;mpc_mapper/assets" \
             packaging/launcher.py
 
-      - name: Prüfen, ob das Programm startet
+      - name: Fertiges Programm starten (Selbsttest)
+        shell: pwsh
         run: |
-          test -f "dist/MPC Mapper/MPC Mapper.exe"
-          # Programm starten, 15 s warten, prüfen ob es noch läuft, dann beenden
-          powershell -NoProfile -Command '
-            $p = Start-Process -FilePath "dist\MPC Mapper\MPC Mapper.exe" -PassThru
-            Start-Sleep -Seconds 15
-            if ($p.HasExited) { Write-Error "Programm ist abgestürzt (Exit-Code $($p.ExitCode))"; exit 1 }
-            Stop-Process -Id $p.Id -Force
-            Write-Output "Programm läuft."'
+          # Startet die gebaute .exe, die sich nach 5 s selbst schließt.
+          # Jeder Fehler beim Start lässt diesen Schritt fehlschlagen.
+          if (-not (Test-Path "dist\MPC Mapper\MPC Mapper.exe")) { throw "MPC Mapper.exe fehlt" }
+          $env:MPC_MAPPER_SELFTEST = "$PWD\selftest.log"
+          $p = Start-Process -FilePath "dist\MPC Mapper\MPC Mapper.exe" -PassThru
+          if (-not $p.WaitForExit(90000)) { Stop-Process -Id $p.Id -Force; throw "Programm hängt (vermutlich Fehlerdialog)" }
+          Write-Output "--- selftest.log (exit code $($p.ExitCode)) ---"
+          if (Test-Path selftest.log) { Get-Content selftest.log } else { Write-Output "(kein Log)" }
+          if ($p.ExitCode -ne 0) { throw "Programm mit Fehler beendet" }
+          if (-not (Select-String -Path selftest.log -Pattern '^ok' -Quiet)) { throw "Selbsttest nicht bestanden" }
 
-      - name: Screenshots aufnehmen
+      - name: Programm-Test (Fenster öffnen + Screenshots)
+        run: |
+          # Schlägt fehl, wenn das Programm beim Start einen Fehler hat
+          mkdir -p shots
+          set -o pipefail
+          python packaging/screenshots.py shots 2>&1 | tee shots/log.txt
+
+      - name: Screenshots in den Zweig "screenshots-windows" legen
         continue-on-error: true
         run: |
-          mkdir -p shots
-          python packaging/screenshots.py shots > shots/log.txt 2>&1 \
-            || echo "Python-Screenshot fehlgeschlagen" >> shots/log.txt
-          cat shots/log.txt
           cd shots
           git init -q -b screenshots-windows
           git config user.name "github-actions"

@@ -1,0 +1,83 @@
+# Baut "MPC Mapper.app" für macOS (Apple Silicon + Intel) auf GitHub-Servern.
+#
+# Ergebnis herunterladen: Reiter "Actions" → letzter Lauf → unten "Artifacts".
+# Wird ein Tag wie "v1.0" gepusht, landen die ZIPs zusätzlich unter "Releases".
+
+name: macOS-App bauen
+
+on:
+  workflow_dispatch:          # Button "Run workflow" im Reiter Actions
+  push:
+    branches: [main, mac-app]
+    tags: ["v*"]
+
+permissions:
+  contents: write             # nötig, um ZIPs an ein Release zu hängen
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-latest       # Apple Silicon (M1/M2/M3/M4)
+            arch: apple-silicon
+          - runner: macos-15-intel     # ältere Macs mit Intel-Prozessor
+            arch: intel
+    runs-on: ${{ matrix.runner }}
+    name: Build (${{ matrix.arch }})
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Abhängigkeiten installieren
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt "pyinstaller>=6.0"
+
+      - name: App bauen
+        run: |
+          pyinstaller \
+            --noconfirm --clean --log-level WARN \
+            --windowed \
+            --name "MPC Mapper" \
+            --osx-bundle-identifier "com.mpcmapper.app" \
+            --paths "$GITHUB_WORKSPACE" \
+            --hidden-import mido.backends.rtmidi \
+            --hidden-import rtmidi \
+            --add-data "ma3_plugin:ma3_plugin" \
+            --add-data "mappings:mappings" \
+            mac/launcher.py
+
+      - name: Prüfen, ob die App startfähig ist
+        run: |
+          test -x "dist/MPC Mapper.app/Contents/MacOS/MPC Mapper"
+          # MIDI-Treiber muss mit eingepackt sein, sonst findet die App den APC nicht
+          find "dist/MPC Mapper.app" -name "*rtmidi*" | grep -q . || { echo "rtmidi fehlt im Bundle"; exit 1; }
+          codesign --verify --deep "dist/MPC Mapper.app"
+
+      - name: ZIP erstellen
+        run: |
+          mkdir -p out/grandMA3-Plugin
+          cp ma3_plugin/APC_Feedback.xml ma3_plugin/APC_Feedback.lua out/grandMA3-Plugin/
+          # ditto erhält Symlinks und Rechte im .app-Paket (normales zip zerstört sie)
+          ditto "dist/MPC Mapper.app" "out/MPC Mapper.app"
+          ditto -c -k --keepParent out "MPC-Mapper-macOS-${{ matrix.arch }}.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MPC-Mapper-macOS-${{ matrix.arch }}
+          path: MPC-Mapper-macOS-${{ matrix.arch }}.zip
+
+      - name: An Release anhängen (nur bei Tags)
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 \
+            || gh release create "$GITHUB_REF_NAME" --title "MPC Mapper $GITHUB_REF_NAME" --notes "macOS-App, automatisch gebaut." || true
+          gh release upload "$GITHUB_REF_NAME" "MPC-Mapper-macOS-${{ matrix.arch }}.zip" --clobber

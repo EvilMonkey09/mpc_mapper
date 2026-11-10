@@ -24,21 +24,39 @@ from .widgets import qcolor, text_color_for, ui_font
 MIME_CATALOG = "application/x-ma3-catalog"
 MIME_CONTROL = "application/x-apc-control"
 
-# logical geometry (scaled to widget)
-PAD, GAP, X0, Y0 = 62.0, 9.0, 34.0, 70.0
-GRID = 8 * PAD + 7 * GAP
-SCENE_X = X0 + GRID + 18
-SCENE_W = 46.0
-TRACK_Y = Y0 + GRID + 16
-TRACK_H = 22.0
-FADER_Y = TRACK_Y + TRACK_H + 26
-FADER_H = 170.0
-W = SCENE_X + SCENE_W + 30
-H = FADER_Y + FADER_H + 46
+# logical geometry (scaled to widget), laid out like the real APC mini mk2:
+# 8x8 rectangular pads, soft keys (scene launch) on the right with their
+# labels, round-cornered red track keys under the grid, 9 faders at the bottom.
+PAD_W, PAD_H, GAP_X, GAP_Y = 60.0, 38.0, 10.0, 10.0
+X0, Y0 = 42.0, 92.0
+GRID_W = 8 * PAD_W + 7 * GAP_X
+GRID_H = 8 * PAD_H + 7 * GAP_Y
+SCENE_X = X0 + GRID_W + 30
+SCENE_S = 26.0                       # soft key size
+TRACK_Y = Y0 + GRID_H + 36
+TRACK_W, TRACK_H = 26.0, 16.0
+FADER_Y = TRACK_Y + TRACK_H + 34
+FADER_H = 190.0
+W = SCENE_X + SCENE_S + 96
+H = FADER_Y + FADER_H + 34
+EDGE = 9.0                           # red side edges
+
+SCENE_LABELS = ["CLIP STOP", "SOLO", "MUTE", "REC ARM", "SELECT", "DRUM", "NOTE",
+                "STOP ALL CLIPS"]
+TRACK_LABELS = ["VOLUME", "PAN", "SEND", "DEVICE", "▲", "▼", "◀", "▶"]
+AKAI_RED = "#e2231a"
 
 
 def _col_x(i: int) -> float:
-    return X0 + i * (PAD + GAP)
+    return X0 + i * (PAD_W + GAP_X)
+
+
+def _col_cx(i: int) -> float:
+    return _col_x(i) + PAD_W / 2
+
+
+def _row_y(row_from_top: int) -> float:
+    return Y0 + row_from_top * (PAD_H + GAP_Y)
 
 
 def control_rect(control: str) -> QRectF:
@@ -46,18 +64,18 @@ def control_rect(control: str) -> QRectF:
     if kind == "pad":
         n = int(idx)
         row, col = divmod(n, 8)
-        return QRectF(_col_x(col), Y0 + (7 - row) * (PAD + GAP), PAD, PAD)
+        return QRectF(_col_x(col), _row_y(7 - row), PAD_W, PAD_H)
     if kind == "scene":
         n = int(idx)  # 0 = top
-        return QRectF(SCENE_X, Y0 + n * (PAD + GAP) + PAD / 2 - 13, SCENE_W, 26)
+        return QRectF(SCENE_X, _row_y(n) + (PAD_H - SCENE_S) / 2, SCENE_S, SCENE_S)
     if kind == "track":
-        return QRectF(_col_x(int(idx)), TRACK_Y, PAD, TRACK_H)
+        return QRectF(_col_cx(int(idx)) - TRACK_W / 2, TRACK_Y, TRACK_W, TRACK_H)
     if kind == "shift":
-        return QRectF(SCENE_X, TRACK_Y, SCENE_W, TRACK_H)
+        return QRectF(SCENE_X, TRACK_Y, SCENE_S, TRACK_H)
     if kind == "fader":
         n = int(idx)
-        x = SCENE_X + (SCENE_W - PAD) / 2 if n == 8 else _col_x(n)
-        return QRectF(x, FADER_Y, PAD, FADER_H)
+        cx = SCENE_X + SCENE_S / 2 if n == 8 else _col_cx(n)
+        return QRectF(cx - 24, FADER_Y, 48, FADER_H)
     return QRectF()
 
 
@@ -165,25 +183,48 @@ class APCWidget(QWidget):
         self.paint_device(p)
 
     def paint_device(self, p: QPainter) -> None:
-        # body
-        body = QRectF(6, 6, W - 12, H - 12)
+        # body: black with red side edges
+        p.setPen(Qt.NoPen)
+        p.setBrush(QColor(AKAI_RED))
+        p.drawRoundedRect(QRectF(0, 2, W, H - 4), 10, 10)
+        body = QRectF(EDGE, 2, W - 2 * EDGE, H - 4)
         grad = QLinearGradient(0, 0, 0, H)
-        grad.setColorAt(0, QColor("#2c2e33"))
-        grad.setColorAt(1, QColor("#202226"))
-        p.setPen(QPen(QColor("#45484f"), 2))
+        grad.setColorAt(0, QColor("#1d1e21"))
+        grad.setColorAt(1, QColor("#141517"))
         p.setBrush(QBrush(grad))
-        p.drawRoundedRect(body, 18, 18)
-        p.setPen(QColor("#c8c8c8"))
-        f = ui_font(15, bold=True)
-        p.setFont(f)
-        p.drawText(QRectF(X0, 22, 300, 30), Qt.AlignLeft | Qt.AlignVCenter, "AKAI  APC mini")
-        p.setPen(QColor("#e05a2a"))
-        p.setFont(ui_font(11, bold=True))
-        p.drawText(QRectF(X0 + 178, 24, 60, 30), Qt.AlignLeft | Qt.AlignVCenter, "mk2")
-        p.setPen(QColor("#8a8d94"))
-        p.setFont(ui_font(9))
-        p.drawText(QRectF(X0 + 240, 22, W - X0 - 274, 30), Qt.AlignRight | Qt.AlignVCenter,
+        p.drawRect(body)
+        # logos
+        p.setPen(QColor("#f2f2f2"))
+        p.setFont(ui_font(20, bold=True))
+        p.drawText(QRectF(X0, 22, 160, 30), Qt.AlignLeft | Qt.AlignVCenter, "AKAI")
+        p.setFont(ui_font(6, bold=True))
+        p.drawText(QRectF(X0 + 1, 50, 160, 12), Qt.AlignLeft | Qt.AlignVCenter, "PROFESSIONAL")
+        p.setFont(ui_font(17, bold=True))
+        right = QRectF(_col_x(5), 26, GRID_W - _col_x(5) + X0, 30)
+        p.drawText(right, Qt.AlignRight | Qt.AlignVCenter, "APC")
+        p.setFont(ui_font(14))
+        fm_w = 46
+        p.drawText(QRectF(right.right() + 2, 28, fm_w, 30), Qt.AlignLeft | Qt.AlignVCenter, "mini")
+        p.setPen(QColor("#7d8087"))
+        p.setFont(ui_font(8))
+        p.drawText(QRectF(X0 + 150, 64, GRID_W - 150, 16), Qt.AlignRight | Qt.AlignVCenter,
                    f"Shift+click = simulate · drag = move · {theme.MOD_KEY}+drag = copy")
+        # soft-keys header + vertical "SCENE LAUNCH"
+        p.setPen(QColor("#d8d8d8"))
+        p.setFont(ui_font(6, bold=True))
+        p.drawText(QRectF(SCENE_X + SCENE_S + 8, Y0 - 24, 80, 20), Qt.AlignLeft | Qt.AlignVCenter,
+                   "SOFT\nKEYS")
+        # "FADER CTRL" bracket over the first four track keys
+        p.setPen(QPen(QColor("#9a9da3"), 1))
+        by = TRACK_Y - 12
+        p.drawLine(QPointF(_col_cx(0), by), QPointF(_col_cx(3), by))
+        for i in (0, 3):
+            p.drawLine(QPointF(_col_cx(i), by), QPointF(_col_cx(i), by + 4))
+        p.setFont(ui_font(6, bold=True))
+        p.setPen(QColor("#d8d8d8"))
+        mid = (_col_cx(1) + _col_cx(2)) / 2
+        p.fillRect(QRectF(mid - 28, by - 6, 56, 12), QColor("#18191c"))
+        p.drawText(QRectF(mid - 28, by - 7, 56, 12), Qt.AlignCenter, "FADER CTRL")
 
         for c in apc.ALL_CONTROLS:
             kind = apc.control_kind(c)
@@ -213,7 +254,7 @@ class APCWidget(QWidget):
         return a.name if a else ""
 
     def _paint_pad(self, p: QPainter, c: str) -> None:
-        rect = control_rect(c)
+        rect = self.ctrl_rect(c)
         st = self.leds.get(c, LedState(0))
         rgb = st.display_rgb()
         if st.animated and self._blink:
@@ -222,67 +263,89 @@ class APCWidget(QWidget):
             else:               # pulse -> dim phase
                 rgb = tuple(int(v * 0.35) for v in rgb)
         lit = max(rgb) > 8
-        base = qcolor(rgb) if lit else QColor("#3a3c41")
-        p.setPen(QPen(QColor("#111"), 1.5))
-        p.setBrush(base)
-        p.drawRoundedRect(rect, 6, 6)
-        if lit:  # soft glow highlight
-            g = QLinearGradient(rect.topLeft(), rect.bottomLeft())
-            g.setColorAt(0, QColor(255, 255, 255, 60))
-            g.setColorAt(1, QColor(255, 255, 255, 0))
-            p.setBrush(QBrush(g))
+        if lit:                                   # soft glow around a lit pad
+            glow = qcolor(rgb)
+            glow.setAlpha(70)
             p.setPen(Qt.NoPen)
-            p.drawRoundedRect(rect.adjusted(2, 2, -2, -rect.height() / 2), 5, 5)
+            p.setBrush(glow)
+            p.drawRoundedRect(rect.adjusted(-3, -3, 3, 3), 6, 6)
+        base = qcolor(rgb) if lit else QColor("#3a3c41")
+        g = QLinearGradient(rect.topLeft(), rect.bottomLeft())
+        g.setColorAt(0, base.lighter(118))
+        g.setColorAt(1, base.darker(112))
+        p.setPen(QPen(QColor("#0b0b0c"), 1.2))
+        p.setBrush(QBrush(g))
+        p.drawRoundedRect(rect, 3.5, 3.5)
         text = self._label(c)
         if text:
             p.setPen(text_color_for(rgb) if lit else QColor("#d0d0d0"))
             p.setFont(ui_font(7))
-            p.drawText(rect.adjusted(3, 3, -3, -3), Qt.AlignCenter | Qt.TextWordWrap, text)
-        self._outline(p, c, rect, 6)
+            p.drawText(rect.adjusted(3, 2, -3, -2), Qt.AlignCenter | Qt.TextWordWrap, text)
+        self._outline(p, c, rect, 4)
 
     def _paint_button(self, p: QPainter, c: str) -> None:
-        rect = control_rect(c)
-        kind = apc.control_kind(c)
+        rect = self.ctrl_rect(c)
+        kind, _, idx = c.partition(":")
         st = self.leds.get(c, LedState(0, 0))
         on = st.color == apc.SINGLE_ON or (st.color == apc.SINGLE_BLINK and not self._blink)
         if kind == "track":
-            col = QColor("#ff2a1a") if on else QColor("#4a2a28")
+            col = QColor("#ff3b30") if on else QColor("#d9a2a6")
+            glow = QColor(255, 59, 48, 90)
         elif kind == "scene":
-            col = QColor("#30ff4a") if on else QColor("#26402a")
+            col = QColor("#36e85a") if on else QColor("#9fa2a8")
+            glow = QColor(54, 232, 90, 90)
         else:
-            col = QColor("#5a5d64")
-        p.setPen(QPen(QColor("#111"), 1.5))
-        p.setBrush(col)
-        p.drawRoundedRect(rect, 4, 4)
-        text = self._label(c) or ("SHIFT" if kind == "shift" else "")
-        if text:
-            p.setPen(QColor("#111") if on else QColor("#d8d8d8"))
-            p.setFont(ui_font(6))
-            p.drawText(rect.adjusted(2, 0, -2, 0), Qt.AlignCenter | Qt.TextWordWrap, text)
-        self._outline(p, c, rect, 4)
+            col, glow = QColor("#9fa2a8"), None
+        if on and glow is not None:
+            p.setPen(Qt.NoPen)
+            p.setBrush(glow)
+            p.drawRoundedRect(rect.adjusted(-3, -3, 3, 3), 5, 5)
+        g = QLinearGradient(rect.topLeft(), rect.bottomLeft())
+        g.setColorAt(0, col.lighter(110))
+        g.setColorAt(1, col.darker(115))
+        p.setPen(QPen(QColor("#0b0b0c"), 1.2))
+        p.setBrush(QBrush(g))
+        p.drawRoundedRect(rect, 3, 3)
+        # label: the assignment if there is one, else the printed name
+        text = self._label(c)
+        printed = (SCENE_LABELS[int(idx)] if kind == "scene" else
+                   TRACK_LABELS[int(idx)] if kind == "track" else "SHIFT")
+        p.setPen(QColor("#e6e6e6") if text else QColor("#8d9096"))
+        p.setFont(ui_font(6, bold=not text))
+        if kind == "scene":
+            box = QRectF(rect.right() + 7, rect.top() - 4, 78, rect.height() + 8)
+            p.drawText(box, Qt.AlignLeft | Qt.AlignVCenter | Qt.TextWordWrap, text or printed)
+        else:
+            box = QRectF(rect.center().x() - 34, rect.bottom() + 2, 68, 22)
+            p.drawText(box, Qt.AlignHCenter | Qt.AlignTop | Qt.TextWordWrap, text or printed)
+        self._outline(p, c, rect, 3)
 
     def _paint_fader(self, p: QPainter, c: str) -> None:
-        rect = control_rect(c)
-        slot = QRectF(rect.center().x() - 4, rect.top() + 8, 8, rect.height() - 16)
+        rect = self.ctrl_rect(c)
+        well = QRectF(rect.center().x() - 17, rect.top(), 34, rect.height())
         p.setPen(Qt.NoPen)
-        p.setBrush(QColor("#0d0e10"))
-        p.drawRoundedRect(slot, 4, 4)
+        p.setBrush(QColor("#0b0c0d"))
+        p.drawRoundedRect(well, 4, 4)
+        slot = QRectF(rect.center().x() - 2.5, rect.top() + 14, 5, rect.height() - 28)
+        p.setBrush(QColor("#000000"))
+        p.drawRoundedRect(slot, 2.5, 2.5)
         v = self.fader_values.get(c, 0) / 127.0
         cy = slot.bottom() - v * slot.height()
-        cap = QRectF(rect.center().x() - 20, cy - 11, 40, 22)
+        cap = QRectF(rect.center().x() - 15, cy - 9, 30, 18)
         g = QLinearGradient(cap.topLeft(), cap.bottomLeft())
-        g.setColorAt(0, QColor("#d0d2d6"))
-        g.setColorAt(1, QColor("#7d8087"))
+        g.setColorAt(0, QColor("#2a2b2e"))
+        g.setColorAt(0.35, QColor("#e9ebee"))   # chrome stripe like the real caps
+        g.setColorAt(0.65, QColor("#9ea2a8"))
+        g.setColorAt(1, QColor("#1e1f22"))
         p.setBrush(QBrush(g))
-        p.setPen(QPen(QColor("#111"), 1))
+        p.setPen(QPen(QColor("#050505"), 1))
         p.drawRoundedRect(cap, 3, 3)
-        p.setPen(QPen(QColor("#222"), 2))
-        p.drawLine(QPointF(cap.left() + 4, cy), QPointF(cap.right() - 4, cy))
         text = self._label(c) or ("Master" if c == "fader:8" else "")
-        p.setPen(QColor("#d8d8d8"))
-        p.setFont(ui_font(7))
-        p.drawText(QRectF(rect.left() - 4, rect.bottom() + 2, rect.width() + 8, 30),
-                   Qt.AlignHCenter | Qt.AlignTop | Qt.TextWordWrap, text)
+        if text:
+            p.setPen(QColor("#d8d8d8"))
+            p.setFont(ui_font(7))
+            p.drawText(QRectF(rect.left() - 10, rect.bottom() + 3, rect.width() + 20, 26),
+                       Qt.AlignHCenter | Qt.AlignTop | Qt.TextWordWrap, text)
         self._outline(p, c, rect, 6)
 
     # ---------------- mouse ----------------

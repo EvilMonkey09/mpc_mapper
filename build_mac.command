@@ -66,7 +66,7 @@ iconutil -c icns "$ICONSET" -o iconbuild/AppIcon.icns
     --add-data "ma3_plugin:ma3_plugin" \
     --add-data "mappings:mappings" \
     --add-data "mpc_mapper/assets:mpc_mapper/assets" \
-    mac/launcher.py
+    packaging/launcher.py
 
 APP_PATH="$PROJECT_DIR/dist/$APP_NAME.app"
 [ -d "$APP_PATH" ] || fail "Die App wurde nicht erzeugt."

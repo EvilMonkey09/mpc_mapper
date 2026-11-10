@@ -38,7 +38,7 @@
 <b>Inhalt</b>
 <ol>
   <li><a href="#paket">Was ist im Paket?</a></li>
-  <li><a href="#app">App installieren</a></li>
+  <li><a href="#app">Programm installieren</a></li>
   <li><a href="#ma3">grandMA3 einrichten</a></li>
   <li><a href="#verbinden">Verbinden</a></li>
   <li><a href="#benutzen">Benutzen</a></li>
@@ -49,14 +49,31 @@
 <h2 id="paket">1. Was ist im Paket?</h2>
 <table>
   <tr><th>Datei / Ordner</th><th>Wofür?</th></tr>
-  <tr><td><code>MPC Mapper.app</code></td><td>Das Programm für den Mac</td></tr>
+  <tr><td><code>MPC Mapper.app</code> (Mac)<br><code>MPC Mapper.exe</code> (Windows)</td><td>Das Programm</td></tr>
   <tr><td><code>grandMA3-Plugin</code></td><td>Plugin fürs Pult, schon in der richtigen Ordnerstruktur für den USB-Stick – schickt den Status der Executoren an die App. Mit Kurzanleitung <code>LIESMICH.txt</code></td></tr>
   <tr><td><code>Demo-Layout.json</code></td><td>Fertige Beispiel-Belegung zum Ausprobieren (<i>File → Open…</i>)</td></tr>
   <tr><td><code>Anleitung.html</code></td><td>Diese Anleitung</td></tr>
 </table>
-<p>Du brauchst außerdem: einen <b>APC mini mk2</b> (nicht das alte Modell) und ein <b>grandMA3-Pult oder grandMA3 onPC</b> im selben Netzwerk wie der Mac.</p>
+<p>Du brauchst außerdem: einen <b>APC mini mk2</b> (nicht das alte Modell) und ein <b>grandMA3-Pult oder grandMA3 onPC</b> im selben Netzwerk wie dein Computer.</p>
 
-<h2 id="app">2. App installieren</h2>
+<h2 id="app">2. Programm installieren</h2>
+
+<h3>Windows 10 / 11</h3>
+<ol>
+  <li><b>MPC-Mapper-Windows.zip</b> herunterladen.</li>
+  <li>Rechtsklick auf die ZIP → <b>„Alle extrahieren…“</b> → <b>„Extrahieren“</b>. Wichtig: Nicht direkt aus der ZIP heraus starten!</li>
+  <li>Den entpackten Ordner z.&nbsp;B. nach <code>C:\MPC Mapper</code> oder in „Dokumente“ verschieben.</li>
+  <li>Im Ordner <b><code>MPC Mapper.exe</code></b> doppelklicken. Tipp: Rechtsklick → <i>Senden an → Desktop (Verknüpfung erstellen)</i> für ein Symbol auf dem Desktop.</li>
+</ol>
+<div class="box warn">
+  <b>„Der Computer wurde durch Windows geschützt“?</b> Das ist normal, weil das Programm nicht signiert ist.
+  Klicke auf <b>„Weitere Informationen“</b> und dann auf <b>„Trotzdem ausführen“</b>.
+</div>
+<div class="box">
+  Fragt die <b>Windows-Firewall</b>, ob MPC Mapper auf das Netzwerk zugreifen darf: <b>„Zugriff zulassen“</b> – und zwar für das Netzwerk, in dem das Pult hängt (meist „Private Netzwerke“). Sonst kommt vom Pult keine Rückmeldung an.
+</div>
+
+<h3>Mac</h3>
 <ol>
   <li>Prüfe, welchen Mac du hast: Apfel-Menü  → <b>Über diesen Mac</b>. Steht bei „Chip“ <i>Apple M…</i>, brauchst du die Version <b>apple-silicon</b>, sonst <b>intel</b>.</li>
   <li>Die heruntergeladene ZIP doppelklicken – es entsteht ein Ordner.</li>
@@ -76,10 +93,10 @@
 <p>Am Pult: <b>Menu → In &amp; Out → OSC</b>. Dort <b>Enable Input</b> und <b>Enable Output</b> einschalten.</p>
 
 <h3>Schritt 2 – Zwei OSC-Lines anlegen</h3>
-<p>Die IP-Adresse deines Macs findest du unter <b>Systemeinstellungen → WLAN</b> (bzw. Netzwerk) <b>→ Details</b>.</p>
+<p>Die IP-Adresse deines Computers findest du so:<br><b>Windows:</b> Einstellungen → Netzwerk und Internet → Eigenschaften (bei WLAN bzw. Ethernet) → „IPv4-Adresse“.<br><b>Mac:</b> Systemeinstellungen → WLAN (bzw. Netzwerk) → Details.</p>
 <table>
   <tr><th>Einstellung</th><th>Line 1 (Befehle)</th><th>Line 2 (Rückmeldung)</th></tr>
-  <tr><td>Destination IP</td><td>IP des Macs</td><td>IP des Macs</td></tr>
+  <tr><td>Destination IP</td><td>IP deines Computers</td><td>IP deines Computers</td></tr>
   <tr><td>Port</td><td><b>8000</b></td><td><b>8001</b></td></tr>
   <tr><td>Prefix</td><td><b>gma3</b></td><td>–</td></tr>
   <tr><td>Receive</td><td><b>Yes</b></td><td>Off</td></tr>
@@ -103,12 +120,12 @@
 
 <h2 id="verbinden">4. Verbinden</h2>
 <ol>
-  <li>APC per USB anstecken, dann die App starten. Der richtige MIDI-Port („Control“) wird automatisch gewählt.</li>
-  <li>Oben die <b>IP-Adresse des Pults</b> eintragen. Port <code>8000</code>, Listen <code>8001</code>, Prefix <code>gma3</code> passen schon.</li>
-  <li>Auf <b>Connect MA3</b> klicken.</li>
-  <li>Unten in der Statusleiste erscheint <b>„MA3 feedback“</b> mit grünem Punkt → alles läuft.</li>
+  <li>APC per USB anstecken, dann MPC Mapper starten. Der richtige MIDI-Port wird automatisch gewählt. Das Lämpchen im Bereich „APC mini mk2“ oben wird grün.</li>
+  <li>Oben im Bereich <b>„grandMA3“</b> die <b>IP-Adresse des Pults</b> eintragen. Port <code>8000</code>, Listen <code>8001</code>, Prefix <code>gma3</code> passen schon.</li>
+  <li>Auf <b>Connect</b> klicken.</li>
+  <li>Das Lämpchen bei „grandMA3“ zeigt den Zustand: <b>grün</b> = alles läuft, <b>gelb</b> = Befehle gehen raus, aber das Plugin antwortet nicht, <b>rot</b> = nicht verbunden.</li>
 </ol>
-<p>Wichtig: Nur ein Programm gleichzeitig darf den APC benutzen. Ableton, Logic oder MIDI-Monitore vorher schließen.</p>
+<p>Wichtig: Nur ein Programm gleichzeitig darf den APC benutzen. Ableton, Logic, MIDI-Monitore oder den MIDI-Eingang von grandMA3 onPC vorher schließen.</p>
 
 <h2 id="benutzen">5. Benutzen</h2>
 <ul>
@@ -116,20 +133,20 @@
   <li><b>Belegen:</b> Einen Befehl aus der Liste links auf ein Pad, eine Taste oder einen Fader ziehen.</li>
   <li><b>Welcher Executor?</b> Unten links festlegen: <i>By column</i> (Spalte 1 = Basis, Spalte 2 = Basis+1 …), <i>Fixed number</i> oder <i>Auto-increment</i>.</li>
   <li><b>Ändern:</b> Element anklicken – rechts im Inspector Befehl und LED-Farben anpassen.</li>
-  <li><b>Verschieben:</b> belegtes Element auf ein anderes ziehen. <b>Kopieren:</b> dabei ⌘ gedrückt halten.</li>
-  <li><b>Löschen / testen:</b> Rechtsklick (Trackpad: mit zwei Fingern klicken) → Clear bzw. Simulate.</li>
+  <li><b>Verschieben:</b> belegtes Element auf ein anderes ziehen. <b>Kopieren:</b> dabei Strg (Mac: ⌘) gedrückt halten.</li>
+  <li><b>Löschen / testen:</b> Rechtsklick (Mac-Trackpad: mit zwei Fingern klicken) → Clear bzw. Simulate. Löschen geht auch rechts im Inspector mit <b>Clear</b>.</li>
   <li><b>Ohne Hardware testen:</b> Shift + Klick auf die Abbildung drückt eine Taste, Shift + Ziehen bewegt einen Fader.</li>
-  <li><b>Speichern:</b> <i>File → Save</i> (⌘S). Die letzte Datei öffnet sich beim nächsten Start automatisch.</li>
+  <li><b>Speichern:</b> <i>File → Save</i> (Strg+S, Mac: ⌘S). Neue Dateien landen in <code>Dokumente\MPC Mapper</code>. Die letzte Datei öffnet sich beim nächsten Start automatisch.</li>
 </ul>
 
 <h2 id="probleme">6. Wenn etwas nicht klappt</h2>
 <table>
   <tr><th>Problem</th><th>Lösung</th></tr>
-  <tr><td>App lässt sich nicht öffnen</td><td>Systemeinstellungen → Datenschutz &amp; Sicherheit → „Dennoch öffnen“ (siehe Abschnitt 2).</td></tr>
+  <tr><td>Programm lässt sich nicht öffnen</td><td><b>Windows:</b> „Weitere Informationen“ → „Trotzdem ausführen“. ZIP vorher entpacken! Schlägt der Virenscanner an, das Programm dort als Ausnahme zulassen.<br><b>Mac:</b> Systemeinstellungen → Datenschutz &amp; Sicherheit → „Dennoch öffnen“.</td></tr>
   <tr><td>APC wird nicht gefunden</td><td>USB neu einstecken, App neu starten, andere Musik-/MIDI-Programme schließen. Rechts neben den Ports auf ↻ klicken.</td></tr>
   <tr><td>Pads reagieren nicht mehr</td><td>Der APC ist im Drum/Note-Modus. Am Gerät <b>Shift + Scene 5</b> drücken.</td></tr>
   <tr><td>Befehle kommen am Pult nicht an</td><td>Line 1 prüfen: IP des Macs, Port 8000, Prefix <code>gma3</code>, Receive + Receive Command = Yes. Mac und Pult im selben Netz?</td></tr>
-  <tr><td>Tasten leuchten nicht / kein „MA3 feedback“</td><td>Plugin gestartet? Line 2: Port 8001, Send + Send Command = Yes. Firewall: Systemeinstellungen → Netzwerk → Firewall → Optionen → MPC Mapper erlauben.</td></tr>
+  <tr><td>Tasten leuchten nicht / kein „MA3 feedback“</td><td>Plugin gestartet? Line 2: Port 8001, Send + Send Command = Yes. Firewall: <b>Windows:</b> Windows-Sicherheit → Firewall- &amp; Netzwerkschutz → „Zugriff von App durch Firewall zulassen“ → MPC Mapper anhaken. <b>Mac:</b> Systemeinstellungen → Netzwerk → Firewall → Optionen → MPC Mapper erlauben.</td></tr>
 </table>
 <p class="lead">Original-Projekt: <a href="https://github.com/miles-p/MPC_Mapper">github.com/miles-p/MPC_Mapper</a></p>
 </main>

@@ -1,0 +1,19 @@
+grandMA3-Plugin für MPC Mapper
+==============================
+
+1. Den Ordner "gma3_library" aus diesem Ordner auf einen USB-Stick kopieren
+   (direkt ins Hauptverzeichnis des Sticks).
+   Bei grandMA3 onPC: die beiden Dateien aus gma3_library/datapools/plugins
+   in den gleichnamigen Ordner im onPC-Datenordner kopieren.
+2. Stick ans Pult stecken.
+3. Plugins-Pool öffnen -> leeres Feld -> Import -> "APC_Feedback" wählen.
+4. Plugin einmal ausführen = starten (nochmal ausführen = stoppen).
+
+OSC-Einstellungen am Pult (Menu -> In & Out -> OSC, Enable Input + Output):
+  Line 1: Destination IP = Computer mit MPC Mapper, Port 8000, Prefix gma3,
+          Receive = Yes, Receive Command = Yes
+  Line 2: Destination IP = Computer mit MPC Mapper, Port 8001,
+          Send = Yes, Send Command = Yes, Receive aus
+Ist die Rückmeldung nicht Line 2: in APC_Feedback.lua oben OSC_LINE ändern.
+
+Ausführliche Anleitung: Anleitung.html

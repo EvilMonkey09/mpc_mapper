@@ -130,6 +130,28 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          cat > notes.md <<'EOF'
+          ## MPC Mapper für macOS
+
+          Steuert grandMA3 mit einem Akai APC mini mk2, inklusive LED-Rückmeldung.
+
+          ### Welche Datei?
+          - **MPC-Mapper-macOS-apple-silicon.zip**: Macs mit M1, M2, M3 oder M4
+          - **MPC-Mapper-macOS-intel.zip**: ältere Macs mit Intel-Prozessor
+
+          Welchen Mac du hast, steht unter  → „Über diesen Mac“ bei „Chip“ bzw. „Prozessor“.
+
+          ### Installieren
+          1. Passende ZIP herunterladen und doppelklicken.
+          2. `MPC Mapper.app` in den Ordner **Programme** ziehen.
+          3. App starten. macOS blockiert sie beim ersten Mal, weil sie nicht von Apple signiert ist:
+             **Systemeinstellungen → Datenschutz & Sicherheit** → ganz unten **„Dennoch öffnen“**.
+          4. Fragt macOS nach eingehenden Netzwerkverbindungen: **Erlauben**.
+
+          Der Ordner `grandMA3-Plugin` enthält das Feedback-Plugin für das Pult (auf USB-Stick kopieren und in den Plugins-Pool importieren).
+
+          Original-Projekt: https://github.com/miles-p/MPC_Mapper
+          EOF
           gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 \
-            || gh release create "$GITHUB_REF_NAME" --title "MPC Mapper $GITHUB_REF_NAME" --notes "macOS-App, automatisch gebaut." || true
+            || gh release create "$GITHUB_REF_NAME" --title "MPC Mapper $GITHUB_REF_NAME für macOS" --notes-file notes.md || true
           gh release upload "$GITHUB_REF_NAME" "MPC-Mapper-macOS-${{ matrix.arch }}.zip" --clobber

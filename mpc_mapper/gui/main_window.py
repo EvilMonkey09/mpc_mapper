@@ -236,6 +236,7 @@ class MainWindow(QMainWindow):
         self.engine.log.connect(self._log)
         self.engine.status_changed.connect(self._update_status)
         self.engine.page_changed.connect(lambda _p: self._update_status())
+        self.engine.layer_changed.connect(self._on_xt_layer)
         for xd in (self.xdiagram, self.xdiagram_b):
             self.engine.led_changed.connect(xd.set_led)
             self.engine.control_event.connect(xd.hw_event)
@@ -655,6 +656,13 @@ class MainWindow(QMainWindow):
         # showing an X-Touch layer also switches the unit to that layer
         if i in (1, 2) and self.engine.xt.connected and self.engine.xt.active_layer != i - 1:
             self.engine.xt.select_layer(i - 1)
+
+    def _on_xt_layer(self, lay: int) -> None:
+        """The X-Touch changed layer: show that layer if an X-Touch page is open."""
+        i = 2 if lay else 1
+        if self.device_stack.currentIndex() in (1, 2) and self.device_stack.currentIndex() != i:
+            self.dev_group.button(i).setChecked(True)
+            self.device_stack.setCurrentIndex(i)
 
     def _on_select(self, control: str) -> None:
         for d in (self.diagram, self.xdiagram, self.xdiagram_b):

@@ -145,8 +145,8 @@ Alternative: nur bei Line 2 <b>127.0.0.1</b>. Die Node läuft in beiden Fällen 
   <li><b>Standardbelegung wie am Pult:</b> Beim ersten Start sind APC und X-Touch schon so belegt wie die Executoren am grandMA3-Pult – jeder Executor genau einmal. Jede Taste macht, was in MA3 auf dem Executor eingestellt ist (Go+, Flash, Temp …).
     <ul>
       <li><b>APC:</b> Pad-Reihe 1 = X-Keys X1–X8 (291–298), Reihe 2 = X9–X16 (191–198), Reihen 3–4 frei für eigene Befehle, Reihen 5–8 = 401–408, 301–308, 201–208, 101–108; Fader 1–8 = 201–208, Fader 9 = Grand Master. Soft-Keys und rote Tasten sind frei.</li>
-      <li><b>X-Touch, Layer A:</b> Drehregler 1–8 = 401–408; Tastenreihen = 401–408, 301–308, 201–208; Fader 1–8 + Main = 201–209; Tasten unter den Fadern = 101–109; rechte Drehregler (drücken) = X1–X8; Transport = Page −/+, 319/320, 219/220.</li>
-      <li><b>X-Touch, Layer B:</b> dasselbe für 410–418 bzw. 110–118; rechte Drehregler = X9–X16; Transport = Page −/+, 321/322, 221/222. Mit den Layer-Tasten am Gerät umschalten – Lämpchen und Motorfader zeigen dann die Werte der anderen Ebene, sobald du etwas berührst. Auf der Seite <i>Mapping</i> schaltet „X-Touch · Layer A/B“ das Gerät direkt um.</li>
+      <li><b>X-Touch, Layer A:</b> Drehregler 1–8 = 401–408; Tastenreihen = 401–408, 301–308, 201–208; Fader 1–8 + Main = 201–209; Tasten unter den Fadern 1–8 = 101–108; <b>MAIN-Taste = Layer A/B umschalten</b>; rechte Drehregler (drücken) = X1–X8; Transport = Page −/+, 319/320, 219/220.</li>
+      <li><b>X-Touch, Layer B:</b> dasselbe für 410–418 bzw. 110–117 (Fader/Main 210–218); rechte Drehregler = X9–X16; Transport = Page −/+, 321/322, 221/222. <b>Umschalten mit der MAIN-Taste</b> (unter dem Main-Fader): Die Motorfader und Lämpchen springen sofort auf die andere Ebene, auf Layer B leuchtet die MAIN-Taste. Auf der Seite <i>Mapping</i> schaltet „X-Touch · Layer A/B“ das Gerät ebenfalls um.</li>
       <li>Zurücksetzen: <i>File → Load standard layout</i> (APC, X-Touch oder beide).</li>
     </ul></li>
   <li><b>Belegen:</b> Einen Befehl aus der Liste links auf ein Pad, eine Taste oder einen Fader ziehen.</li>
@@ -169,7 +169,7 @@ Alternative: nur bei Line 2 <b>127.0.0.1</b>. Die Node läuft in beiden Fällen 
   <li><b>Motorfader folgen dem Pult:</b> Ist ein Fader mit „Fader Master“ belegt, fährt er auf den Stand des Executors in grandMA3 – z.&nbsp;B. wenn du am Pult die Seite wechselst. Solange du einen Fader berührst, bewegt er sich nicht von selbst.</li>
   <li><b>Drehregler:</b> Der LED-Kranz zeigt den aktuellen Wert. Mit „Fader Master“ belegt, folgt er ebenfalls dem Pult.</li>
   <li><b>Tasten-LEDs</b> leuchten orange (an, aus oder blinkend), je nach Einstellung „Lit when“ im Inspector.</li>
-  <li><b>Layer A und B</b> haben eigene Belegungen (siehe Standardbelegung). Die App erkennt den aktiven Layer, sobald du am Gerät etwas bedienst, und schickt dann Lämpchen und Motorfader-Stände für diese Ebene.</li>
+  <li><b>Layer A und B</b> haben eigene Belegungen (siehe Standardbelegung). <b>Umschalten mit der MAIN-Taste</b>, nicht mit den Tasten LAYER A/B am Gerät: Die schicken dem Computer nichts, die App merkt den Wechsel dann erst bei der nächsten Berührung, und bis dahin stehen die Fader falsch.</li>
 </ul>
 <div class="box warn">Die X-Touch-Unterstützung ist neu und noch nicht mit dem echten Gerät getestet. Bitte einmal den <a href="#test">Gerätetest</a> durchführen.</div>
 

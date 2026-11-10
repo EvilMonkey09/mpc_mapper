@@ -319,7 +319,8 @@ def test_standard_xtouch_layout(p, o, x):
     assert [a[f"{p}btn:{i}"].exec for i in range(24)] == (
         list(range(401 + o, 409 + o)) + list(range(301 + o, 309 + o)) + list(range(201 + o, 209 + o)))
     assert [a[f"{p}fader:{i}"].exec for i in range(9)] == list(range(201 + o, 210 + o))
-    assert [a[f"{p}ch:{i}"].exec for i in range(9)] == list(range(101 + o, 110 + o))
+    assert [a[f"{p}ch:{i}"].exec for i in range(8)] == list(range(101 + o, 109 + o))
+    assert a[f"{p}ch:8"].catalog_id == "xtouch.layer"
     assert [a[f"{p}push:{8 + i}"].exec for i in range(8)] == list(range(x, x + 8))
     assert [a[f"{p}tr:{i}"].catalog_id for i in (0, 1)] == ["page.prev", "page.next"]
     keys = [a[c].exec for c in a if c.startswith(p) and a[c].osc_key]
@@ -394,3 +395,41 @@ def test_busy_port_is_reported():
     finally:
         blocker.close()
         m.stop()
+
+
+# --------------------------------------------------------------------------- #
+# MAIN key switches the layer (the unit's LAYER keys send nothing)
+# --------------------------------------------------------------------------- #
+def test_main_key_switches_layer(engine):
+    import mido
+    assert engine.mapping.assignments["xt.ch:8"].catalog_id == "xtouch.layer"
+    assert engine.mapping.assignments["xtb.ch:8"].catalog_id == "xtouch.layer"
+    layers = []
+    engine.layer_changed.connect(layers.append)
+    engine.ports.out.sent.clear()
+    n = len(engine.cmds)
+    # press MAIN on layer A (note 48) -> unit and app go to layer B
+    engine.xt._on_midi(mido.Message("note_on", note=48, velocity=127))
+    assert engine.xt.active_layer == 1 and layers == [1]
+    assert any(m.type == "program_change" and m.program == 1 for m in engine.ports.out.sent)
+    assert len(engine.cmds) == n                 # nothing sent to MA3
+    # the release still carries the layer-A note: must not switch back
+    engine.xt._on_midi(mido.Message("note_off", note=48, velocity=0))
+    assert engine.xt.active_layer == 1
+    # press MAIN on layer B (note 103) -> back to layer A
+    engine.xt._on_midi(mido.Message("note_on", note=103, velocity=127))
+    engine.xt._on_midi(mido.Message("note_off", note=103, velocity=0))
+    assert engine.xt.active_layer == 0 and layers == [1, 0]
+
+
+def test_layer_switch_sends_that_layers_fader_values(engine):
+    engine.ma3.last_hello_rx = time.time()
+    for ex, lvl in ((201, 100.0), (210, 0.0)):
+        st = engine.ExecState(1, ex)
+        st.fader = lvl
+        engine.ma3.execs[(1, ex)] = st
+    engine.refresh_motors(force=True)
+    engine.ports.out.sent.clear()
+    engine.handle_button("xt.ch:8", True)
+    cc1 = [m.value for m in engine.ports.out.sent if m.type == "control_change" and m.control == 1]
+    assert cc1 and cc1[-1] == 0                  # fader 1 now shows executor 210

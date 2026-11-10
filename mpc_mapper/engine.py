@@ -30,6 +30,7 @@ class Engine(QObject):
     fader_sync = Signal(list)                # fader positions from intro reply
     position_changed = Signal(str, int)      # motor fader / encoder ring sent (raw 0-127)
     touch_changed = Signal(str, bool)
+    layer_changed = Signal(int)              # X-Touch layer (0 = A, 1 = B)
 
     def __init__(self, mapping: Mapping, parent=None) -> None:
         super().__init__(parent)
@@ -51,7 +52,7 @@ class Engine(QObject):
         self._sig_page.connect(self._on_page)
         self._sig_log.connect(self.log)
         self._sig_touch.connect(self._on_touch)
-        self._sig_layer.connect(lambda: self.refresh_all_leds(force=True))
+        self._sig_layer.connect(self._on_layer)
 
         self.apc.on_button = lambda c, p: self._sig_button.emit(c, p)
         self.apc.on_fader = lambda c, v: self._sig_fader.emit(c, v)
@@ -132,6 +133,10 @@ class Engine(QObject):
         else:
             self.pressed.discard(control)
         a = self.mapping.assignments.get(control)
+        if a is not None and a.catalog_id == "xtouch.layer":
+            if pressed and self.xt.connected:
+                self.xt.toggle_layer()
+            a = None
         if a is not None:
             page = self.ma3.current_page
             if a.osc_key:
@@ -191,6 +196,14 @@ class Engine(QObject):
                 self.update_motor(control)
         self.status_changed.emit()
 
+    def _on_layer(self) -> None:
+        self.refresh_all_leds(force=True)
+        # the unit restores its own fader memory right after a layer change:
+        # send the console values again once it has settled
+        for ms in (150, 450):
+            QTimer.singleShot(ms, lambda: self.refresh_motors(force=True))
+        self.layer_changed.emit(self.xt.active_layer)
+
     @Slot(str, bool)
     def _on_touch(self, control: str, touched: bool) -> None:
         self.touch_changed.emit(control, touched)
@@ -241,6 +254,8 @@ class Engine(QObject):
             return self.ma3.state(a.eff_page(page), a.exec).fader > 0.5
         if src == "page":
             return page == (a.page or 1)
+        if src == "xt_layer":
+            return self.xt.active_layer == 1
         return False
 
     def compute_led(self, control: str) -> LedState:

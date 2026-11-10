@@ -5,7 +5,7 @@ Steuert grandMA3 mit einem **Akai APC mini mk2** und/oder einem **Behringer X-To
 ### Neu in v2.1
 - **Richtige Installation:** Windows bekommt einen Installer (`Setup.exe`) mit Startmenü, Desktop-Symbol und Deinstallation, der Mac ein Disk-Image (`.dmg`) zum Hineinziehen in „Programme“.
 - **Standardbelegung wie am grandMA3-Pult** für APC und X-Touch (beide Layer), jeder Executor genau einmal; *File → Load standard layout*.
-- **X-Touch Layer A und B** mit eigenen Belegungen (Executoren 1–9 und 10–18).
+- **X-Touch Layer A und B** mit eigenen Belegungen (Executoren 1–9 und 10–18). **Umschalten mit der MAIN-Taste** – die Motorfader springen sofort auf die richtige Ebene. (Die Tasten LAYER A/B am Gerät schicken dem Computer nichts.) Eigene, früher gespeicherte Belegungen: einmal *File → Load standard layout → X-Touch* laden.
 - **Pult-Verbindung prüfen** auf der Seite *Setup & check*: findet heraus, warum kein Feedback ankommt.
 - APC- und X-Touch-Zeichnung wie die echten Geräte.
 

@@ -29,6 +29,7 @@ FEEDBACK_SOURCES = {
     "exec_active": "MA3: executor running",
     "exec_fader": "MA3: executor fader > 0",
     "page": "MA3: current page == page",
+    "xt_layer": "X-Touch: layer B active",
 }
 
 
@@ -208,6 +209,12 @@ CATALOG: list[CatalogItem] = [
     CatalogItem("page.goto", "Pages", "Go to page {page}", "button",
                 press="Page {page}", needs_exec=False, feedback="page",
                 help="Set the page number in the inspector."),
+    # ---- X-Touch
+    CatalogItem("xtouch.layer", "X-Touch", "Layer A/B switch", "button",
+                needs_exec=False, feedback="xt_layer",
+                help="Switches the X-Touch between layer A and B. Use this key instead "
+                     "of the unit's own LAYER keys: those send nothing, so the app could "
+                     "not move the faders to the new layer."),
     # ---- programmer
     CatalogItem("prog.clear", "Programmer", "Clear", "button", press="Clear",
                 needs_exec=False, feedback="press"),
@@ -383,7 +390,10 @@ def _xt_layer(m: Mapping, lay: int) -> None:
         x.name = f"X{col + 1 + (8 if lay else 0)}"
         m.assignments[f"{p}push:{8 + col}"] = x
     m.assignments[f"{p}fader:8"] = _fader(f"{p}fader:8", 209 + o)
-    m.assignments[f"{p}ch:8"] = _key(f"{p}ch:8", 109 + o)
+    # MAIN key: switches the layer (the unit's own LAYER keys send nothing)
+    sw = assignment_from_catalog(CATALOG_BY_ID["xtouch.layer"], f"{p}ch:8")
+    sw.name = "A/B"
+    m.assignments[f"{p}ch:8"] = sw
     m.assignments[f"{p}tr:0"] = assignment_from_catalog(CATALOG_BY_ID["page.prev"], f"{p}tr:0")
     m.assignments[f"{p}tr:1"] = assignment_from_catalog(CATALOG_BY_ID["page.next"], f"{p}tr:1")
     first3, first2 = (321, 221) if lay else (319, 219)
@@ -401,7 +411,8 @@ def standard_xtouch(m: Mapping) -> None:
     encoders 1-8 ....... 401-408            410-417
     key rows ........... 401/301/201-208    410/310/210-217
     faders 1-8, main ... 201-208, 209       210-217, 218
-    keys under faders .. 101-108, 109       110-117, 118
+    keys under faders .. 101-108            110-117
+    MAIN key ........... layer A/B switch   layer A/B switch
     right encoder push . X1-X8 (291-298)    X9-X16 (191-198)
     transport .......... Page -/+, 319/320, 219/220   Page -/+, 321/322, 221/222
     """

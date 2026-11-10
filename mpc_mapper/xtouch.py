@@ -283,8 +283,11 @@ class XTouchCompact:
             ctrl, what, lay = cc_in_to_control(msg.control)
         if ctrl is None:
             return
-        if lay != self.active_layer:
+        release = ((what == "button" and (msg.type == "note_off" or msg.velocity == 0))
+                   or (what == "touch" and msg.value < 64))
+        if lay != self.active_layer and not release:
             # the user switched layers on the unit: show that layer's state
+            # (a key or touch released after a layer switch keeps its old layer id)
             self.active_layer = lay
             if self.on_layer:
                 self.on_layer(lay)
@@ -329,6 +332,9 @@ class XTouchCompact:
             return
         for ch in self._channels():
             self._send(mido.Message("program_change", channel=ch, program=program))
+
+    def toggle_layer(self) -> None:
+        self.select_layer(0 if self.active_layer else 1)
 
     def select_layer(self, lay: int) -> None:
         """Switch the unit to layer A (0) or B (1)."""

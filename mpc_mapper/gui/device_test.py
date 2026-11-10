@@ -200,7 +200,7 @@ class DeviceTest(QWidget):
     def _targets(self) -> list[str]:
         if self.device == "apc":
             return list(apc.ALL_CONTROLS)
-        return list(xtouch.ALL_CONTROLS) + [f"xt.touch:{i}" for i in range(9)]
+        return list(xtouch.LAYER_A) + [f"xt.touch:{i}" for i in range(9)]
 
     def _build_chips(self) -> None:
         # a fresh container each time, so no chip of the other device remains
@@ -301,7 +301,8 @@ class DeviceTest(QWidget):
     def _xt_steps(self) -> list:
         x = self.engine.xt
         steps = []
-        led_ctrls = [c for c in xtouch.ALL_CONTROLS if xtouch.has_led(c)]
+        x.select_layer(0)                       # test on layer A
+        led_ctrls = [c for c in xtouch.LAYER_A if xtouch.has_led(c)]
         for c in led_ctrls:
             steps.append(("Buttons one by one", lambda c=c: x.set_led(c, 1, force=True)))
         def blink():
@@ -380,6 +381,8 @@ class DeviceTest(QWidget):
             self._update_progress()
 
     def _on_event(self, control: str, value) -> None:
+        if xtouch.is_xtouch(control):
+            control = xtouch.with_layer(control, 0)   # both layers test the same key
         if not self.input_running or control not in self.chips:
             return
         if controls.is_value(control):

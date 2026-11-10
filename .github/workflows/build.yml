@@ -12,12 +12,17 @@ on:
     branches: [main, mac-app, release, xtouch]   # Push auf "release" = Release aktualisieren
     tags: ["v*"]
 
+concurrency:
+  # a newer push on the same branch cancels the older, still running build
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write             # nötig für Releases und den Screenshot-Zweig
 
 env:
   # Versionsnummer für Pushes auf den Zweig "release" – hier hochzählen
-  RELEASE_VERSION: v2.0
+  RELEASE_VERSION: v2.1
   # Testversion aus dem Zweig "xtouch" (als Vorabversion veröffentlicht)
   BETA_VERSION: v2.0-beta
   PYTHON_VERSION: "3.12"

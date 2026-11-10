@@ -32,9 +32,11 @@ description talks to the unit on channel 2), so by default every output
 message is sent on channels 1 *and* 2; the setting xt_out_channel can pin
 it to one channel.
 
-The app only uses layer A. Messages from layer B are mapped onto the same
-controls and the unit is switched back to layer A, because motor faders and
-LEDs always show what was sent last, whatever layer is active.
+Both layers are used. Layer B controls have their own ids (prefix "xtb."),
+so each layer has its own assignments. LEDs, motor faders and rings always
+show the *active* layer: the app learns the active layer from the messages
+the unit sends (the layer keys themselves send nothing) and from
+select_layer(), and re-sends everything for that layer when it changes.
 """
 from __future__ import annotations
 
@@ -44,10 +46,11 @@ from typing import Callable, Optional
 
 from .apc import _ports, mido  # same MIDI backend as the APC (WinMM on Windows)
 
-PREFIX = "xt."
+PREFIX = "xt."          # layer A
+PREFIX_B = "xtb."       # layer B
 
 # --------------------------------------------------------------------------- #
-# control ids
+# control ids (layer B: same with prefix "xtb.")
 #   xt.fader:<0-8>    8 = main fader
 #   xt.enc:<0-15>     0-7 top row, 8-15 right block (rotation)
 #   xt.push:<0-15>    encoder push buttons (no LED)
@@ -57,23 +60,38 @@ PREFIX = "xt."
 # --------------------------------------------------------------------------- #
 TRANSPORT = ["Rew", "Fwd", "Loop", "Rec", "Stop", "Play"]
 
-ALL_CONTROLS: list[str] = (
-    [f"xt.fader:{i}" for i in range(9)]
-    + [f"xt.enc:{i}" for i in range(16)]
-    + [f"xt.push:{i}" for i in range(16)]
-    + [f"xt.btn:{i}" for i in range(24)]
-    + [f"xt.ch:{i}" for i in range(9)]
-    + [f"xt.tr:{i}" for i in range(6)]
+_BASE = (
+    [f"fader:{i}" for i in range(9)]
+    + [f"enc:{i}" for i in range(16)]
+    + [f"push:{i}" for i in range(16)]
+    + [f"btn:{i}" for i in range(24)]
+    + [f"ch:{i}" for i in range(9)]
+    + [f"tr:{i}" for i in range(6)]
 )
+LAYER_A: list[str] = [PREFIX + b for b in _BASE]
+LAYER_B: list[str] = [PREFIX_B + b for b in _BASE]
+ALL_CONTROLS: list[str] = LAYER_A + LAYER_B
 _ALL = set(ALL_CONTROLS)
 
 
 def is_xtouch(control: str) -> bool:
-    return control.startswith(PREFIX)
+    return control.startswith(PREFIX) or control.startswith(PREFIX_B)
+
+
+def layer(control: str) -> int:
+    return 1 if control.startswith(PREFIX_B) else 0
+
+
+def with_layer(control: str, lay: int) -> str:
+    """The same physical control on layer `lay`."""
+    base = control.split(".", 1)[1]
+    return (PREFIX_B if lay else PREFIX) + base
 
 
 def kind(control: str) -> str:
-    return control[len(PREFIX):].partition(":")[0] if is_xtouch(control) else ""
+    if not is_xtouch(control):
+        return ""
+    return control.split(".", 1)[1].partition(":")[0]
 
 
 def index(control: str) -> int:
@@ -95,19 +113,22 @@ def is_value(control: str) -> bool:
 
 def control_label(control: str) -> str:
     k, i = kind(control), index(control)
+    lay = " (layer B)" if layer(control) else " (layer A)"
     if k == "fader":
-        return "X-Touch main fader" if i == 8 else f"X-Touch fader {i + 1}"
-    if k == "enc":
-        return f"X-Touch encoder {i + 1}"
-    if k == "push":
-        return f"X-Touch encoder {i + 1} push"
-    if k == "btn":
-        return f"X-Touch button R{i // 8 + 1} C{i % 8 + 1}"
-    if k == "ch":
-        return "X-Touch main button" if i == 8 else f"X-Touch channel button {i + 1}"
-    if k == "tr":
-        return f"X-Touch {TRANSPORT[i]}"
-    return control
+        name = "X-Touch main fader" if i == 8 else f"X-Touch fader {i + 1}"
+    elif k == "enc":
+        name = f"X-Touch encoder {i + 1}"
+    elif k == "push":
+        name = f"X-Touch encoder {i + 1} push"
+    elif k == "btn":
+        name = f"X-Touch button R{i // 8 + 1} C{i % 8 + 1}"
+    elif k == "ch":
+        name = "X-Touch main button" if i == 8 else f"X-Touch channel button {i + 1}"
+    elif k == "tr":
+        name = f"X-Touch {TRANSPORT[i]}"
+    else:
+        return control
+    return name + lay
 
 
 # --------------------------------------------------------------------------- #
@@ -122,32 +143,34 @@ _TOUCH_CC = (101, 111)            # 8 channel faders, main = +8
 
 def note_in_to_control(note: int) -> tuple[Optional[str], int]:
     """(control, layer) for an incoming note number."""
-    layer = 0
+    lay = 0
     if note >= LAYER_B_NOTE_OFFSET:
         note -= LAYER_B_NOTE_OFFSET
-        layer = 1
+        lay = 1
+    p = PREFIX_B if lay else PREFIX
     if 0 <= note <= 15:
-        return f"xt.push:{note}", layer
+        return f"{p}push:{note}", lay
     if 16 <= note <= 39:
-        return f"xt.btn:{note - 16}", layer
+        return f"{p}btn:{note - 16}", lay
     if 40 <= note <= 48:
-        return f"xt.ch:{note - 40}", layer
+        return f"{p}ch:{note - 40}", lay
     if 49 <= note <= 54:
-        return f"xt.tr:{note - 49}", layer
-    return None, layer
+        return f"{p}tr:{note - 49}", lay
+    return None, lay
 
 
 def cc_in_to_control(cc: int) -> tuple[Optional[str], str, int]:
     """(control, what, layer) for an incoming CC; what = value | touch."""
-    for layer in (0, 1):
-        if _FADER_CC[layer] <= cc < _FADER_CC[layer] + 8:
-            return f"xt.fader:{cc - _FADER_CC[layer]}", "value", layer
-        if cc == _MAIN_FADER_CC[layer]:
-            return "xt.fader:8", "value", layer
-        if _ENC_CC[layer] <= cc < _ENC_CC[layer] + 16:
-            return f"xt.enc:{cc - _ENC_CC[layer]}", "value", layer
-        if _TOUCH_CC[layer] <= cc <= _TOUCH_CC[layer] + 8:
-            return f"xt.fader:{cc - _TOUCH_CC[layer]}", "touch", layer
+    for lay in (0, 1):
+        p = PREFIX_B if lay else PREFIX
+        if _FADER_CC[lay] <= cc < _FADER_CC[lay] + 8:
+            return f"{p}fader:{cc - _FADER_CC[lay]}", "value", lay
+        if cc == _MAIN_FADER_CC[lay]:
+            return f"{p}fader:8", "value", lay
+        if _ENC_CC[lay] <= cc < _ENC_CC[lay] + 16:
+            return f"{p}enc:{cc - _ENC_CC[lay]}", "value", lay
+        if _TOUCH_CC[lay] <= cc <= _TOUCH_CC[lay] + 8:
+            return f"{p}fader:{cc - _TOUCH_CC[lay]}", "touch", lay
     return None, "", 0
 
 
@@ -183,7 +206,7 @@ class XTouchCompact:
       on_touch(control, touched)    fader touch sensors
       on_led(control, state)        an LED state was sent (0/1/2)
       on_motor(control, raw)        a fader/ring position was sent
-      on_layer_b()                  the user switched to layer B
+      on_layer(layer)               the active layer changed (0 = A, 1 = B)
       on_raw(direction, text)       logging
     """
 
@@ -195,6 +218,7 @@ class XTouchCompact:
         self.in_name: Optional[str] = None
         self.out_name: Optional[str] = None
         self.out_channel = 0             # 0 = channels 1 and 2, else 1-16
+        self.active_layer = 0
         self._lock = threading.Lock()
         self.led: dict[str, int] = {}
         self.motor: dict[str, int] = {}
@@ -205,7 +229,7 @@ class XTouchCompact:
         self.on_touch: Optional[Callable[[str, bool], None]] = None
         self.on_led: Optional[Callable[[str, int], None]] = None
         self.on_motor: Optional[Callable[[str, int], None]] = None
-        self.on_layer_b: Optional[Callable[[], None]] = None
+        self.on_layer: Optional[Callable[[int], None]] = None
         self.on_raw: Optional[Callable[[str, str], None]] = None
 
     # ---------------- connection ----------------
@@ -232,7 +256,7 @@ class XTouchCompact:
     def init_device(self) -> None:
         """Standard mode, layer A, encoder rings in 'fan' mode."""
         self._cc(127, 0)
-        self._program(0)
+        self._program(self.active_layer)
         for i in range(16):
             self._cc((10 if i < 8 else 18) + i % 8, RING_FAN)
 
@@ -251,28 +275,32 @@ class XTouchCompact:
     def _on_midi(self, msg) -> None:
         if self.on_raw:
             self.on_raw("in", f"X-Touch {msg}")
-        layer = 0
+        ctrl, what, lay = None, "", 0
         if msg.type in ("note_on", "note_off"):
-            ctrl, layer = note_in_to_control(msg.note)
-            if ctrl and self.on_button:
-                self.on_button(ctrl, msg.type == "note_on" and msg.velocity > 0)
+            ctrl, lay = note_in_to_control(msg.note)
+            what = "button"
         elif msg.type == "control_change":
-            ctrl, what, layer = cc_in_to_control(msg.control)
-            if ctrl and what == "touch":
-                touched = msg.value >= 64
-                (self.touched.add if touched else self.touched.discard)(ctrl)
-                if self.on_touch:
-                    self.on_touch(ctrl, touched)
-            elif ctrl:
-                self._user_moved[ctrl] = time.monotonic()
-                self.motor[ctrl] = msg.value     # the fader is where the user put it
-                if self.on_value:
-                    self.on_value(ctrl, msg.value)
-        if layer == 1:
-            # we only use layer A: switch back and restore LEDs / faders
-            self._program(0)
-            if self.on_layer_b:
-                self.on_layer_b()
+            ctrl, what, lay = cc_in_to_control(msg.control)
+        if ctrl is None:
+            return
+        if lay != self.active_layer:
+            # the user switched layers on the unit: show that layer's state
+            self.active_layer = lay
+            if self.on_layer:
+                self.on_layer(lay)
+        if what == "button":
+            if self.on_button:
+                self.on_button(ctrl, msg.type == "note_on" and msg.velocity > 0)
+        elif what == "touch":
+            touched = msg.value >= 64
+            (self.touched.add if touched else self.touched.discard)(ctrl)
+            if self.on_touch:
+                self.on_touch(ctrl, touched)
+        else:
+            self._user_moved[ctrl] = time.monotonic()
+            self.motor[ctrl] = msg.value     # the fader is where the user put it
+            if self.on_value:
+                self.on_value(ctrl, msg.value)
 
     # ---------------- output ----------------
     def _channels(self) -> list[int]:
@@ -302,8 +330,16 @@ class XTouchCompact:
         for ch in self._channels():
             self._send(mido.Message("program_change", channel=ch, program=program))
 
+    def select_layer(self, lay: int) -> None:
+        """Switch the unit to layer A (0) or B (1)."""
+        self._program(1 if lay else 0)
+        if lay != self.active_layer:
+            self.active_layer = 1 if lay else 0
+            if self.on_layer:
+                self.on_layer(self.active_layer)
+
     def set_led(self, control: str, state: int, force: bool = False) -> None:
-        """state 0 = off, 1 = on, 2 = blink."""
+        """state 0 = off, 1 = on, 2 = blink. Only the active layer is sent."""
         note = led_note(control)
         if note is None:
             return
@@ -313,7 +349,7 @@ class XTouchCompact:
         self.led[control] = state
         if self.on_led:
             self.on_led(control, state)
-        if mido is None:
+        if mido is None or layer(control) != self.active_layer:
             return
         for ch in self._channels():
             self._send(mido.Message("note_on", channel=ch, note=note, velocity=state))
@@ -336,6 +372,8 @@ class XTouchCompact:
         self.motor[control] = raw
         if self.on_motor:
             self.on_motor(control, raw)
+        if layer(control) != self.active_layer:
+            return True                                # remembered for later
         if k == "fader":
             self._cc(1 + i, raw)                       # main fader = CC 9
         else:
@@ -353,5 +391,6 @@ class XTouchCompact:
         for c in ALL_CONTROLS:
             if has_led(c):
                 self.set_led(c, 0)
-        for i in range(16):
-            self.set_position(f"xt.enc:{i}", 0, force=True)
+        for c in ALL_CONTROLS:
+            if kind(c) == "enc":
+                self.set_position(c, 0, force=True)

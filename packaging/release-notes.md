@@ -2,6 +2,12 @@
 
 Steuert grandMA3 mit einem **Akai APC mini mk2** und/oder einem **Behringer X-Touch Compact**, inklusive LED-Rückmeldung.
 
+### Neu in v2.1
+- **Standardbelegung wie am grandMA3-Pult** für APC und X-Touch (beide Layer), jeder Executor genau einmal; *File → Load standard layout*.
+- **X-Touch Layer A und B** mit eigenen Belegungen (Executoren 1–9 und 10–18).
+- **Pult-Verbindung prüfen** auf der Seite *Setup & check*: findet heraus, warum kein Feedback ankommt.
+- APC- und X-Touch-Zeichnung wie die echten Geräte.
+
 ### Neu in v2.0
 - **Behringer X-Touch Compact**: Tasten, Drehregler und Fader belegen wie beim APC. Tasten-LEDs zeigen den Executor-Zustand, **Motorfader und LED-Kränze folgen dem Pult** (bei „Fader Master“), ohne gegen deine Hand zu arbeiten. *Neu und noch nicht am echten Gerät erprobt – bitte einmal den Gerätetest machen.*
 - **Gerätetest** (Seite „Device test“): prüft bei APC und X-Touch alle Lämpchen, Motorfader, LED-Kränze und jedes Bedienelement. Während des Tests geht nichts ans Pult.

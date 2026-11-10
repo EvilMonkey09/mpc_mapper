@@ -85,25 +85,33 @@ class MainWindow(QMainWindow):
         top.setChildrenCollapsible(False)
         top.addWidget(self.catalog)
         # middle: switch between the device drawings
-        self.xdiagram = XTouchWidget(mapping)
-        self.xdiagram.accepts = self.catalog.accepts
+        self.xdiagram = XTouchWidget(mapping, layer=0)
+        self.xdiagram_b = XTouchWidget(mapping, layer=1)
+        for d in (self.xdiagram, self.xdiagram_b):
+            d.accepts = self.catalog.accepts
         self.device_stack = QStackedWidget()
         self.device_stack.addWidget(self.diagram)
         self.device_stack.addWidget(self.xdiagram)
+        self.device_stack.addWidget(self.xdiagram_b)
         dev_nav = QFrame()
         dev_nav.setObjectName("Nav")
         dl = QHBoxLayout(dev_nav)
         dl.setContentsMargins(4, 4, 4, 4)
         dl.setSpacing(4)
         self.dev_group = QButtonGroup(self)
-        for i, text in enumerate(("APC mini mk2", "X-Touch Compact")):
+        for i, (text, tip) in enumerate((
+                ("APC mini mk2", ""),
+                ("X-Touch · Layer A", "X-Touch Compact, layer A (executors 1-9)"),
+                ("X-Touch · Layer B", "X-Touch Compact, layer B (executors 10-18)"))):
             b = QPushButton(text)
             b.setObjectName("Seg")
             b.setCheckable(True)
+            if tip:
+                b.setToolTip(tip)
             self.dev_group.addButton(b, i)
             dl.addWidget(b)
         self.dev_group.button(0).setChecked(True)
-        self.dev_group.idClicked.connect(self.device_stack.setCurrentIndex)
+        self.dev_group.idClicked.connect(self._show_device)
         middle = QWidget()
         ml = QVBoxLayout(middle)
         ml.setContentsMargins(0, 0, 0, 0)
@@ -228,11 +236,12 @@ class MainWindow(QMainWindow):
         self.engine.log.connect(self._log)
         self.engine.status_changed.connect(self._update_status)
         self.engine.page_changed.connect(lambda _p: self._update_status())
-        self.engine.led_changed.connect(self.xdiagram.set_led)
-        self.engine.control_event.connect(self.xdiagram.hw_event)
-        self.engine.position_changed.connect(self.xdiagram.hw_event)
-        self.engine.touch_changed.connect(self.xdiagram.set_touch)
-        for d in (self.diagram, self.xdiagram):
+        for xd in (self.xdiagram, self.xdiagram_b):
+            self.engine.led_changed.connect(xd.set_led)
+            self.engine.control_event.connect(xd.hw_event)
+            self.engine.position_changed.connect(xd.hw_event)
+            self.engine.touch_changed.connect(xd.set_touch)
+        for d in (self.diagram, self.xdiagram, self.xdiagram_b):
             d.selected.connect(self.inspector.set_control)
             d.selected.connect(self._on_select)
             d.catalog_dropped.connect(self._on_catalog_drop)
@@ -641,8 +650,14 @@ class MainWindow(QMainWindow):
         if hasattr(self, "lab"):
             self.lab.set_target(self.lab_diagram.selected_control)
 
+    def _show_device(self, i: int) -> None:
+        self.device_stack.setCurrentIndex(i)
+        # showing an X-Touch layer also switches the unit to that layer
+        if i in (1, 2) and self.engine.xt.connected and self.engine.xt.active_layer != i - 1:
+            self.engine.xt.select_layer(i - 1)
+
     def _on_select(self, control: str) -> None:
-        for d in (self.diagram, self.xdiagram):
+        for d in (self.diagram, self.xdiagram, self.xdiagram_b):
             if control not in d.controls() and d.selected_control:
                 d.selected_control = None
                 d.update()
@@ -756,7 +771,8 @@ class MainWindow(QMainWindow):
         self.dirty = False
         self.engine.latched.clear()
         self.engine.mapping_changed()
-        self.inspector.set_control(self.diagram.selected_control or self.xdiagram.selected_control)
+        self.inspector.set_control(self.diagram.selected_control or self.xdiagram.selected_control
+                                   or self.xdiagram_b.selected_control)
         self.diagram.update()
         self._title()
 
@@ -799,9 +815,10 @@ class MainWindow(QMainWindow):
         self.engine.sync_watch_list()
         self.dirty = True
         self._title()
-        self.diagram.update()
-        self.xdiagram.update()
-        self.inspector.set_control(self.diagram.selected_control or self.xdiagram.selected_control)
+        for d in (self.diagram, self.xdiagram, self.xdiagram_b):
+            d.update()
+        self.inspector.set_control(self.diagram.selected_control or self.xdiagram.selected_control
+                                   or self.xdiagram_b.selected_control)
 
     def _demo(self) -> None:
         if self._maybe_save():

@@ -16,10 +16,10 @@
   },
   "assignments": {
     "pad:56": {
-      "name": "409",
+      "name": "X1",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 409,
+      "exec": 291,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -27,19 +27,19 @@
       "osc_key": true,
       "led": {
         "source": "exec_active",
-        "off_color": 47,
+        "off_color": 55,
         "off_mode": 6,
-        "on_color": 45,
+        "on_color": 53,
         "on_mode": 6,
         "use_ma3_color": false,
         "ma3_dim": 0.15
       }
     },
     "pad:57": {
-      "name": "410",
+      "name": "X2",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 410,
+      "exec": 292,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -47,19 +47,19 @@
       "osc_key": true,
       "led": {
         "source": "exec_active",
-        "off_color": 47,
+        "off_color": 55,
         "off_mode": 6,
-        "on_color": 45,
+        "on_color": 53,
         "on_mode": 6,
         "use_ma3_color": false,
         "ma3_dim": 0.15
       }
     },
     "pad:58": {
-      "name": "411",
+      "name": "X3",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 411,
+      "exec": 293,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -67,19 +67,19 @@
       "osc_key": true,
       "led": {
         "source": "exec_active",
-        "off_color": 47,
+        "off_color": 55,
         "off_mode": 6,
-        "on_color": 45,
+        "on_color": 53,
         "on_mode": 6,
         "use_ma3_color": false,
         "ma3_dim": 0.15
       }
     },
     "pad:59": {
-      "name": "412",
+      "name": "X4",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 412,
+      "exec": 294,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -87,19 +87,19 @@
       "osc_key": true,
       "led": {
         "source": "exec_active",
-        "off_color": 47,
+        "off_color": 55,
         "off_mode": 6,
-        "on_color": 45,
+        "on_color": 53,
         "on_mode": 6,
         "use_ma3_color": false,
         "ma3_dim": 0.15
       }
     },
     "pad:60": {
-      "name": "413",
+      "name": "X5",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 413,
+      "exec": 295,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -107,19 +107,19 @@
       "osc_key": true,
       "led": {
         "source": "exec_active",
-        "off_color": 47,
+        "off_color": 55,
         "off_mode": 6,
-        "on_color": 45,
+        "on_color": 53,
         "on_mode": 6,
         "use_ma3_color": false,
         "ma3_dim": 0.15
       }
     },
     "pad:61": {
-      "name": "414",
+      "name": "X6",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 414,
+      "exec": 296,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -127,19 +127,19 @@
       "osc_key": true,
       "led": {
         "source": "exec_active",
-        "off_color": 47,
+        "off_color": 55,
         "off_mode": 6,
-        "on_color": 45,
+        "on_color": 53,
         "on_mode": 6,
         "use_ma3_color": false,
         "ma3_dim": 0.15
       }
     },
     "pad:62": {
-      "name": "415",
+      "name": "X7",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 415,
+      "exec": 297,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -147,19 +147,19 @@
       "osc_key": true,
       "led": {
         "source": "exec_active",
-        "off_color": 47,
+        "off_color": 55,
         "off_mode": 6,
-        "on_color": 45,
+        "on_color": 53,
         "on_mode": 6,
         "use_ma3_color": false,
         "ma3_dim": 0.15
       }
     },
     "pad:63": {
-      "name": "416",
+      "name": "X8",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 416,
+      "exec": 298,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -167,19 +167,19 @@
       "osc_key": true,
       "led": {
         "source": "exec_active",
-        "off_color": 47,
+        "off_color": 55,
         "off_mode": 6,
-        "on_color": 45,
+        "on_color": 53,
         "on_mode": 6,
         "use_ma3_color": false,
         "ma3_dim": 0.15
       }
     },
     "pad:48": {
-      "name": "309",
+      "name": "X9",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 309,
+      "exec": 191,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -187,19 +187,19 @@
       "osc_key": true,
       "led": {
         "source": "exec_active",
-        "off_color": 39,
+        "off_color": 55,
         "off_mode": 6,
-        "on_color": 37,
+        "on_color": 53,
         "on_mode": 6,
         "use_ma3_color": false,
         "ma3_dim": 0.15
       }
     },
     "pad:49": {
-      "name": "310",
+      "name": "X10",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 310,
+      "exec": 192,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -207,19 +207,19 @@
       "osc_key": true,
       "led": {
         "source": "exec_active",
-        "off_color": 39,
+        "off_color": 55,
         "off_mode": 6,
-        "on_color": 37,
+        "on_color": 53,
         "on_mode": 6,
         "use_ma3_color": false,
         "ma3_dim": 0.15
       }
     },
     "pad:50": {
-      "name": "311",
+      "name": "X11",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 311,
+      "exec": 193,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -227,19 +227,19 @@
       "osc_key": true,
       "led": {
         "source": "exec_active",
-        "off_color": 39,
+        "off_color": 55,
         "off_mode": 6,
-        "on_color": 37,
+        "on_color": 53,
         "on_mode": 6,
         "use_ma3_color": false,
         "ma3_dim": 0.15
       }
     },
     "pad:51": {
-      "name": "312",
+      "name": "X12",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 312,
+      "exec": 194,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -247,19 +247,19 @@
       "osc_key": true,
       "led": {
         "source": "exec_active",
-        "off_color": 39,
+        "off_color": 55,
         "off_mode": 6,
-        "on_color": 37,
+        "on_color": 53,
         "on_mode": 6,
         "use_ma3_color": false,
         "ma3_dim": 0.15
       }
     },
     "pad:52": {
-      "name": "313",
+      "name": "X13",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 313,
+      "exec": 195,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -267,19 +267,19 @@
       "osc_key": true,
       "led": {
         "source": "exec_active",
-        "off_color": 39,
+        "off_color": 55,
         "off_mode": 6,
-        "on_color": 37,
+        "on_color": 53,
         "on_mode": 6,
         "use_ma3_color": false,
         "ma3_dim": 0.15
       }
     },
     "pad:53": {
-      "name": "314",
+      "name": "X14",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 314,
+      "exec": 196,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -287,19 +287,19 @@
       "osc_key": true,
       "led": {
         "source": "exec_active",
-        "off_color": 39,
+        "off_color": 55,
         "off_mode": 6,
-        "on_color": 37,
+        "on_color": 53,
         "on_mode": 6,
         "use_ma3_color": false,
         "ma3_dim": 0.15
       }
     },
     "pad:54": {
-      "name": "315",
+      "name": "X15",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 315,
+      "exec": 197,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -307,19 +307,19 @@
       "osc_key": true,
       "led": {
         "source": "exec_active",
-        "off_color": 39,
+        "off_color": 55,
         "off_mode": 6,
-        "on_color": 37,
+        "on_color": 53,
         "on_mode": 6,
         "use_ma3_color": false,
         "ma3_dim": 0.15
       }
     },
     "pad:55": {
-      "name": "316",
+      "name": "X16",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 316,
+      "exec": 198,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -327,329 +327,9 @@
       "osc_key": true,
       "led": {
         "source": "exec_active",
-        "off_color": 39,
+        "off_color": 55,
         "off_mode": 6,
-        "on_color": 37,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "pad:40": {
-      "name": "209",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 209,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 23,
-        "off_mode": 6,
-        "on_color": 21,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "pad:41": {
-      "name": "210",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 210,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 23,
-        "off_mode": 6,
-        "on_color": 21,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "pad:42": {
-      "name": "211",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 211,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 23,
-        "off_mode": 6,
-        "on_color": 21,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "pad:43": {
-      "name": "212",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 212,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 23,
-        "off_mode": 6,
-        "on_color": 21,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "pad:44": {
-      "name": "213",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 213,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 23,
-        "off_mode": 6,
-        "on_color": 21,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "pad:45": {
-      "name": "214",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 214,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 23,
-        "off_mode": 6,
-        "on_color": 21,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "pad:46": {
-      "name": "215",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 215,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 23,
-        "off_mode": 6,
-        "on_color": 21,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "pad:47": {
-      "name": "216",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 216,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 23,
-        "off_mode": 6,
-        "on_color": 21,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "pad:32": {
-      "name": "109",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 109,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 11,
-        "off_mode": 6,
-        "on_color": 9,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "pad:33": {
-      "name": "110",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 110,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 11,
-        "off_mode": 6,
-        "on_color": 9,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "pad:34": {
-      "name": "111",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 111,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 11,
-        "off_mode": 6,
-        "on_color": 9,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "pad:35": {
-      "name": "112",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 112,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 11,
-        "off_mode": 6,
-        "on_color": 9,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "pad:36": {
-      "name": "113",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 113,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 11,
-        "off_mode": 6,
-        "on_color": 9,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "pad:37": {
-      "name": "114",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 114,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 11,
-        "off_mode": 6,
-        "on_color": 9,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "pad:38": {
-      "name": "115",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 115,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 11,
-        "off_mode": 6,
-        "on_color": 9,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "pad:39": {
-      "name": "116",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 116,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 11,
-        "off_mode": 6,
-        "on_color": 9,
+        "on_color": 53,
         "on_mode": 6,
         "use_ma3_color": false,
         "ma3_dim": 0.15
@@ -1315,46 +995,6 @@
         "ma3_dim": 0.15
       }
     },
-    "scene:0": {
-      "name": "291",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 291,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "track:0": {
-      "name": "191",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 191,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
     "fader:1": {
       "name": "Fader 202",
       "catalog_id": "fader.master",
@@ -1367,46 +1007,6 @@
       "osc_key": false,
       "led": {
         "source": "exec_fader",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "scene:1": {
-      "name": "292",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 292,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "track:1": {
-      "name": "192",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 192,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
         "off_color": 0,
         "off_mode": 6,
         "on_color": 1,
@@ -1435,46 +1035,6 @@
         "ma3_dim": 0.15
       }
     },
-    "scene:2": {
-      "name": "293",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 293,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "track:2": {
-      "name": "193",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 193,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
     "fader:3": {
       "name": "Fader 204",
       "catalog_id": "fader.master",
@@ -1487,46 +1047,6 @@
       "osc_key": false,
       "led": {
         "source": "exec_fader",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "scene:3": {
-      "name": "294",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 294,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "track:3": {
-      "name": "194",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 194,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
         "off_color": 0,
         "off_mode": 6,
         "on_color": 1,
@@ -1555,46 +1075,6 @@
         "ma3_dim": 0.15
       }
     },
-    "scene:4": {
-      "name": "295",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 295,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "track:4": {
-      "name": "195",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 195,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
     "fader:5": {
       "name": "Fader 206",
       "catalog_id": "fader.master",
@@ -1607,46 +1087,6 @@
       "osc_key": false,
       "led": {
         "source": "exec_fader",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "scene:5": {
-      "name": "296",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 296,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "track:5": {
-      "name": "196",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 196,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
         "off_color": 0,
         "off_mode": 6,
         "on_color": 1,
@@ -1675,46 +1115,6 @@
         "ma3_dim": 0.15
       }
     },
-    "scene:6": {
-      "name": "297",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 297,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "track:6": {
-      "name": "197",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 197,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
     "fader:7": {
       "name": "Fader 208",
       "catalog_id": "fader.master",
@@ -1727,46 +1127,6 @@
       "osc_key": false,
       "led": {
         "source": "exec_fader",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "scene:7": {
-      "name": "298",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 298,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "track:7": {
-      "name": "198",
-      "catalog_id": "exec.key",
-      "page": 0,
-      "exec": 198,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "",
-      "osc_fader": false,
-      "osc_key": true,
-      "led": {
-        "source": "exec_active",
         "off_color": 0,
         "off_mode": 6,
         "on_color": 1,
@@ -1800,26 +1160,6 @@
       "catalog_id": "fader.master",
       "page": 0,
       "exec": 401,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "FaderMaster {target} At {value}",
-      "osc_fader": true,
-      "osc_key": false,
-      "led": {
-        "source": "exec_fader",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "xt.enc:8": {
-      "name": "Enc 301",
-      "catalog_id": "fader.master",
-      "page": 0,
-      "exec": 301,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "FaderMaster {target} At {value}",
@@ -1876,10 +1216,10 @@
       }
     },
     "xt.btn:16": {
-      "name": "101",
+      "name": "201",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 101,
+      "exec": 201,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -1916,10 +1256,30 @@
       }
     },
     "xt.ch:0": {
-      "name": "201",
+      "name": "101",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 201,
+      "exec": 101,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xt.push:8": {
+      "name": "X1",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 291,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -1940,26 +1300,6 @@
       "catalog_id": "fader.master",
       "page": 0,
       "exec": 402,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "FaderMaster {target} At {value}",
-      "osc_fader": true,
-      "osc_key": false,
-      "led": {
-        "source": "exec_fader",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "xt.enc:9": {
-      "name": "Enc 302",
-      "catalog_id": "fader.master",
-      "page": 0,
-      "exec": 302,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "FaderMaster {target} At {value}",
@@ -2016,10 +1356,10 @@
       }
     },
     "xt.btn:17": {
-      "name": "102",
+      "name": "202",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 102,
+      "exec": 202,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -2056,10 +1396,30 @@
       }
     },
     "xt.ch:1": {
-      "name": "202",
+      "name": "102",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 202,
+      "exec": 102,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xt.push:9": {
+      "name": "X2",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 292,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -2080,26 +1440,6 @@
       "catalog_id": "fader.master",
       "page": 0,
       "exec": 403,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "FaderMaster {target} At {value}",
-      "osc_fader": true,
-      "osc_key": false,
-      "led": {
-        "source": "exec_fader",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "xt.enc:10": {
-      "name": "Enc 303",
-      "catalog_id": "fader.master",
-      "page": 0,
-      "exec": 303,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "FaderMaster {target} At {value}",
@@ -2156,10 +1496,10 @@
       }
     },
     "xt.btn:18": {
-      "name": "103",
+      "name": "203",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 103,
+      "exec": 203,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -2196,10 +1536,30 @@
       }
     },
     "xt.ch:2": {
-      "name": "203",
+      "name": "103",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 203,
+      "exec": 103,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xt.push:10": {
+      "name": "X3",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 293,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -2220,26 +1580,6 @@
       "catalog_id": "fader.master",
       "page": 0,
       "exec": 404,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "FaderMaster {target} At {value}",
-      "osc_fader": true,
-      "osc_key": false,
-      "led": {
-        "source": "exec_fader",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "xt.enc:11": {
-      "name": "Enc 304",
-      "catalog_id": "fader.master",
-      "page": 0,
-      "exec": 304,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "FaderMaster {target} At {value}",
@@ -2296,10 +1636,10 @@
       }
     },
     "xt.btn:19": {
-      "name": "104",
+      "name": "204",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 104,
+      "exec": 204,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -2336,10 +1676,30 @@
       }
     },
     "xt.ch:3": {
-      "name": "204",
+      "name": "104",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 204,
+      "exec": 104,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xt.push:11": {
+      "name": "X4",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 294,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -2360,26 +1720,6 @@
       "catalog_id": "fader.master",
       "page": 0,
       "exec": 405,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "FaderMaster {target} At {value}",
-      "osc_fader": true,
-      "osc_key": false,
-      "led": {
-        "source": "exec_fader",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "xt.enc:12": {
-      "name": "Enc 305",
-      "catalog_id": "fader.master",
-      "page": 0,
-      "exec": 305,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "FaderMaster {target} At {value}",
@@ -2436,10 +1776,10 @@
       }
     },
     "xt.btn:20": {
-      "name": "105",
+      "name": "205",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 105,
+      "exec": 205,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -2476,10 +1816,30 @@
       }
     },
     "xt.ch:4": {
-      "name": "205",
+      "name": "105",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 205,
+      "exec": 105,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xt.push:12": {
+      "name": "X5",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 295,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -2500,26 +1860,6 @@
       "catalog_id": "fader.master",
       "page": 0,
       "exec": 406,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "FaderMaster {target} At {value}",
-      "osc_fader": true,
-      "osc_key": false,
-      "led": {
-        "source": "exec_fader",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "xt.enc:13": {
-      "name": "Enc 306",
-      "catalog_id": "fader.master",
-      "page": 0,
-      "exec": 306,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "FaderMaster {target} At {value}",
@@ -2576,10 +1916,10 @@
       }
     },
     "xt.btn:21": {
-      "name": "106",
+      "name": "206",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 106,
+      "exec": 206,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -2616,10 +1956,30 @@
       }
     },
     "xt.ch:5": {
-      "name": "206",
+      "name": "106",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 206,
+      "exec": 106,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xt.push:13": {
+      "name": "X6",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 296,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -2640,26 +2000,6 @@
       "catalog_id": "fader.master",
       "page": 0,
       "exec": 407,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "FaderMaster {target} At {value}",
-      "osc_fader": true,
-      "osc_key": false,
-      "led": {
-        "source": "exec_fader",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "xt.enc:14": {
-      "name": "Enc 307",
-      "catalog_id": "fader.master",
-      "page": 0,
-      "exec": 307,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "FaderMaster {target} At {value}",
@@ -2716,10 +2056,10 @@
       }
     },
     "xt.btn:22": {
-      "name": "107",
+      "name": "207",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 107,
+      "exec": 207,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -2756,10 +2096,30 @@
       }
     },
     "xt.ch:6": {
-      "name": "207",
+      "name": "107",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 207,
+      "exec": 107,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xt.push:14": {
+      "name": "X7",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 297,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -2780,26 +2140,6 @@
       "catalog_id": "fader.master",
       "page": 0,
       "exec": 408,
-      "press_cmd": "",
-      "release_cmd": "",
-      "value_cmd": "FaderMaster {target} At {value}",
-      "osc_fader": true,
-      "osc_key": false,
-      "led": {
-        "source": "exec_fader",
-        "off_color": 0,
-        "off_mode": 6,
-        "on_color": 1,
-        "on_mode": 6,
-        "use_ma3_color": false,
-        "ma3_dim": 0.15
-      }
-    },
-    "xt.enc:15": {
-      "name": "Enc 308",
-      "catalog_id": "fader.master",
-      "page": 0,
-      "exec": 308,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "FaderMaster {target} At {value}",
@@ -2856,10 +2196,10 @@
       }
     },
     "xt.btn:23": {
-      "name": "108",
+      "name": "208",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 108,
+      "exec": 208,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -2896,10 +2236,30 @@
       }
     },
     "xt.ch:7": {
-      "name": "208",
+      "name": "108",
       "catalog_id": "exec.key",
       "page": 0,
-      "exec": 208,
+      "exec": 108,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xt.push:15": {
+      "name": "X8",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 298,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",
@@ -2916,17 +2276,37 @@
       }
     },
     "xt.fader:8": {
-      "name": "Grand Master",
-      "catalog_id": "master.grand",
+      "name": "Fader 209",
+      "catalog_id": "fader.master",
       "page": 0,
-      "exec": 201,
+      "exec": 209,
       "press_cmd": "",
       "release_cmd": "",
-      "value_cmd": "Master 2.1 At {value}",
-      "osc_fader": false,
+      "value_cmd": "FaderMaster {target} At {value}",
+      "osc_fader": true,
       "osc_key": false,
       "led": {
-        "source": "static",
+        "source": "exec_fader",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xt.ch:8": {
+      "name": "109",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 109,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
         "off_color": 0,
         "off_mode": 6,
         "on_color": 1,
@@ -2976,7 +2356,207 @@
       }
     },
     "xt.tr:2": {
-      "name": "191",
+      "name": "319",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 319,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xt.tr:3": {
+      "name": "320",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 320,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xt.tr:4": {
+      "name": "219",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 219,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xt.tr:5": {
+      "name": "220",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 220,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.enc:0": {
+      "name": "Enc 410",
+      "catalog_id": "fader.master",
+      "page": 0,
+      "exec": 410,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "FaderMaster {target} At {value}",
+      "osc_fader": true,
+      "osc_key": false,
+      "led": {
+        "source": "exec_fader",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:0": {
+      "name": "410",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 410,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:8": {
+      "name": "310",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 310,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:16": {
+      "name": "210",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 210,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.fader:0": {
+      "name": "Fader 210",
+      "catalog_id": "fader.master",
+      "page": 0,
+      "exec": 210,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "FaderMaster {target} At {value}",
+      "osc_fader": true,
+      "osc_key": false,
+      "led": {
+        "source": "exec_fader",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.ch:0": {
+      "name": "110",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 110,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.push:8": {
+      "name": "X9",
       "catalog_id": "exec.key",
       "page": 0,
       "exec": 191,
@@ -2995,8 +2575,128 @@
         "ma3_dim": 0.15
       }
     },
-    "xt.tr:3": {
-      "name": "192",
+    "xtb.enc:1": {
+      "name": "Enc 411",
+      "catalog_id": "fader.master",
+      "page": 0,
+      "exec": 411,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "FaderMaster {target} At {value}",
+      "osc_fader": true,
+      "osc_key": false,
+      "led": {
+        "source": "exec_fader",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:1": {
+      "name": "411",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 411,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:9": {
+      "name": "311",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 311,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:17": {
+      "name": "211",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 211,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.fader:1": {
+      "name": "Fader 211",
+      "catalog_id": "fader.master",
+      "page": 0,
+      "exec": 211,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "FaderMaster {target} At {value}",
+      "osc_fader": true,
+      "osc_key": false,
+      "led": {
+        "source": "exec_fader",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.ch:1": {
+      "name": "111",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 111,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.push:9": {
+      "name": "X10",
       "catalog_id": "exec.key",
       "page": 0,
       "exec": 192,
@@ -3015,8 +2715,128 @@
         "ma3_dim": 0.15
       }
     },
-    "xt.tr:4": {
-      "name": "193",
+    "xtb.enc:2": {
+      "name": "Enc 412",
+      "catalog_id": "fader.master",
+      "page": 0,
+      "exec": 412,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "FaderMaster {target} At {value}",
+      "osc_fader": true,
+      "osc_key": false,
+      "led": {
+        "source": "exec_fader",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:2": {
+      "name": "412",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 412,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:10": {
+      "name": "312",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 312,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:18": {
+      "name": "212",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 212,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.fader:2": {
+      "name": "Fader 212",
+      "catalog_id": "fader.master",
+      "page": 0,
+      "exec": 212,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "FaderMaster {target} At {value}",
+      "osc_fader": true,
+      "osc_key": false,
+      "led": {
+        "source": "exec_fader",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.ch:2": {
+      "name": "112",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 112,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.push:10": {
+      "name": "X11",
       "catalog_id": "exec.key",
       "page": 0,
       "exec": 193,
@@ -3035,11 +2855,851 @@
         "ma3_dim": 0.15
       }
     },
-    "xt.tr:5": {
-      "name": "194",
+    "xtb.enc:3": {
+      "name": "Enc 413",
+      "catalog_id": "fader.master",
+      "page": 0,
+      "exec": 413,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "FaderMaster {target} At {value}",
+      "osc_fader": true,
+      "osc_key": false,
+      "led": {
+        "source": "exec_fader",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:3": {
+      "name": "413",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 413,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:11": {
+      "name": "313",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 313,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:19": {
+      "name": "213",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 213,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.fader:3": {
+      "name": "Fader 213",
+      "catalog_id": "fader.master",
+      "page": 0,
+      "exec": 213,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "FaderMaster {target} At {value}",
+      "osc_fader": true,
+      "osc_key": false,
+      "led": {
+        "source": "exec_fader",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.ch:3": {
+      "name": "113",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 113,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.push:11": {
+      "name": "X12",
       "catalog_id": "exec.key",
       "page": 0,
       "exec": 194,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.enc:4": {
+      "name": "Enc 414",
+      "catalog_id": "fader.master",
+      "page": 0,
+      "exec": 414,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "FaderMaster {target} At {value}",
+      "osc_fader": true,
+      "osc_key": false,
+      "led": {
+        "source": "exec_fader",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:4": {
+      "name": "414",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 414,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:12": {
+      "name": "314",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 314,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:20": {
+      "name": "214",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 214,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.fader:4": {
+      "name": "Fader 214",
+      "catalog_id": "fader.master",
+      "page": 0,
+      "exec": 214,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "FaderMaster {target} At {value}",
+      "osc_fader": true,
+      "osc_key": false,
+      "led": {
+        "source": "exec_fader",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.ch:4": {
+      "name": "114",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 114,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.push:12": {
+      "name": "X13",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 195,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.enc:5": {
+      "name": "Enc 415",
+      "catalog_id": "fader.master",
+      "page": 0,
+      "exec": 415,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "FaderMaster {target} At {value}",
+      "osc_fader": true,
+      "osc_key": false,
+      "led": {
+        "source": "exec_fader",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:5": {
+      "name": "415",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 415,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:13": {
+      "name": "315",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 315,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:21": {
+      "name": "215",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 215,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.fader:5": {
+      "name": "Fader 215",
+      "catalog_id": "fader.master",
+      "page": 0,
+      "exec": 215,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "FaderMaster {target} At {value}",
+      "osc_fader": true,
+      "osc_key": false,
+      "led": {
+        "source": "exec_fader",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.ch:5": {
+      "name": "115",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 115,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.push:13": {
+      "name": "X14",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 196,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.enc:6": {
+      "name": "Enc 416",
+      "catalog_id": "fader.master",
+      "page": 0,
+      "exec": 416,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "FaderMaster {target} At {value}",
+      "osc_fader": true,
+      "osc_key": false,
+      "led": {
+        "source": "exec_fader",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:6": {
+      "name": "416",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 416,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:14": {
+      "name": "316",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 316,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:22": {
+      "name": "216",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 216,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.fader:6": {
+      "name": "Fader 216",
+      "catalog_id": "fader.master",
+      "page": 0,
+      "exec": 216,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "FaderMaster {target} At {value}",
+      "osc_fader": true,
+      "osc_key": false,
+      "led": {
+        "source": "exec_fader",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.ch:6": {
+      "name": "116",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 116,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.push:14": {
+      "name": "X15",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 197,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.enc:7": {
+      "name": "Enc 417",
+      "catalog_id": "fader.master",
+      "page": 0,
+      "exec": 417,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "FaderMaster {target} At {value}",
+      "osc_fader": true,
+      "osc_key": false,
+      "led": {
+        "source": "exec_fader",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:7": {
+      "name": "417",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 417,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:15": {
+      "name": "317",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 317,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.btn:23": {
+      "name": "217",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 217,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.fader:7": {
+      "name": "Fader 217",
+      "catalog_id": "fader.master",
+      "page": 0,
+      "exec": 217,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "FaderMaster {target} At {value}",
+      "osc_fader": true,
+      "osc_key": false,
+      "led": {
+        "source": "exec_fader",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.ch:7": {
+      "name": "117",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 117,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.push:15": {
+      "name": "X16",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 198,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.fader:8": {
+      "name": "Fader 218",
+      "catalog_id": "fader.master",
+      "page": 0,
+      "exec": 218,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "FaderMaster {target} At {value}",
+      "osc_fader": true,
+      "osc_key": false,
+      "led": {
+        "source": "exec_fader",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.ch:8": {
+      "name": "118",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 118,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.tr:0": {
+      "name": "Page -",
+      "catalog_id": "page.prev",
+      "page": 0,
+      "exec": 201,
+      "press_cmd": "Previous Page",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": false,
+      "led": {
+        "source": "press",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.tr:1": {
+      "name": "Page +",
+      "catalog_id": "page.next",
+      "page": 0,
+      "exec": 201,
+      "press_cmd": "Next Page",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": false,
+      "led": {
+        "source": "press",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.tr:2": {
+      "name": "321",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 321,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.tr:3": {
+      "name": "322",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 322,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.tr:4": {
+      "name": "221",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 221,
+      "press_cmd": "",
+      "release_cmd": "",
+      "value_cmd": "",
+      "osc_fader": false,
+      "osc_key": true,
+      "led": {
+        "source": "exec_active",
+        "off_color": 0,
+        "off_mode": 6,
+        "on_color": 1,
+        "on_mode": 6,
+        "use_ma3_color": false,
+        "ma3_dim": 0.15
+      }
+    },
+    "xtb.tr:5": {
+      "name": "222",
+      "catalog_id": "exec.key",
+      "page": 0,
+      "exec": 222,
       "press_cmd": "",
       "release_cmd": "",
       "value_cmd": "",

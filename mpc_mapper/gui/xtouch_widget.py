@@ -87,16 +87,20 @@ def control_rect(control: str) -> QRectF:
     return QRectF()
 
 
-# hit-test order: the push cap lies inside the encoder, so test it first
-_HIT_ORDER = ([c for c in xtouch.ALL_CONTROLS if xtouch.kind(c) == "push"]
-              + [c for c in xtouch.ALL_CONTROLS if xtouch.kind(c) != "push"])
-
-
 class XTouchWidget(APCWidget):
+    """Drawing of one layer (0 = A, 1 = B) of the X-Touch Compact."""
     LW, LH = LW, LH
 
+    def __init__(self, mapping, layer: int = 0, parent=None) -> None:
+        self.layer = layer
+        self._all = xtouch.LAYER_B if layer else xtouch.LAYER_A
+        # hit-test order: the push cap lies inside the encoder, so test it first
+        self._hit = ([c for c in self._all if xtouch.kind(c) == "push"]
+                     + [c for c in self._all if xtouch.kind(c) != "push"])
+        super().__init__(mapping, parent)
+
     def controls(self) -> list[str]:
-        return _HIT_ORDER
+        return self._hit
 
     def ctrl_rect(self, control: str) -> QRectF:
         return control_rect(control)
@@ -104,7 +108,7 @@ class XTouchWidget(APCWidget):
     # ---------------- painting ----------------
     def paint_device(self, p: QPainter) -> None:
         self._paint_body(p)
-        for c in xtouch.ALL_CONTROLS:
+        for c in self._all:
             k = xtouch.kind(c)
             if k == "enc":
                 self._paint_encoder(p, c)
@@ -112,7 +116,7 @@ class XTouchWidget(APCWidget):
                 self._paint_xfader(p, c)
             elif k != "push":
                 self._paint_key(p, c)
-        for c in xtouch.ALL_CONTROLS:          # push caps on top of the knobs
+        for c in self._all:                    # push caps on top of the knobs
             if xtouch.kind(c) == "push":
                 self._paint_push(p, c)
 
@@ -206,11 +210,11 @@ class XTouchWidget(APCWidget):
             p.setPen(QColor("#111"))
             p.setFont(ui_font(6, bold=True))
             p.drawText(r, Qt.AlignCenter, label)
-        # layer A / B (not used by the app)
+        # layer A / B keys: the one this drawing shows is lit
         for j, txt in enumerate(("◀ A", "B ▶")):
             r = QRectF(RIGHT_C[j] - 20, CH_Y, 40, CH_H - 8)
             p.setPen(QPen(QColor("#111"), 1))
-            p.setBrush(QColor("#6b6e74"))
+            p.setBrush(ORANGE if j == self.layer else QColor("#6b6e74"))
             p.drawRoundedRect(r, 4, 4)
             p.setPen(QColor("#bfc2c7"))
             p.setFont(ui_font(6, bold=True))

@@ -133,8 +133,9 @@
 <ul>
   <li><b>Standardbelegung wie am Pult:</b> Beim ersten Start sind APC und X-Touch schon so belegt wie die Executoren am grandMA3-Pult – jeder Executor genau einmal. Jede Taste macht, was in MA3 auf dem Executor eingestellt ist (Go+, Flash, Temp …).
     <ul>
-      <li><b>APC:</b> Pads oben 409–416, 309–316, 209–216, 109–116, unten 401–408, 301–308, 201–208, 101–108; Fader 1–8 = 201–208, Fader 9 = Grand Master; Soft-Keys rechts = X-Keys 291–298, rote Tasten = X-Keys 191–198.</li>
-      <li><b>X-Touch:</b> Drehregler 1–8 = 401–408, 9–16 = 301–308; Tastenreihen = 401–408, 301–308, 101–108; Fader und Tasten darunter = 201–208; Main-Fader = Grand Master; Transport = Page −/+ und X-Keys 191–194.</li>
+      <li><b>APC:</b> Pad-Reihe 1 = X-Keys X1–X8 (291–298), Reihe 2 = X9–X16 (191–198), Reihen 3–4 frei für eigene Befehle, Reihen 5–8 = 401–408, 301–308, 201–208, 101–108; Fader 1–8 = 201–208, Fader 9 = Grand Master. Soft-Keys und rote Tasten sind frei.</li>
+      <li><b>X-Touch, Layer A:</b> Drehregler 1–8 = 401–408; Tastenreihen = 401–408, 301–308, 201–208; Fader 1–8 + Main = 201–209; Tasten unter den Fadern = 101–109; rechte Drehregler (drücken) = X1–X8; Transport = Page −/+, 319/320, 219/220.</li>
+      <li><b>X-Touch, Layer B:</b> dasselbe für 410–418 bzw. 110–118; rechte Drehregler = X9–X16; Transport = Page −/+, 321/322, 221/222. Mit den Layer-Tasten am Gerät umschalten – Lämpchen und Motorfader zeigen dann die Werte der anderen Ebene, sobald du etwas berührst. Auf der Seite <i>Mapping</i> schaltet „X-Touch · Layer A/B“ das Gerät direkt um.</li>
       <li>Zurücksetzen: <i>File → Load standard layout</i> (APC, X-Touch oder beide).</li>
     </ul></li>
   <li><b>Belegen:</b> Einen Befehl aus der Liste links auf ein Pad, eine Taste oder einen Fader ziehen.</li>
@@ -157,9 +158,12 @@
   <li><b>Motorfader folgen dem Pult:</b> Ist ein Fader mit „Fader Master“ belegt, fährt er auf den Stand des Executors in grandMA3 – z.&nbsp;B. wenn du am Pult die Seite wechselst. Solange du einen Fader berührst, bewegt er sich nicht von selbst.</li>
   <li><b>Drehregler:</b> Der LED-Kranz zeigt den aktuellen Wert. Mit „Fader Master“ belegt, folgt er ebenfalls dem Pult.</li>
   <li><b>Tasten-LEDs</b> leuchten orange (an, aus oder blinkend), je nach Einstellung „Lit when“ im Inspector.</li>
-  <li><b>Layer B</b> wird nicht benutzt. Drückst du die Layer-B-Taste, schaltet die App automatisch zurück auf Layer A.</li>
+  <li><b>Layer A und B</b> haben eigene Belegungen (siehe Standardbelegung). Die App erkennt den aktiven Layer, sobald du am Gerät etwas bedienst, und schickt dann Lämpchen und Motorfader-Stände für diese Ebene.</li>
 </ul>
 <div class="box warn">Die X-Touch-Unterstützung ist neu und noch nicht mit dem echten Gerät getestet. Bitte einmal den <a href="#test">Gerätetest</a> durchführen.</div>
+
+<h3>Verbindung zum Pult prüfen</h3>
+<p>Kommt vom Pult kein Feedback an (Lämpchen bleiben aus, Statuspunkt gelb)? Öffne die Seite <b>Setup &amp; check</b> und klicke auf <b>Run check</b>. Die App zeigt Schritt für Schritt, was fehlt: ob der Empfangs-Port frei ist, welche IP im Pult eingetragen werden muss, ob überhaupt etwas ankommt, und sie lässt das Pult eine Testnachricht zurückschicken. Ist alles grün bis auf das Plugin, startet „Start feedback plugin“ es direkt.</p>
 
 <h2 id="test">7. Gerätetest</h2>
 <p>Auf der Seite <b>Device test</b> prüfst du APC und X-Touch komplett. Während des Tests wird nichts ans Pult gesendet.</p>

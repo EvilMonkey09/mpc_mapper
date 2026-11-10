@@ -25,8 +25,8 @@ from mpc_mapper.xtouch import XTouchCompact, cc_in_to_control, led_note, note_in
     (16, "xt.btn:0", 0), (23, "xt.btn:7", 0), (24, "xt.btn:8", 0), (39, "xt.btn:23", 0),
     (40, "xt.ch:0", 0), (47, "xt.ch:7", 0), (48, "xt.ch:8", 0),
     (49, "xt.tr:0", 0), (54, "xt.tr:5", 0),
-    (55, "xt.push:0", 1), (71, "xt.btn:0", 1), (95, "xt.ch:0", 1), (103, "xt.ch:8", 1),
-    (104, "xt.tr:0", 1), (109, "xt.tr:5", 1),
+    (55, "xtb.push:0", 1), (71, "xtb.btn:0", 1), (95, "xtb.ch:0", 1), (103, "xtb.ch:8", 1),
+    (104, "xtb.tr:0", 1), (109, "xtb.tr:5", 1),
 ])
 def test_note_map(note, control, layer):
     assert note_in_to_control(note) == (control, layer)
@@ -37,8 +37,8 @@ def test_note_map(note, control, layer):
     (10, "xt.enc:0", "value", 0), (17, "xt.enc:7", "value", 0), (18, "xt.enc:8", "value", 0),
     (25, "xt.enc:15", "value", 0),
     (101, "xt.fader:0", "touch", 0), (108, "xt.fader:7", "touch", 0), (109, "xt.fader:8", "touch", 0),
-    (28, "xt.fader:0", "value", 1), (36, "xt.fader:8", "value", 1), (37, "xt.enc:0", "value", 1),
-    (52, "xt.enc:15", "value", 1), (111, "xt.fader:0", "touch", 1), (119, "xt.fader:8", "touch", 1),
+    (28, "xtb.fader:0", "value", 1), (36, "xtb.fader:8", "value", 1), (37, "xtb.enc:0", "value", 1),
+    (52, "xtb.enc:15", "value", 1), (111, "xtb.fader:0", "touch", 1), (119, "xtb.fader:8", "touch", 1),
 ])
 def test_cc_map(cc, control, what, layer):
     assert cc_in_to_control(cc) == (control, what, layer)
@@ -64,7 +64,9 @@ def test_ring_value():
 
 
 def test_controls_facade():
-    assert len(xtouch.ALL_CONTROLS) == 9 + 16 + 16 + 24 + 9 + 6
+    assert len(xtouch.ALL_CONTROLS) == 2 * (9 + 16 + 16 + 24 + 9 + 6)
+    assert xtouch.layer("xtb.btn:3") == 1 and xtouch.with_layer("xtb.btn:3", 0) == "xt.btn:3"
+    assert led_note("xtb.ch:8") == 32
     assert controls.is_value("xt.fader:3") and controls.is_value("xt.enc:12")
     assert controls.is_button("xt.btn:5") and controls.is_button("xt.push:2")
     assert controls.has_led("xt.tr:1") and not controls.has_led("xt.push:1")
@@ -170,13 +172,30 @@ def test_input_callbacks_and_touch_blocks_motor(dev):
     assert dev.set_position("xt.fader:0", 10)
 
 
-def test_layer_b_switches_back(dev):
-    flagged = []
-    dev.on_layer_b = lambda: flagged.append(True)
+def test_layer_b_is_its_own_layer(dev):
+    layers, events = [], []
+    dev.on_layer = lambda lay: layers.append(lay)
+    dev.on_button = lambda c, p: events.append((c, p))
     dev.ports.out.sent.clear()
     dev.ports.inp.callback(mido.Message("note_on", note=71, velocity=127))
-    assert flagged
-    assert any(m.type == "program_change" and m.program == 0 for m in dev.ports.out.sent)
+    assert layers == [1] and dev.active_layer == 1
+    assert events == [("xtb.btn:0", True)]
+    assert not any(m.type == "program_change" for m in dev.ports.out.sent)   # no forced switch back
+
+
+def test_only_the_active_layer_reaches_the_unit(dev):
+    dev.out_channel = 1
+    dev.ports.out.sent.clear()
+    dev.set_led("xtb.btn:3", 1)                 # layer B while A is active: remembered only
+    dev.set_position("xtb.fader:2", 90)
+    assert dev.ports.out.sent == []
+    dev.select_layer(1)
+    assert [(m.type, m.program) for m in dev.ports.out.sent] == [("program_change", 1)]
+    dev.ports.out.sent.clear()
+    dev.set_led("xtb.btn:3", 1, force=True)
+    dev.set_position("xtb.fader:2", 90, force=True)
+    got = [(m.type, getattr(m, "note", getattr(m, "control", None))) for m in dev.ports.out.sent]
+    assert got == [("note_on", 3), ("control_change", 3)]
 
 
 # --------------------------------------------------------------------------- #
@@ -208,8 +227,10 @@ def test_button_presses_ma3_key(engine):
     engine.handle_button("xt.btn:0", True)       # standard: key of executor 401
     engine.handle_button("xt.btn:0", False)
     assert engine.cmds[-2:] == ["key 1.401 1", "key 1.401 0"]
-    engine.handle_button("xt.ch:3", True)        # key under fader 4 = executor 204
-    assert engine.cmds[-1] == "key 1.204 1"
+    engine.handle_button("xt.ch:3", True)        # key under fader 4 = executor 104
+    assert engine.cmds[-1] == "key 1.104 1"
+    engine.handle_button("xtb.btn:0", True)      # layer B, first key = executor 410
+    assert engine.cmds[-1] == "key 1.410 1"
 
 
 def test_fader_sends_osc_fader(engine):
@@ -226,8 +247,8 @@ def test_feedback_lights_led_and_moves_motor(engine):
     engine.ports.out.sent.clear()
     engine._on_exec(st)
     sent = engine.ports.out.sent
-    # key 201 (channel button under fader 1, LED note 24) lit
-    assert any(m.type == "note_on" and m.note == 24 and m.velocity == 1 for m in sent)
+    # key 201 (third key row, column 1, LED note 16) lit
+    assert any(m.type == "note_on" and m.note == 16 and m.velocity == 1 for m in sent)
     # fader 1 follows the executor master: 50 % -> 64
     assert any(m.type == "control_change" and m.control == 1 and m.value == 64 for m in sent)
     # encoder 1 belongs to executor 401, not 201: its ring must not move
@@ -255,6 +276,7 @@ def test_saved_mapping_roundtrip(tmp_path):
     assert m2.settings.xt_out_channel == 2
     assert "xt.fader:3" in m2.assignments and "xt.tr:5" in m2.assignments
     assert m2.assignments["xt.btn:0"].led.on_color == 1     # single-colour LED
+    assert "xtb.fader:3" in m2.assignments
 
 
 # --------------------------------------------------------------------------- #
@@ -274,32 +296,34 @@ def test_standard_apc_layout():
     m = Mapping()
     standard_apc(m)
     a = m.assignments
-    assert a["pad:56"].exec == 409 and a["pad:63"].exec == 416      # top row
-    assert a["pad:7"].exec == 108 and a["pad:0"].exec == 101        # bottom row
-    assert a["pad:24"].exec == 401 and a["pad:16"].exec == 301 and a["pad:8"].exec == 201
+    assert [a[f"pad:{56 + i}"].exec for i in range(8)] == list(range(291, 299))   # X1-X8
+    assert [a[f"pad:{48 + i}"].exec for i in range(8)] == list(range(191, 199))   # X9-X16
+    assert not any(f"pad:{i}" in a for i in range(32, 48))                        # rows 3-4 free
+    assert a["pad:24"].exec == 401 and a["pad:16"].exec == 301
+    assert a["pad:8"].exec == 201 and a["pad:0"].exec == 101
     assert [a[f"fader:{i}"].exec for i in range(8)] == list(range(201, 209))
-    assert [a[f"scene:{i}"].exec for i in range(8)] == list(range(291, 299))
-    assert [a[f"track:{i}"].exec for i in range(8)] == list(range(191, 199))
     assert a["fader:8"].catalog_id == "master.grand"
+    assert not any(c.startswith(("scene", "track")) for c in a)
     keys = [a[c].exec for c in a if not c.startswith("fader:")]
-    assert len(keys) == len(set(keys)) == 80                      # every key unique
+    assert len(keys) == len(set(keys)) == 48
     assert all(a[c].osc_key for c in a if not c.startswith("fader:"))
 
 
-def test_standard_xtouch_layout():
+@pytest.mark.parametrize("p,o,x", [("xt.", 0, 291), ("xtb.", 9, 191)])
+def test_standard_xtouch_layout(p, o, x):
     from mpc_mapper.model import Mapping, standard_xtouch
     m = Mapping()
     standard_xtouch(m)
     a = m.assignments
-    assert [a[f"xt.enc:{i}"].exec for i in range(16)] == list(range(401, 409)) + list(range(301, 309))
-    assert [a[f"xt.btn:{i}"].exec for i in range(24)] == (
-        list(range(401, 409)) + list(range(301, 309)) + list(range(101, 109)))
-    assert [a[f"xt.fader:{i}"].exec for i in range(8)] == list(range(201, 209))
-    assert [a[f"xt.ch:{i}"].exec for i in range(8)] == list(range(201, 209))
-    assert a["xt.fader:8"].catalog_id == "master.grand"
-    keys = [a[c].exec for c in a if a[c].osc_key]
-    assert len(keys) == len(set(keys))                            # no key twice
-    assert all(a[f"xt.fader:{i}"].osc_fader for i in range(8))
+    assert [a[f"{p}enc:{i}"].exec for i in range(8)] == list(range(401 + o, 409 + o))
+    assert [a[f"{p}btn:{i}"].exec for i in range(24)] == (
+        list(range(401 + o, 409 + o)) + list(range(301 + o, 309 + o)) + list(range(201 + o, 209 + o)))
+    assert [a[f"{p}fader:{i}"].exec for i in range(9)] == list(range(201 + o, 210 + o))
+    assert [a[f"{p}ch:{i}"].exec for i in range(9)] == list(range(101 + o, 110 + o))
+    assert [a[f"{p}push:{8 + i}"].exec for i in range(8)] == list(range(x, x + 8))
+    assert [a[f"{p}tr:{i}"].catalog_id for i in (0, 1)] == ["page.prev", "page.next"]
+    keys = [a[c].exec for c in a if c.startswith(p) and a[c].osc_key]
+    assert len(keys) == len(set(keys))
 
 
 def test_both_layouts_together_keep_each_other():

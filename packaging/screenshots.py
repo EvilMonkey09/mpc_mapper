@@ -49,6 +49,9 @@ def _shoot() -> None:
     w.engine.led_changed.emit("xt.btn:0", __import__("mpc_mapper.apc", fromlist=["x"]).LedState(1, 0))
     app.processEvents()
     w.grab().save(os.path.join(out, "xtouch.png"))
+    w.dev_group.button(2).click()
+    app.processEvents()
+    w.grab().save(os.path.join(out, "xtouch-b.png"))
     w.dev_group.button(0).click()
     for i, name in ((1, "led-lab.png"), (2, "geraetetest.png"), (3, "log.png"), (4, "setup.png")):
         w.nav_group.button(i).click()

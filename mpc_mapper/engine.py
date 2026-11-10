@@ -63,7 +63,7 @@ class Engine(QObject):
         self.xt.on_touch = lambda c, t: self._sig_touch.emit(c, t)
         self.xt.on_led = lambda c, s: self.led_changed.emit(c, LedState(s, 0))
         self.xt.on_motor = lambda c, v: self.position_changed.emit(c, v)
-        self.xt.on_layer_b = lambda: self._sig_layer.emit()
+        self.xt.on_layer = lambda lay: self._sig_layer.emit()
         self.xt.on_raw = lambda d, t: self._sig_log.emit("midi", d, t)
         self.ma3.on_exec = lambda st: self._sig_exec.emit(st)
         self.ma3.on_page = lambda p: self._sig_page.emit(p)

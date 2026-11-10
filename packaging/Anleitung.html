@@ -107,8 +107,14 @@
   <tr><td>Send Command</td><td>–</td><td><b>Yes</b></td></tr>
 </table>
 
-<div class="box warn"><b>grandMA3 onPC und MPC Mapper auf demselben PC, Session über das Netzwerk (z. B. mit Node)?</b><br>
-Dann bei <b>Line 2</b> als Destination IP <b>127.0.0.1</b> eintragen, bei Line 1 und in MPC Mapper (Console IP) die <b>Netzwerk-IP des PCs</b>. MA belegt den Feedback-Port auf der Netzwerk-IP selbst – dorthin geschickt, käme das Feedback bei MA statt bei der App an. 127.0.0.1 betrifft nur diese OSC-Line, die Node läuft weiter übers Netzwerk.</div>
+<div class="box warn"><b>grandMA3 onPC und MPC Mapper auf demselben PC, Session über das Netzwerk (z.&nbsp;B. mit Node)?</b><br>
+MA belegt den Feedback-Port auf der Netzwerk-IP selbst – dorthin geschickt, käme das Feedback bei MA statt bei der App an. Erprobt und funktionierend:
+<ul>
+  <li>Bei <b>Line 1 und Line 2</b> als Destination IP die <b>Broadcast-Adresse</b> eures Netzes eintragen, z.&nbsp;B. <b>192.168.1.255</b> (bei Subnetz 255.255.255.0: die IP des PCs mit <b>.255</b> am Ende).</li>
+  <li>In MPC Mapper als Console IP die <b>Netzwerk-IP des PCs</b> (z.&nbsp;B. 192.168.1.117).</li>
+  <li>Prefix in MA und App gleich: <b>gma3</b>.</li>
+</ul>
+Alternative: nur bei Line 2 <b>127.0.0.1</b>. Die Node läuft in beiden Fällen weiter übers Netzwerk.</div>
 
 <h3>Schritt 3 – Plugin importieren</h3>
 <ol>

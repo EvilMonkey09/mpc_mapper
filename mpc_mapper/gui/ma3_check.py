@@ -155,14 +155,17 @@ class MA3Check(QWidget):
             self._set("ip", INFO, "grandMA3 runs on this computer: enter <b>127.0.0.1</b> as "
                                   "Destination IP on both OSC lines in MA3.")
         elif m.local_ip_for(host) == host:
+            bc = ".".join(host.split(".")[:3] + ["255"])
             self._set("ip", INFO,
-                      f"grandMA3 runs on <b>this computer</b> ({host}). Use:<br>"
-                      f"• Line 1 (commands): Destination IP <b>{host}</b>, Port {s.ma3_port}<br>"
-                      f"• Line {line} (feedback): Destination IP <b>127.0.0.1</b>, Port "
-                      f"{s.listen_port}<br>"
-                      "MA3 itself occupies the feedback port on the network address, so feedback "
-                      "sent there would go back to MA3. 127.0.0.1 only affects this OSC line – "
-                      "the node and the session keep using the network.")
+                      f"grandMA3 runs on <b>this computer</b> ({host}). MA3 itself occupies the "
+                      "feedback port on that address, so feedback sent there would go back to "
+                      "MA3. Tested and working:<br>"
+                      f"• Line 1 and line {line}: Destination IP <b>{bc}</b> (the broadcast "
+                      "address of your network, for subnet 255.255.255.0)<br>"
+                      f"• Line 1: Port {s.ma3_port}, Receive + Receive Command = Yes<br>"
+                      f"• Line {line}: Port {s.listen_port}, Send + Send Command = Yes<br>"
+                      f"Alternative: <b>127.0.0.1</b> as destination of line {line} only. "
+                      "Either way the node and the session keep using the network.")
         else:
             ip = m.local_ip_for(host)
             if ip:
@@ -205,7 +208,8 @@ class MA3Check(QWidget):
         else:
             ip = (m.local_ip_for(host) if not host.startswith("127.") else "127.0.0.1") or "?"
             same_pc = not host.startswith("127.") and m.local_ip_for(host) == host
-            fb_ip = "127.0.0.1" if same_pc else ip
+            fb_ip = (".".join(host.split(".")[:3] + ["255"]) + " (broadcast) or 127.0.0.1"
+                     if same_pc else ip)
             self._set("return", ERR,
                       "No answer from MA3. Check in MA3 under Menu → In &amp; Out → OSC:<br>"
                       "• <b>Enable Input</b> and <b>Enable Output</b> are on<br>"

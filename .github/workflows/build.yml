@@ -63,7 +63,15 @@ jobs:
       - name: Automatische Tests (ohne Hardware)
         env:
           QT_QPA_PLATFORM: offscreen
-        run: python -m pytest -q tests
+        run: |
+          # Bei Fehlern die Ausgabe als Hinweis (Annotation) an den Lauf hängen
+          python -m pytest -q --tb=short -p no:cacheprovider tests > pytest.log 2>&1 && rc=0 || rc=$?
+          cat pytest.log
+          if [ $rc != 0 ]; then
+            msg=$(tail -c 3500 pytest.log | python -c "import sys; print(sys.stdin.read().replace('%','%25').replace('\r','').replace('\n','%0A'))")
+            echo "::error title=pytest::$msg"
+          fi
+          exit $rc
 
       - name: App bauen
         run: |
@@ -173,7 +181,15 @@ jobs:
       - name: Automatische Tests (ohne Hardware)
         env:
           QT_QPA_PLATFORM: offscreen
-        run: python -m pytest -q tests
+        run: |
+          # Bei Fehlern die Ausgabe als Hinweis (Annotation) an den Lauf hängen
+          python -m pytest -q --tb=short -p no:cacheprovider tests > pytest.log 2>&1 && rc=0 || rc=$?
+          cat pytest.log
+          if [ $rc != 0 ]; then
+            msg=$(tail -c 3500 pytest.log | python -c "import sys; print(sys.stdin.read().replace('%','%25').replace('\r','').replace('\n','%0A'))")
+            echo "::error title=pytest::$msg"
+          fi
+          exit $rc
 
       - name: Programm bauen
         run: |

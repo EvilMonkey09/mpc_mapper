@@ -154,6 +154,15 @@ class MA3Check(QWidget):
         if host.startswith("127.") or host == "localhost":
             self._set("ip", INFO, "grandMA3 runs on this computer: enter <b>127.0.0.1</b> as "
                                   "Destination IP on both OSC lines in MA3.")
+        elif m.local_ip_for(host) == host:
+            self._set("ip", INFO,
+                      f"grandMA3 runs on <b>this computer</b> ({host}). Use:<br>"
+                      f"• Line 1 (commands): Destination IP <b>{host}</b>, Port {s.ma3_port}<br>"
+                      f"• Line {line} (feedback): Destination IP <b>127.0.0.1</b>, Port "
+                      f"{s.listen_port}<br>"
+                      "MA3 itself occupies the feedback port on the network address, so feedback "
+                      "sent there would go back to MA3. 127.0.0.1 only affects this OSC line – "
+                      "the node and the session keep using the network.")
         else:
             ip = m.local_ip_for(host)
             if ip:
@@ -186,12 +195,14 @@ class MA3Check(QWidget):
             self._set("return", INFO, "Waiting for MA3's answer …")
         else:
             ip = (m.local_ip_for(host) if not host.startswith("127.") else "127.0.0.1") or "?"
+            same_pc = not host.startswith("127.") and m.local_ip_for(host) == host
+            fb_ip = "127.0.0.1" if same_pc else ip
             self._set("return", ERR,
                       "No answer from MA3. Check in MA3 under Menu → In &amp; Out → OSC:<br>"
                       "• <b>Enable Input</b> and <b>Enable Output</b> are on<br>"
                       f"• Line 1: Destination IP <b>{ip}</b>, Port <b>{s.ma3_port}</b>, "
                       f"Prefix <b>{s.osc_prefix}</b>, Receive = Yes, <b>Receive Command = Yes</b><br>"
-                      f"• Line {line}: Destination IP <b>{ip}</b>, Port <b>{s.listen_port}</b>, "
+                      f"• Line {line}: Destination IP <b>{fb_ip}</b>, Port <b>{s.listen_port}</b>, "
                       "Send = Yes, <b>Send Command = Yes</b><br>"
                       "• The console IP at the top is right, both are on the same network<br>"
                       "• The firewall lets MPC Mapper receive (see below)<br>"

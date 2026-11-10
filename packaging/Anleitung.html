@@ -107,6 +107,9 @@
   <tr><td>Send Command</td><td>–</td><td><b>Yes</b></td></tr>
 </table>
 
+<div class="box warn"><b>grandMA3 onPC und MPC Mapper auf demselben PC, Session über das Netzwerk (z. B. mit Node)?</b><br>
+Dann bei <b>Line 2</b> als Destination IP <b>127.0.0.1</b> eintragen, bei Line 1 und in MPC Mapper (Console IP) die <b>Netzwerk-IP des PCs</b>. MA belegt den Feedback-Port auf der Netzwerk-IP selbst – dorthin geschickt, käme das Feedback bei MA statt bei der App an. 127.0.0.1 betrifft nur diese OSC-Line, die Node läuft weiter übers Netzwerk.</div>
+
 <h3>Schritt 3 – Plugin importieren</h3>
 <ol>
   <li>Öffne den Ordner <code>grandMA3-Plugin</code>. Darin liegt fertig vorbereitet der Ordner <code>gma3_library</code>.

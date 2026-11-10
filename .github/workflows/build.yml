@@ -23,7 +23,7 @@ permissions:
 
 env:
   # Versionsnummer für Pushes auf den Zweig "release" – hier hochzählen
-  RELEASE_VERSION: v2.1
+  RELEASE_VERSION: v2.2
   # Testversion aus dem Zweig "xtouch" (als Vorabversion veröffentlicht)
   BETA_VERSION: v2.0-beta
   PYTHON_VERSION: "3.12"

@@ -2,10 +2,15 @@
 
 Steuert grandMA3 mit einem **Akai APC mini mk2** und/oder einem **Behringer X-Touch Compact**, inklusive LED-Rückmeldung.
 
+### Neu in v2.2
+- **X-Touch: Layer umschalten mit der MAIN-Taste** (unter dem Main-Fader). Die Motorfader und Lämpchen springen sofort auf die richtige Ebene, auf Layer B leuchtet die MAIN-Taste, und die App zeigt automatisch die passende Ebene. Die Tasten LAYER A/B am Gerät bitte nicht mehr benutzen – sie schicken dem Computer nichts.
+- Hast du schon eine eigene Belegung gespeichert: einmal *File → Load standard layout → X-Touch* laden, damit die MAIN-Taste den Layer umschaltet.
+- Am Mac mit M1–M4 läuft auch die Intel-Version (über Rosetta), falls die Apple-Silicon-Datei einmal fehlt.
+
 ### Neu in v2.1
 - **Richtige Installation:** Windows bekommt einen Installer (`Setup.exe`) mit Startmenü, Desktop-Symbol und Deinstallation, der Mac ein Disk-Image (`.dmg`) zum Hineinziehen in „Programme“.
 - **Standardbelegung wie am grandMA3-Pult** für APC und X-Touch (beide Layer), jeder Executor genau einmal; *File → Load standard layout*.
-- **X-Touch Layer A und B** mit eigenen Belegungen (Executoren 1–9 und 10–18). **Umschalten mit der MAIN-Taste** – die Motorfader springen sofort auf die richtige Ebene. (Die Tasten LAYER A/B am Gerät schicken dem Computer nichts.) Eigene, früher gespeicherte Belegungen: einmal *File → Load standard layout → X-Touch* laden.
+- **X-Touch Layer A und B** mit eigenen Belegungen (Executoren 1–9 und 10–18).
 - **Pult-Verbindung prüfen** auf der Seite *Setup & check*: findet heraus, warum kein Feedback ankommt.
 - APC- und X-Touch-Zeichnung wie die echten Geräte.
 

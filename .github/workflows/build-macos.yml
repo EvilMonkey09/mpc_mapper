@@ -41,6 +41,15 @@ jobs:
 
       - name: App bauen
         run: |
+          # Startdatei für die App anlegen, falls sie im Repository fehlt
+          if [ ! -f mac/launcher.py ]; then
+            mkdir -p mac
+            printf '%s\n' \
+              'import sys' \
+              'from mpc_mapper.__main__ import main' \
+              'if __name__ == "__main__":' \
+              '    sys.exit(main())' > mac/launcher.py
+          fi
           pyinstaller \
             --noconfirm --clean --log-level WARN \
             --windowed \

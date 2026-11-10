@@ -13,17 +13,29 @@ import sys
 import traceback
 
 SELFTEST_LOG = os.environ.get("MPC_MAPPER_SELFTEST")
+for _a in list(sys.argv[1:]):           # also accept --selftest=<log file>
+    if _a.startswith("--selftest="):
+        SELFTEST_LOG = _a.split("=", 1)[1]
+        os.environ["MPC_MAPPER_SELFTEST"] = SELFTEST_LOG
+        sys.argv.remove(_a)
 
 if not getattr(sys, "frozen", False):
     # running from source: make the package next to this folder importable
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
+def _log(text: str) -> None:
+    if SELFTEST_LOG:
+        with open(SELFTEST_LOG, "a", encoding="utf-8") as f:
+            f.write(text.rstrip("\n") + "\n")
+
+
 def _fail(code: int) -> None:
-    with open(SELFTEST_LOG, "w", encoding="utf-8") as f:
-        traceback.print_exc(file=f)
+    _log("FAILED:\n" + traceback.format_exc())
     os._exit(code)
 
+
+_log(f"launcher started (frozen={getattr(sys, 'frozen', False)}, name={__name__})")
 
 if __name__ == "__main__":
     try:
@@ -32,13 +44,12 @@ if __name__ == "__main__":
         if SELFTEST_LOG:
             _fail(3)
         raise
+    _log("imports ok, starting main()")
     try:
         rc = main()
     except Exception:
         if SELFTEST_LOG:
             _fail(4)
         raise
-    if SELFTEST_LOG:
-        with open(SELFTEST_LOG, "w", encoding="utf-8") as f:
-            f.write(f"ok (exit code {rc})\n")
+    _log(f"ok (exit code {rc})")
     sys.exit(rc)

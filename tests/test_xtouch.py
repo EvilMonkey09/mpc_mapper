@@ -219,7 +219,7 @@ def test_fader_sends_osc_fader(engine):
 
 
 def test_feedback_lights_led_and_moves_motor(engine):
-    engine.ma3.last_rx = time.time()             # plugin alive
+    engine.ma3.last_hello_rx = time.time()       # plugin alive
     st = engine.ExecState(1, 201)
     st.active, st.fader = True, 50.0
     engine.ma3.execs[(1, 201)] = st
@@ -235,7 +235,7 @@ def test_feedback_lights_led_and_moves_motor(engine):
 
 
 def test_no_motor_move_while_touched(engine):
-    engine.ma3.last_rx = time.time()
+    engine.ma3.last_hello_rx = time.time()
     engine.xt.touched.add("xt.fader:0")
     st = engine.ExecState(1, 201)
     st.fader = 80.0
@@ -311,3 +311,60 @@ def test_both_layouts_together_keep_each_other():
     standard_apc(m)                                  # reloading APC keeps the X-Touch part
     assert len([c for c in m.assignments if c.startswith("xt.")]) > 0
     assert len([c for c in m.assignments if not c.startswith("xt.")]) == n_apc
+
+
+# --------------------------------------------------------------------------- #
+# grandMA3 connection diagnostics
+# --------------------------------------------------------------------------- #
+def test_return_test_and_heartbeat_are_told_apart():
+    pytest.importorskip("pythonosc")
+    from mpc_mapper.ma3 import MA3Link
+    m = MA3Link()
+    sent = []
+    m.command = lambda c: sent.append(c)
+    token = m.send_return_test(2)
+    assert sent == [f'SendOSC 2 "/apc/hello,s,{token}"']
+    m._h_any(("192.168.1.20", 8001), "/gma3/apc/hello", token)
+    assert m.diag_ok_at and not m.plugin_alive and m.rx_count == 1
+    assert m.last_rx_from == "192.168.1.20:8001"
+    m._h_any(("192.168.1.20", 8001), "/gma3/apc/hello", "1.0")
+    assert m.plugin_alive and m.plugin_version == "1.0"
+
+
+def test_udp_round_trip_on_localhost():
+    pytest.importorskip("pythonosc")
+    import socket as _s
+    from pythonosc.udp_client import SimpleUDPClient
+    from mpc_mapper.ma3 import MA3Link
+    with _s.socket(_s.AF_INET, _s.SOCK_DGRAM) as tmp:
+        tmp.bind(("127.0.0.1", 0))
+        port = tmp.getsockname()[1]
+    m = MA3Link()
+    m.start("127.0.0.1", 9, port, "gma3")
+    try:
+        assert m.listening and not m.bind_error
+        SimpleUDPClient("127.0.0.1", port).send_message("/gma3/apc/hello", "1.0")
+        for _ in range(50):
+            if m.rx_count:
+                break
+            time.sleep(0.05)
+        assert m.rx_count == 1 and m.plugin_alive
+    finally:
+        m.stop()
+
+
+def test_busy_port_is_reported():
+    pytest.importorskip("pythonosc")
+    import socket as _s
+    from mpc_mapper.ma3 import MA3Link
+    blocker = _s.socket(_s.AF_INET, _s.SOCK_DGRAM)
+    blocker.bind(("0.0.0.0", 0))
+    port = blocker.getsockname()[1]
+    m = MA3Link()
+    try:
+        with pytest.raises(OSError):
+            m.start("127.0.0.1", 9, port, "gma3")
+        assert m.bind_error and not m.listening
+    finally:
+        blocker.close()
+        m.stop()

@@ -17,7 +17,10 @@ We additionally parse MA3's native OSC output ("Send" enabled on the OSC line):
 """
 from __future__ import annotations
 
+import collections
 import re
+import secrets
+import socket
 import threading
 import time
 from dataclasses import dataclass
@@ -53,6 +56,16 @@ class MA3Link:
         self.execs: dict[tuple[int, int], ExecState] = {}
         self.last_rx = 0.0
         self.plugin_version = ""
+        # diagnostics
+        self.rx_count = 0
+        self.last_any_rx = 0.0
+        self.last_hello_rx = 0.0
+        self.last_rx_from = ""
+        self.recent: collections.deque = collections.deque(maxlen=30)
+        self.bind_error = ""
+        self.diag_token = ""
+        self.diag_sent_at = 0.0
+        self.diag_ok_at = 0.0
         # callbacks (called from the OSC server thread!)
         self.on_exec: Optional[Callable[[ExecState], None]] = None
         self.on_page: Optional[Callable[[int], None]] = None
@@ -66,10 +79,15 @@ class MA3Link:
         disp = Dispatcher()
         # MA3 prepends the OSC line's prefix to SendOSC addresses, so the
         # plugin messages are routed by suffix in _h_default.
-        disp.set_default_handler(self._h_default)
+        disp.set_default_handler(self._h_any, needs_reply_address=True)
         # single-threaded server: packets are handled in arrival order.
         # Bind first so a busy port leaves the link fully stopped.
-        self.server = BlockingOSCUDPServer(("0.0.0.0", listen_port), disp)
+        self.bind_error = ""
+        try:
+            self.server = BlockingOSCUDPServer(("0.0.0.0", listen_port), disp)
+        except OSError as e:
+            self.bind_error = str(e)
+            raise
         self.client = SimpleUDPClient(host, port)
         self._thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self._thread.start()
@@ -89,10 +107,38 @@ class MA3Link:
         self.last_rx = 0.0
         self.plugin_version = ""
         self.execs.clear()
+        self.rx_count = 0
+        self.last_any_rx = self.last_hello_rx = 0.0
+        self.last_rx_from = ""
+        self.recent.clear()
 
     @property
     def plugin_alive(self) -> bool:
-        return time.time() - self.last_rx < 6.0
+        """The feedback plugin sent its heartbeat recently."""
+        return time.time() - self.last_hello_rx < 6.0
+
+    @property
+    def listening(self) -> bool:
+        return self.server is not None
+
+    # ---------------- diagnostics ----------------
+    def local_ip_for(self, host: str) -> str:
+        """The IP address of this computer on the network that reaches `host`."""
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+                s.connect((host or "8.8.8.8", 9))      # UDP: no packet is sent
+                return s.getsockname()[0]
+        except OSError:
+            return ""
+
+    def send_return_test(self, line: int) -> str:
+        """Ask MA3 (via the command line, OSC line 1) to send a message back to
+        us on its OSC line `line`. If it arrives, both directions work."""
+        self.diag_token = "diag-" + secrets.token_hex(3)
+        self.diag_sent_at = time.time()
+        self.diag_ok_at = 0.0
+        self.command(f'SendOSC {int(line)} "/apc/hello,s,{self.diag_token}"')
+        return self.diag_token
 
     # ---------------- sending ----------------
     def _addr(self, tail: str) -> str:
@@ -158,7 +204,20 @@ class MA3Link:
 
     def _h_hello(self, addr, *args) -> None:
         self._log_in(addr, args)
-        self.plugin_version = str(args[0]) if args else "?"
+        text = str(args[0]) if args else "?"
+        if self.diag_token and text == self.diag_token:
+            self.diag_ok_at = time.time()       # our return test, not the plugin
+            return
+        self.plugin_version = text
+        self.last_hello_rx = time.time()
+
+    def _h_any(self, client, addr, *args) -> None:
+        self.rx_count += 1
+        self.last_any_rx = time.time()
+        self.last_rx_from = f"{client[0]}:{client[1]}" if client else ""
+        self.recent.append((time.strftime("%H:%M:%S"), self.last_rx_from, addr,
+                            " ".join(map(str, args))[:80]))
+        self._h_default(addr, *args)
 
     def _h_default(self, addr, *args) -> None:
         if addr.endswith("/apc/exec"):

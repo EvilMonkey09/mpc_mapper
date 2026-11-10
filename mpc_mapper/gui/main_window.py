@@ -26,6 +26,7 @@ from .catalog import CatalogPanel
 from .inspector import Inspector
 from .device_test import DeviceTest
 from .led_lab import LedLab
+from .ma3_check import MA3Check
 from . import theme
 from .widgets import mono_font
 
@@ -154,9 +155,21 @@ class MainWindow(QMainWindow):
         log_page = self._make_log()
 
         # 4) Setup help
-        help_ = QTextBrowser()
-        help_.setOpenExternalLinks(True)
-        help_.setHtml(MA3_SETUP_HTML)
+        help_text = QTextBrowser()
+        help_text.setOpenExternalLinks(True)
+        help_text.setHtml(MA3_SETUP_HTML)
+        self.ma3_check = MA3Check(self.engine, lambda: self._connect_ma3())
+        check_scroll = QScrollArea()
+        check_scroll.setWidgetResizable(True)
+        check_scroll.setFrameShape(QFrame.NoFrame)
+        check_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        check_scroll.setWidget(self.ma3_check)
+        help_ = QSplitter(Qt.Horizontal)
+        help_.setChildrenCollapsible(False)
+        help_.addWidget(check_scroll)
+        help_.addWidget(help_text)
+        help_.setStretchFactor(0, 3)
+        help_.setStretchFactor(1, 2)
 
         self.pages = QStackedWidget()
         for w in (mapping_page, lab_page, self.device_test, log_page, help_):
@@ -177,7 +190,7 @@ class MainWindow(QMainWindow):
             ("LED Lab", "Try colours and effects on the real APC"),
             ("Device test", "Check every LED, motor fader and control of your controllers"),
             ("Log", "See every MIDI and OSC message"),
-            ("Setup help", "How to set up grandMA3 and the plugin"),
+            ("Setup & check", "Check the grandMA3 connection and see how to set it up"),
         ]):
             b = QPushButton(text)
             b.setObjectName("Seg")
@@ -618,7 +631,7 @@ class MainWindow(QMainWindow):
         else:
             col = theme.WARN
             text = (f"MA3 → {m.host}:{m.port}  <span style='color:{theme.FAINT}'>· no feedback "
-                    f"on :{m.listen_port} – is the APC_Feedback plugin running?</span>")
+                    f"on :{m.listen_port} – open “Setup & check” to find out why</span>")
         self.dot_ma3.setText(theme.dot(col))
         self.dot_ma3.setToolTip("Feedback plugin answers" if col == theme.OK else
                                 "Sending commands, no feedback yet" if col == theme.WARN else

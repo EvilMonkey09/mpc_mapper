@@ -17,7 +17,7 @@ permissions:
 
 env:
   # Versionsnummer für Pushes auf den Zweig "release" – hier hochzählen
-  RELEASE_VERSION: v1.1
+  RELEASE_VERSION: v1.2
   PYTHON_VERSION: "3.12"
 
 defaults:

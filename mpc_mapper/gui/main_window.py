@@ -202,7 +202,7 @@ class MainWindow(QMainWindow):
         self.midi_out = QComboBox()
         self.midi_out.setToolTip("MIDI output port for the LEDs")
         for c in (self.midi_in, self.midi_out):
-            c.setMinimumWidth(90)
+            c.setMinimumWidth(100)
             c.setMaximumWidth(240)
             c.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
             c.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
@@ -358,7 +358,7 @@ class MainWindow(QMainWindow):
         for combo, names, saved in ((self.midi_in, ins, s.midi_in),
                                     (self.midi_out, outs, s.midi_out)):
             combo.clear()
-            combo.addItem("(none)", "")
+            combo.addItem("—", "")
             for n in names:
                 combo.addItem(n, n)
             pick = apc.match_port(saved, names) or apc.guess_port(names)

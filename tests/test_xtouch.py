@@ -333,8 +333,9 @@ def test_both_layouts_together_keep_each_other():
     n_apc = len(m.assignments)
     standard_xtouch(m)
     standard_apc(m)                                  # reloading APC keeps the X-Touch part
-    assert len([c for c in m.assignments if c.startswith("xt.")]) > 0
-    assert len([c for c in m.assignments if not c.startswith("xt.")]) == n_apc
+    xt = [c for c in m.assignments if c.startswith(("xt.", "xtb."))]
+    assert any(c.startswith("xt.") for c in xt) and any(c.startswith("xtb.") for c in xt)
+    assert len(m.assignments) - len(xt) == n_apc
 
 
 # --------------------------------------------------------------------------- #
